@@ -1,0 +1,11 @@
+[MASTER]
+
+[MESSAGES CONTROL]
+disable=multiple-statements,
+        global-statement
+
+[FORMAT]
+max-line-length=150
+max-module-lines=500
+good-names=Run,_,pk,lo,hi
+good-names-rgxs=^([a-zA-Z][a-zA-Z0-9]?|[A-Z_0-9]+)$
