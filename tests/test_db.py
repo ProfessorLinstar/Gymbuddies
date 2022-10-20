@@ -2,7 +2,7 @@
 import json
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from gymbuddies.flaskr.database import db
+from gymbuddies.database import db
 
 
 def __main__():
