@@ -1,7 +1,7 @@
 """Tests database initialization."""
 import json
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, PickleType
+from sqlalchemy import Column, String, Integer, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -20,8 +20,11 @@ class User(BASE):
     name = Column(String)  # alias displayed in system, e.g. mrpieguy
     level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
     addinfo = Column(String)  # additional info in user profile
-    interests = Column(PickleType)  # a dictionary mapping goals/areas to interest
+
+    interests = Column(Integer)  # Integer indicating interest (will have a column for each kind of interest)
+
     schedule = Column(String)  # a sequence of 2016 characters indicating status for each time block
+    open = Column(Boolean)  # open for matching
 
 
 class Request(BASE):
