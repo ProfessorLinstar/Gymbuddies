@@ -20,3 +20,7 @@ deactivate () {
   ...
 }
 ```
+
+
+## Local Deployment
+To deploy the web application on your local machine, `cd` into the `gymbuddies` directory and call `flask run`. You can specify the debug option to enable automatic updates when editing the source code, e.g. with `flask --debug run`.
