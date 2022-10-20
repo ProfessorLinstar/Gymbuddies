@@ -5,9 +5,10 @@ from sqlalchemy import create_engine
 from gymbuddies.database import db
 
 
-def __main__():
-    engine = create_engine(db.DB_STRING, echo=True)
-    # BASE.metadata.drop_all(engine)
+def main():
+    """Basic test of database API."""
+    engine = create_engine(db.DATABASE_URL, echo=True)
+    # db.BASE.metadata.drop_all(engine)
     db.BASE.metadata.create_all(engine)
 
     Session = sessionmaker(engine)  # pylint: disable=invalid-name
@@ -33,4 +34,4 @@ def __main__():
 
 
 if __name__ == "__main__":
-    __main__()
+    main()

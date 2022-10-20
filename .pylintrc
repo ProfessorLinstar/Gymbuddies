@@ -1,3 +1,6 @@
+[EXCEPTIONS]
+overgeneral-exceptions=BaseException
+
 [MESSAGES CONTROL]
 disable=multiple-statements,
         global-statement,

@@ -3,7 +3,7 @@ from enum import Enum
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy.ext.declarative import declarative_base
 
-DB_STRING = "postgresql://gymbuddies_database_user:jkOWdkfbNDIDlTkT9PXRnEdAp6Z6fRMQ@dpg-cd8lg7mn6mpnkgibbc2g-a.ohio-postgres.render.com/gymbuddies_database"  # pylint: disable=line-too-long
+DATABASE_URL = "postgresql://gymbuddies_database_user:jkOWdkfbNDIDlTkT9PXRnEdAp6Z6fRMQ@dpg-cd8lg7mn6mpnkgibbc2g-a.ohio-postgres.render.com/gymbuddies_database"  # pylint: disable=line-too-long
 BASE = declarative_base()
 NUM_TIME_BLOCKS = 2016
 
