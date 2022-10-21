@@ -8,8 +8,6 @@ from gymbuddies.database import db
 def main():
     """Basic test of database API."""
     engine = create_engine(db.DATABASE_URL, echo=True)
-    # db.BASE.metadata.drop_all(engine)
-    db.BASE.metadata.create_all(engine)
 
     Session = sessionmaker(engine)  # pylint: disable=invalid-name
     session = Session()
@@ -27,7 +25,7 @@ def main():
                     "Losing weight": 1,
                     "Building mass": -1
                 },
-                schedule="n" * db.NUM_TIME_BLOCKS)
+                schedule="n" * db.NUM_WEEK_BLOCKS)
 
     session.add(user)
     session.commit()

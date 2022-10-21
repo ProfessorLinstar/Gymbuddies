@@ -1,11 +1,19 @@
-"""Tests database initialization."""
+"""Database schema and data class enumerations."""
+import calendar
+from datetime import datetime
+from dataclasses import dataclass
 from enum import Enum
+from typing import Tuple
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy.ext.declarative import declarative_base
 
 DATABASE_URL = "postgresql://gymbuddies_database_user:jkOWdkfbNDIDlTkT9PXRnEdAp6Z6fRMQ@dpg-cd8lg7mn6mpnkgibbc2g-a.ohio-postgres.render.com/gymbuddies_database"  # pylint: disable=line-too-long
 BASE = declarative_base()
-NUM_TIME_BLOCKS = 2016
+
+BLOCK_LENGTH = 5  # minutes
+NUM_HOUR_BLOCKS = 60 // BLOCK_LENGTH
+NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
+NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 
 
 class User(BASE):
@@ -46,7 +54,7 @@ class Schedule(BASE):
     status = Column(String)  # status of userid for this time block (e.g. 0 = available, 1 = already matched)
 
 
-class RequestStatus(Enum, int):
+class RequestStatus(int, Enum):
     """Request status enumeration. Includes pending, rejected, and finalized requests. Requests that become matches have a value of at least
     RequestStatus.FINALIZED. When reading the a request status from the Requests database, it should be cast to a RequestStatus enumeration.
     RequestStatus can have 5 states:
@@ -63,7 +71,7 @@ class RequestStatus(Enum, int):
     FINALIZED = 3
     TERMINATED = 4
 
-class ScheduleStatus(Enum, str):
+class ScheduleStatus(str, Enum):
     """Time block status enumeration. Indicates user status in a particular time block. ScheduleStatus can have 4 states:
         0 - UNAVAILABLE: user indicated that they are not available at this time
         1 - AVAILABLE:   user indicated that they are available at this time, and they have no pending or finalized matches here
@@ -75,3 +83,20 @@ class ScheduleStatus(Enum, str):
     AVAILABLE = 1
     PENDING = 2
     MATCHED = 3
+
+@dataclass
+class TimeBlock:
+    """Data class representing a particular time block in a schedule. Provides conversion functions to human readable times and vice versa."""
+    index: int
+
+    def to_readable(self) ->  str:
+        """Converts index to human readable format: 'Day, HH:MM'"""
+
+        day, time = self.day_time()
+        d = datetime.strptime(f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}", "%H:%M")
+
+        return f"{calendar.day_name[day]}, {d.strftime('%I:%M %p')}"
+
+    def day_time(self) -> Tuple[int, int]:
+        """Converts index to (day, timeIndex) tuple."""
+        return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS

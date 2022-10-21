@@ -1,7 +1,7 @@
 """Initialization script for database. Drops all metadata at the database url given by db.py and recreates the database using metadata from db.py."""
 import sys
 from sqlalchemy import create_engine
-from . import db
+import db
 
 def reset_db():
     """Drops and creates database given by db DATABASE url, according to the metadata provided by db."""

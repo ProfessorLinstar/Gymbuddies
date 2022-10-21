@@ -4,7 +4,8 @@ overgeneral-exceptions=BaseException
 [MESSAGES CONTROL]
 disable=multiple-statements,
         global-statement,
-        too-few-public-methods
+        too-few-public-methods,
+        import-error
 
 [FORMAT]
 max-line-length=150
