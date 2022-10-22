@@ -83,7 +83,7 @@ class RequestStatus(int, Enum):
     FINALIZED = 3
     TERMINATED = 4
 
-class ScheduleStatus(str, Enum):
+class ScheduleStatus(int, Enum):
     """Time block status enumeration. Indicates user status in a particular time block. ScheduleStatus can have 4 states:
         0 - UNAVAILABLE: user indicated that they are not available at this time
         1 - AVAILABLE:   user indicated that they are available at this time, and they have no pending or finalized matches here
@@ -112,6 +112,8 @@ class TimeBlock:
     def day_time(self) -> Tuple[int, int]:
         """Converts index to (day, timeIndex) tuple."""
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
+
+
 
 def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
     """Initializes a connection with the DATABASE_URL and returns a session. To be use this decoration, a function must have a signature of the form
