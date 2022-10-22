@@ -1,7 +1,11 @@
 """Database API"""
+
 from typing import Optional
+
 from sqlalchemy.orm import Session
+
 import db
+
 
 @db.session_decorator
 def create_user(netid: str, /, *, session: Session, **kwargs) -> Optional[bool]:
@@ -23,7 +27,7 @@ def update_user(netid: str, /, *, session: Session, **kwargs) -> Optional[bool]:
        exist."""
 
     user = session.query(db.User).filter(db.User.netid == netid).one()  # raises an error if no such user exists
-    for k,v in kwargs.items():
+    for k, v in kwargs.items():
         setattr(user, k, v)
 
     return True
@@ -35,25 +39,31 @@ def delete_user(netid: str, /, *, session: Session) -> Optional[bool]:
 
     user = session.query(db.User).filter(db.User.netid == netid).one()  # raises an error if no such user exists
 
-    return False
+    session.delete(user)
+    session.commit()
+
+    return True
 
 
-### User information ###
-# return name associated with userid
-def get_name(userId: int) -> Optional[str]:
-    return ""
+@db.session_decorator
+def get_name(netid: str, /, *, session: Session) -> Optional[str]:
+    """Attempts to return the name of a user."""
+    return session.query(db.User).filter(db.User.netid == netid).one().name
 
 
-# return bio associated with userid
-def get_bio(userId: int) -> Optional[str]:
-    return ""
+@db.session_decorator
+def get_bio(netid: str, /, *, session: Session) -> Optional[str]:
+    """Attempts to return the bio of a user."""
+    return session.query(db.User).filter(db.User.netid == netid).one().bio
 
 
-# return level assciate with userid
-def get_level(userId: int) -> Optional[str]:
-    return ""
+@db.session_decorator
+def get_level(netid: str, /, *, session: Session) -> Optional[str]:
+    """Attempts to return the level of a user."""
+    return session.query(db.User).filter(db.User.netid == netid).one().level
 
 
-# return additional into associated with userid
-def get_additionalInfo(userId: int) -> Optional[str]:
-    return ""
+@db.session_decorator
+def get_addinfo(netid: str, /, *, session: Session) -> Optional[str]:
+    """Attempts to return the additional info of a user."""
+    return session.query(db.User).filter(db.User.netid == netid).one().addinfo

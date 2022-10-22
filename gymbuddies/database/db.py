@@ -6,11 +6,11 @@ import sys
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
-from typing import Tuple, Callable
+from typing import Tuple, Callable, Any
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
-from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 
 DATABASE_URL = "postgresql://gymbuddies_database_user:jkOWdkfbNDIDlTkT9PXRnEdAp6Z6fRMQ@dpg-cd8lg7mn6mpnkgibbc2g-a.ohio-postgres.render.com/gymbuddies_database"  # pylint: disable=line-too-long
@@ -107,7 +107,7 @@ class TimeBlock:
         """Converts index to (day, timeIndex) tuple."""
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
 
-def session_decorator(func: Callable):
+def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
     """Initializes a connection with the DATABASE_URL and returns a session. To be use this decoration, a function must have a signature of the form
            func(a, b, ..., *args, /, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
        where T is any type. The 'session' argument must be keyword only, and should be handled by this session_decorator. The wrapper will return the
