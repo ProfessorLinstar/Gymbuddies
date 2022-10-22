@@ -1,6 +1,6 @@
 """Database API"""
 from typing import List
-import db
+from . import db
 
 #### Scheduling ####
 # return schedule informing occupied times of user

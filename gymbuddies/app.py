@@ -15,3 +15,8 @@ def index():
 def var_test(post_id):
     """Index page"""
     return f"Post {post_id}"
+
+@app.route("/master")
+def master():
+    """Master page for debugging. Provides access to each database API function."""
+    return render_template("master.html")

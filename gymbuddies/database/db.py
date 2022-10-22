@@ -1,19 +1,25 @@
 """Database schema and data class enumerations."""
+
 import calendar
 import functools
+import os
 import sys
 
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
-from typing import Tuple, Callable, Any
+from typing import Tuple, Callable, Any, cast
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 
-DATABASE_URL = "postgresql://gymbuddies_database_user:jkOWdkfbNDIDlTkT9PXRnEdAp6Z6fRMQ@dpg-cd8lg7mn6mpnkgibbc2g-a.ohio-postgres.render.com/gymbuddies_database"  # pylint: disable=line-too-long
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL is None:
+    raise ValueError("Database URL must be provided with the 'DATABASE_URL' environment variable.")
+DATABASE_URL = cast(str, DATABASE_URL)
+
 BASE = declarative_base()
 
 BLOCK_LENGTH = 5  # minutes

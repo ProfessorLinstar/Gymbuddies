@@ -1,10 +1,8 @@
 """Database API"""
 
 from typing import Optional
-
 from sqlalchemy.orm import Session
-
-import db
+from . import db
 
 
 @db.session_decorator

@@ -1,6 +1,6 @@
 """Database API"""
 from typing import List
-import db
+from . import db
 
 #### Matching ####
 # get a list of matches associated with a user

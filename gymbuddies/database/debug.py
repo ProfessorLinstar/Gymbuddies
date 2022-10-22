@@ -4,7 +4,7 @@ import json
 
 from typing import Optional, List, Any
 from sqlalchemy.orm import Session
-import db
+from . import db
 
 @db.session_decorator
 def list_users(*criterions, session: Session) -> Optional[bool]:
