@@ -83,6 +83,7 @@ class RequestStatus(int, Enum):
     FINALIZED = 3
     TERMINATED = 4
 
+
 class ScheduleStatus(int, Enum):
     """Time block status enumeration. Indicates user status in a particular time block. ScheduleStatus can have 4 states:
         0 - UNAVAILABLE: user indicated that they are not available at this time
@@ -96,12 +97,13 @@ class ScheduleStatus(int, Enum):
     PENDING = 2
     MATCHED = 3
 
+
 @dataclass
 class TimeBlock:
     """Data class representing a particular time block in a schedule. Provides conversion functions to human readable times and vice versa."""
     index: int
 
-    def to_readable(self) ->  str:
+    def to_readable(self) -> str:
         """Converts index to human readable format: 'Day, HH:MM'"""
 
         day, time = self.day_time()
@@ -112,7 +114,6 @@ class TimeBlock:
     def day_time(self) -> Tuple[int, int]:
         """Converts index to (day, timeIndex) tuple."""
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
-
 
 
 def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
