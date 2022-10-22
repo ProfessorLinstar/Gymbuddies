@@ -115,7 +115,7 @@ class TimeBlock:
 
 def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
     """Initializes a connection with the DATABASE_URL and returns a session. To be use this decoration, a function must have a signature of the form
-           func(a, b, ..., *args, /, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
+           func(a, b, ..., *args, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
        where T is any type. The 'session' argument must be keyword only, and should be handled by this session_decorator. The wrapper will return the
        result of the function if successful; otherwise, it will return None."""
 

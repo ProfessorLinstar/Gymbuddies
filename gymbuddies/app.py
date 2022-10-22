@@ -1,6 +1,9 @@
 """app.py: Flask application"""
 from flask import Flask
 from flask import render_template
+# from flask import g
+from .master import bp as master_bp
+from .auth import bp as auth_bp
 
 app = Flask(__name__)
 
@@ -16,7 +19,5 @@ def var_test(post_id):
     """Index page"""
     return f"Post {post_id}"
 
-@app.route("/master")
-def master():
-    """Master page for debugging. Provides access to each database API function."""
-    return render_template("master.html")
+app.register_blueprint(master_bp)
+app.register_blueprint(auth_bp)

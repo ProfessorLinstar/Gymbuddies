@@ -1,1 +1,1 @@
-"""Gymbuddies web application."""
+"""Gymbuddies Flask web application."""
