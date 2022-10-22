@@ -1,10 +1,16 @@
 """Database schema and data class enumerations."""
 import calendar
+import functools
+import sys
+
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, Callable
+
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 DATABASE_URL = "postgresql://gymbuddies_database_user:jkOWdkfbNDIDlTkT9PXRnEdAp6Z6fRMQ@dpg-cd8lg7mn6mpnkgibbc2g-a.ohio-postgres.render.com/gymbuddies_database"  # pylint: disable=line-too-long
@@ -17,10 +23,10 @@ NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 
 
 class User(BASE):
-    """Users database. Maps each userid to their Gymbuddies profile information."""
+    """Users database. Maps each netid to their Gymbuddies profile information."""
     __tablename__ = "users"
 
-    userid = Column(Integer, primary_key=True)  # unique user id
+    netid = Column(String, primary_key=True)  # unique user id
     name = Column(String)  # alias displayed in system, e.g. mrpieguy
     contact = Column(String)  # Contact information
     level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
@@ -38,8 +44,8 @@ class Request(BASE):
     __tablename__ = "requests"
 
     requestid = Column(Integer, primary_key=True)  # unique request transaction id
-    srcuserid = Column(Integer)  # user who makes the request
-    destuserid = Column(Integer)  # user who recieves the request
+    srcnetid = Column(String)  # user who makes the request
+    destnetid = Column(String)  # user who recieves the request
     timestamp = Column(String)  # timestamp when the request was made
     status = Column(Integer)  # status of the request (e.g. 0 = successful, 1 = in progress, 2 = rejected)
     schedule = Column(String)  # 2016-character schedule sequence (same format as user.schedule)
@@ -50,8 +56,8 @@ class Schedule(BASE):
     __tablename__ = "schedule"
 
     timeblock = Column(Integer, primary_key=True)  # a particular time block (5-minute granularity => 2016 blocks)
-    userid = Column(Integer, primary_key=True)  # userid for a particular time block
-    status = Column(String)  # status of userid for this time block (e.g. 0 = available, 1 = already matched)
+    netid = Column(String, primary_key=True)  # netid for a particular time block
+    status = Column(String)  # status of netid for this time block (e.g. 0 = available, 1 = already matched)
 
 
 class RequestStatus(int, Enum):
@@ -100,3 +106,28 @@ class TimeBlock:
     def day_time(self) -> Tuple[int, int]:
         """Converts index to (day, timeIndex) tuple."""
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
+
+def session_decorator(func: Callable):
+    """Initializes a connection with the DATABASE_URL and returns a session. To be use this decoration, a function must have a signature of the form
+           func(a, b, ..., *args, /, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
+       where T is any type. The 'session' argument must be keyword only, and should be handled by this session_decorator. The wrapper will return the
+       result of the function if successful; otherwise, it will return None."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if "session" in kwargs:
+            print(f"{sys.argv[0]}: functions decorated with @session_decorator should not accept a 'session' keyword argument.", file=sys.stderr)
+
+        try:
+            engine = create_engine(DATABASE_URL)
+            with Session(engine) as session:
+                result = func(*args, session=session, **kwargs)
+            engine.dispose()
+            return result
+
+        except Exception as ex:
+            print(f"{sys.argv[0]}: {ex}", file=sys.stderr)
+
+        return None
+
+    return wrapper

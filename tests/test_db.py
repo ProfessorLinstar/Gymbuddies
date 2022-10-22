@@ -17,7 +17,7 @@ def main():
         if user.name == "jon":
             return
 
-    user = db.User(userid=1,
+    user = db.User(netid=1,
                 name="jon",
                 level=1,
                 addinfo="I like running!",
