@@ -15,6 +15,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy import or_
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL is None:
