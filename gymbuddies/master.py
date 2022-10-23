@@ -66,7 +66,7 @@ def form_to_profile() -> Dict[str, Any]:
     schedule: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
     profile["schedule"] = schedule
 
-    for k in tuple(profile):
+    for k in request.form:
         if ":" not in k:  # only timeblock entries will have colon in the key
             continue
         try:
@@ -78,7 +78,6 @@ def form_to_profile() -> Dict[str, Any]:
         print(f"{(day, time) = } to {start = }")
         for i in range(start.index, start.index + BLOCK_NUM):
             schedule[i] = db.ScheduleStatus.AVAILABLE
-        profile.pop(k)
 
     return profile
 
