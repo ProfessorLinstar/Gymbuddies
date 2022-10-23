@@ -89,7 +89,7 @@ def handle_user(context) -> None:
     match profile.pop("submit-user", ""):
         case "Create":
             if profile["netid"] == "":
-                query = f"Cannot create user with empty netid. Creation aborted."
+                query = "Cannot create user with empty netid. Creation aborted."
             elif user.create(**profile):
                 query = f"Creation of user with netid '{profile['netid']}' successful.\n"
                 query += wrap(debug.sprint_users(db.User.netid == profile["netid"]))
