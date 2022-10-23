@@ -3,7 +3,7 @@
 PYTHON = python3
 
 install:
-	$(PYTHON) -m venv venv                 # Initialize a new python virtual environment
+	$(PYTHON) -m venv venv              # Initialize a new python virtual environment
 	bash vsetup.sh                      # Modify virtual environment activate script to set PYTHONPATH and DATABASE_URL
 																			# Enter python virtual environment:
 	. venv/bin/activate; \

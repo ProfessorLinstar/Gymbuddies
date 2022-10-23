@@ -8,7 +8,7 @@ disable=multiple-statements,
         import-error
 
 [FORMAT]
-max-line-length=150
+max-line-length=100
 max-module-lines=500
 good-names=Run,_,pk,lo,hi
 good-names-rgxs=^([a-zA-Z][a-zA-Z0-9]?|[A-Z_0-9]+)$

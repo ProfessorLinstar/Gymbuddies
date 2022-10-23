@@ -1,7 +1,7 @@
 """Master debugger page blueprint."""
 
 import json
-from typing import Dict, Any
+from typing import Dict, Any, List
 from flask import Blueprint
 from flask import render_template
 from flask import request
@@ -24,8 +24,8 @@ def show():
     profile["interests"] = {v: True for v in request.form.getlist("interests")}
     profile["open"] = "open" in profile
 
-    profile["schedule"] = "n" * db.NUM_WEEK_BLOCKS
-    for k,v in profile.items():
+    schedule: List[str] = ["n"] * db.NUM_WEEK_BLOCKS
+    for k in tuple(profile):
         if ":" not in k:
             continue
         try:
@@ -34,6 +34,10 @@ def show():
             continue
 
         timeblock: db.TimeBlock = db.TimeBlock.from_daytime(day, time)
+        schedule[timeblock.index] = "y"
+        profile.pop(k)
+
+    profile["schedule"] = "".join(schedule)
 
     print(f"Converted request to profile: {json.dumps(profile, sort_keys=True, indent=4)}")
 
