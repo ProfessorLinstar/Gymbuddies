@@ -63,7 +63,7 @@ def remove_time_status(userId: int, time: db.TimeBlock, int: which_status) -> bo
 
 
 @db.session_decorator
-def get_match_schedule(userId: int) -> List[int]:
+def get_match_schedule(userId: int) -> List[db.TimeBlock]:
     """ Return schedule specifially showing time of matches"""
     available_times: List[int] = []
     rows = session.query(db.Schedule).filter(db.Schedule.netid == userId)
@@ -76,7 +76,7 @@ def get_match_schedule(userId: int) -> List[int]:
 
 
 @db.session_decorator
-def get_pending_schedule(userId: int) -> List[int]:
+def get_pending_schedule(userId: int) -> List[db.TimeBlock]:
     """ Return schedule specifially showing time of pending matches"""
     available_times: List[int] = []
     rows = session.query(db.Schedule).filter(db.Schedule.netid == userId)
@@ -89,7 +89,7 @@ def get_pending_schedule(userId: int) -> List[int]:
 
 
 @db.session_decorator
-def get_available_schedule(userId: int) -> List[int]:
+def get_available_schedule(userId: int) -> List[db.TimeBlock]:
     """Return schedule specifically showing time of availabilities"""
     available_times: List[int] = []
     rows = session.query(db.Schedule).filter(db.Schedule.netid == userId)
