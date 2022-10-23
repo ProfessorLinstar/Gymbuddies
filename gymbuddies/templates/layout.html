@@ -4,7 +4,9 @@
 
 <head>
   <title>{% block title %}{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% endblock %}
 </head>
 
 <nav>

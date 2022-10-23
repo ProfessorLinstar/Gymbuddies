@@ -103,8 +103,14 @@ class TimeBlock:
     """Data class representing a particular time block in a schedule. Provides conversion functions to human readable times and vice versa."""
     index: int
 
+    @classmethod
+    def from_daytime(cls, day: int, time: int) -> "TimeBlock":
+        """Converts a (day, time) tuple to a TimeBlock. 'day' is an integer from 0-6, corresponding to Monday, ..., Sunday. 'time' is an integer from
+           0-NUM_DAY_BLOCKS, corresponding to 00:00-00:05, ..., 23:55-24:00."""
+        return TimeBlock(day * NUM_DAY_BLOCKS + time)
+
     def to_readable(self) -> str:
-        """Converts index to human readable format: 'Day, HH:MM'"""
+        """Converts a TimeBlock to the human readable format 'Day, HH:MM'."""
 
         day, time = self.day_time()
         d = datetime.strptime(f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}", "%H:%M")
@@ -112,15 +118,17 @@ class TimeBlock:
         return f"{calendar.day_name[day]}, {d.strftime('%I:%M %p')}"
 
     def day_time(self) -> Tuple[int, int]:
-        """Converts index to (day, timeIndex) tuple."""
+        """Converts a TimeBlock to a (day, time) tuple. 'day' is an integer from 0-6, corresponding to Monday, ..., Sunday. 'time' is an integer from
+           0-NUM_DAY_BLOCKS, corresponding to 00:00-00:05, ..., 23:55-24:00."""
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
 
 
 def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
     """Initializes a connection with the DATABASE_URL and returns a session. To be use this decoration, a function must have a signature of the form
            func(a, b, ..., *args, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
-       where T is any type. The 'session' argument must be keyword only, and should be handled by this session_decorator. The wrapper will return the
-       result of the function if successful; otherwise, it will return None."""
+       where T is any type. The 'session' argument must be keyword only, and should be handled by this session_decorator. At the beginning of a
+       decorated function, it should assert that 'session' is not None. The wrapper will return the result of the function if successful; otherwise,
+       it will return None."""
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
