@@ -39,7 +39,7 @@ class User(BASE):
     addinfo = Column(String)  # additional info in user profile
     interests = Column(PickleType)  # Dictionary indicating interests
 
-    schedule = Column(String)  # a sequence of 2016 characters indicating status for each time block
+    schedule = Column(PickleType)  # a list of 2016 integers indicating status for each time block
     open = Column(Boolean)  # open for matching
 
     settings = Column(PickleType)  # Notification and account settings
@@ -99,6 +99,9 @@ class ScheduleStatus(int, Enum):
     AVAILABLE = 1
     PENDING = 2
     MATCHED = 3
+
+    def __repr__(self):  # Print self as an integer
+        return str(int(self))
 
 
 @dataclass

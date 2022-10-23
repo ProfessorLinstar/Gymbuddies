@@ -15,7 +15,7 @@
       <div id="left">
         <h2>User Profile</h2>
         <table>
-          <tr> <td><label for="netid">Netid</label></td>         <td><input name="netid" id="netid" required></td>      </tr>
+          <tr> <td><label for="netid">Netid</label></td>         <td><input name="netid" id="netid"></td>      </tr>
           <tr> <td><label for="name">name</label></td>           <td><input name="name" id="name"></td>        </tr>
           <tr> <td><label for="contact">contact</label></td>     <td><input name="contact" id="contact"></td>  </tr>
           <tr> <td><label for="addinfo">addinfo</label></td>     <td><input name="addinfo" id="addinfo"></td>  </tr>
@@ -41,7 +41,6 @@
                                                                  </td>                                                  </tr>
 
         </table>
-        <hr>
         <h2>Query Results</h2>
         <pre>{{ query }}</pre>
       </div>
@@ -83,6 +82,7 @@
     <input type="submit" name="submit-update" value="Update">
     <input type="submit" name="submit-delete" value="Delete">
     <input type="submit" name="submit-query"  value="Query" >
+    <input type="submit" name="submit-query"  value="Clear" >
 
   </form>
   <br>
