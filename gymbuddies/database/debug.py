@@ -2,28 +2,33 @@
 
 import json
 
-from typing import Optional, List, Any, Generator
-from sqlalchemy.orm import Session
-from . import db
+from typing import Any, Generator
+from . import user
 
-@db.session_decorator
-def sprint_users(*criterions, session: Optional[Session]=None) -> Generator[str, None, None]:
+
+def sprint_users(*criterions) -> Generator[str, None, None]:
     """Yields a generator whose elements are strings representing a user in json format."""
-    assert session is not None
 
-    users: List[Any] = session.query(db.User).filter(*criterions).all()
+    users = user.get_users(*criterions)
+    if users is None:
+        return
 
-    for user in users:
-        yield sprintv(user)
+    for u in users:
+        yield sprintv(u)
+
 
 def print_users(*criterions) -> None:
     """Like sprint_users, but prints out each user instead."""
     for s in sprint_users(*criterions):
         print(s)
 
+
 def sprintv(x: Any) -> str:
     """Prints the attributes of 'x' in json format."""
-    return json.dumps({k: v for k,v in vars(x).items() if "_" not in k}, sort_keys=True, indent=4)
+    return json.dumps({k: str(v) for k, v in vars(x).items() if "_" not in k},
+                      sort_keys=True,
+                      indent=4)
+
 
 def printv(x: Any) -> None:
     """Like sprint_users, but prints out each user instead."""

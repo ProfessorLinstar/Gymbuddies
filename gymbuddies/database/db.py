@@ -100,6 +100,9 @@ class ScheduleStatus(Flag):
     PENDING = 2
     MATCHED = 1
 
+    def __repr__(self):  # Print self as an integer
+        return str(int(self))
+
 
 @dataclass
 class TimeBlock:
