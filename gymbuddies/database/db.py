@@ -55,7 +55,7 @@ class Request(BASE):
     destnetid = Column(String)  # user who recieves the request
     timestamp = Column(String)  # timestamp when the request was made
     status = Column(Integer)  # status of the request
-    schedule = Column(String)  # 2016-character schedule sequence (same format as user.schedule)
+    schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
 
 
 class Schedule(BASE):
@@ -64,7 +64,7 @@ class Schedule(BASE):
 
     timeblock = Column(Integer, primary_key=True)  # a particular time block during the week
     netid = Column(String, primary_key=True)  # netid for a particular time block
-    status = Column(String)  # status of netid for this time block
+    status = Column(Integer)  # status of netid for this time block
 
 
 class RequestStatus(int, Enum):
