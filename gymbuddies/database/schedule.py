@@ -4,19 +4,19 @@ from sqlalchemy.orm import Session, Query
 from sqlalchemy import or_
 from . import db
 
-#### Scheduling ####
+### Scheduling ###
 # return schedule informing occupied times of user
 # list will be of size 2016 (7 * 24 * 12)
 @db.session_decorator
-def get_schedule(netid: str, *, session: Optional[Session]=None) -> List[int]:
+def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """Returns a a list of 2016 blocks for a user showing the availability statuses for
     each of these times. Bitwise masking must be used to extract statuses"""
     assert session is not None
     return session.query(db.User).filter(netid == netid).one(). schedule
 
 
-def schedule_query(netid: str, user_table: bool, time: Optional[db.TimeBlock]=None, *,
-    session: Optional[Session]=None) -> Query:
+def schedule_query(netid: str, user_table: bool, time: Optional[db.TimeBlock] = None, *,
+        session: Optional[Session]=None) -> Query:
     """ Helper method for eliminating some repetitive code"""
     assert session is not None
     if user_table:
@@ -57,7 +57,7 @@ def remove_time_status(netid: str, time: db.TimeBlock, which_status: int, *,
 
     # make change to the Schedule Table
     row = schedule_query(netid, False, time, session=session).one()
-    if not (row.status & which_status):
+    if not row.status & which_status:
         return False
     row.status &= ~which_status
     # make change to the Request Table
