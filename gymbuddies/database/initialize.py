@@ -5,6 +5,8 @@ that the table structure is modified or the database is corrupted. All existing 
 any important information must be backed up. """
 
 import sys
+import click
+
 from sqlalchemy import create_engine
 from . import db
 
@@ -15,6 +17,15 @@ def reset_db():
     engine = create_engine(db.DATABASE_URL, echo=True)
     db.BASE.metadata.drop_all(engine)
     db.BASE.metadata.create_all(engine)
+
+
+@click.command("init-db")
+def init_db_cmd():
+    """Drops and creates database given by db DATABASE url, according to the metadata provided by
+    db."""
+
+    reset_db()
+    click.echo("Database re-initialized.")
 
 
 def main():
