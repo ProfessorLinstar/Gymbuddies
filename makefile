@@ -1,6 +1,6 @@
 # makefile for Gymbuddies Python virtual environment
 
-PYTHON = python
+PYTHON = python3
 
 install:
 	$(PYTHON) -m venv venv                 # Initialize a new python virtual environment
