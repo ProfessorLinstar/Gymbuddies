@@ -46,10 +46,8 @@ def show():
 
     return render_template("master.html", **context)
 
-def handle_user(context) -> None:
-    """Handles POST requests for 'user' functions"""
-
-
+def form_to_profile() -> Dict[str, Any]:
+    """Converts request.form to a user profile dictionary. Ignores extraneou keys."""
     profile: Dict[str, Any] = {
             "netid" : "",
             "name" : "",
@@ -61,7 +59,7 @@ def handle_user(context) -> None:
             "open" : False,
             "settings" : {},
             }
-    profile.update({k: v for k, v in request.form.items() if k != "submit-form"})
+    profile.update({k: v for k, v in request.form.items() if k in profile})
     profile["interests"] = {v: True for v in request.form.getlist("interests")}
     profile["open"] = "open" in profile
 
@@ -82,11 +80,18 @@ def handle_user(context) -> None:
             schedule[i] = db.ScheduleStatus.AVAILABLE
         profile.pop(k)
 
+    return profile
 
+def handle_user(context) -> None:
+    """Handles POST requests for 'user' functions"""
+
+
+
+    profile: Dict[str, Any] = form_to_profile()
     print("Converted request to profile: " +
           f"{json.dumps({k: str(v) for k,v in profile.items()}, sort_keys=True, indent=4)}")
 
-    match profile.pop("submit-user", ""):
+    match request.form.get("submit-user", ""):
         case "Create":
             if profile["netid"] == "":
                 query = "Cannot create user with empty netid. Creation aborted."
