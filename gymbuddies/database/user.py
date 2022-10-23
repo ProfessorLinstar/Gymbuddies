@@ -59,6 +59,7 @@ def delete(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
 @db.session_decorator
 def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[Any]]:
     """Attempts to return a list of all users satisfying a particular criterion."""
+    print(db.DATABASE_URL)
     assert session is not None
     return session.query(db.User).filter(*criterions).all()
 
