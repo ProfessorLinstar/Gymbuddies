@@ -7,13 +7,14 @@ import sys
 
 from datetime import datetime
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, flag, auto
 from typing import Tuple, Callable, Any, cast
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.mutable import MultableList
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL is None:
@@ -39,7 +40,7 @@ class User(BASE):
     addinfo = Column(String)  # additional info in user profile
     interests = Column(PickleType)  # Dictionary indicating interests
 
-    schedule = Column(PickleType)  # a list of 2016 integers indicating status for each time block
+    schedule = Column(MutableList.as_mutable(PickleType))  # a sequence of 2016 characters indicating status for each time block
     open = Column(Boolean)  # open for matching
 
     settings = Column(PickleType)  # Notification and account settings
@@ -86,7 +87,7 @@ class RequestStatus(int, Enum):
     TERMINATED = 4
 
 
-class ScheduleStatus(int, Enum):
+class ScheduleStatus(Flag):
     """Time block status enumeration. Indicates user status in a particular time block.
     ScheduleStatus can have 4 states:
         0 - UNAVAILABLE: user indicated that they are not available at this time
@@ -95,10 +96,9 @@ class ScheduleStatus(int, Enum):
         3 - MATCHED:     user indicated available at this time, but has already been matched
     """
 
-    UNAVAILABLE = 0
-    AVAILABLE = 1
+    AVAILABLE = 4
     PENDING = 2
-    MATCHED = 3
+    MATCHED = 1
 
     def __repr__(self):  # Print self as an integer
         return str(int(self))
