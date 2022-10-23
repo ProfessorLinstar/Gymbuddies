@@ -19,8 +19,7 @@ replace+="        export PYTHONPATH\n"
 replace+="        unset _OLD_PYTHONPATH\n"
 replace+="    fi\n"
 
-sed -E "s@${pattern}@${replace}@" "${activate_path}" > temp
-mv temp "${activate_path}"
+sed "s@^${pattern}\$@${replace}@" "${activate_path}" > temp && mv temp "${activate_path}"
 
 pattern=""
 pattern+="deactivate nondestructive"
@@ -35,5 +34,4 @@ replace+="\n"
 replace+="DATABASE_URL=\"\"\n"
 replace+="export DATABASE_URL"
 
-sed -E "s@${pattern}@${replace}@" "${activate_path}" > temp
-mv temp "${activate_path}"
+sed "s@^${pattern}\$@${replace}@" "${activate_path}" > temp && mv temp "${activate_path}"
