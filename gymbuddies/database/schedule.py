@@ -101,5 +101,11 @@ def get_available_schedule(userId: int) -> List[db.TimeBlock]:
 
 
 @db.session_decorator
-def get_available_users() -> List[str]:
-    return {}
+def get_available_users(timeblock: int) -> List[str]:
+    """Return list of users showing available users at a certain timeframe"""
+    available_users: List[str] = []
+    rows = session.query(db.Schedule).filter(db.Schedule.timeblock == timeblock)
+        .order_by(db.Schedule.netid).add()
+    for row in rows:
+        available_users.append(rows.netid)
+    return available_users
