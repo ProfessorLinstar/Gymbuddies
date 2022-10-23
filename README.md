@@ -7,8 +7,7 @@ To setup a Python environment for this repository, make sure you have `make`, `p
 
 
 #### Local Deployment
-To deploy the web application on your local machine, `cd` into the `gymbuddies` directory and call `flask run`. You can specify the debug option to enable automatic updates when editing the source code, e.g. with `flask --debug run`. When importing certain modules, you may encounter the error "attempted relative import with no known parent package" (e.g. calling `import debug` within the `gymbuddies/database` directory). To prevent this issue from occurring, specify the required parent package in the import (e.g. rather than `import debug`, use `from database import debug`).
-
+To deploy the web application on your local machine, call `flask --app gymbuddies run` in the root directory of the repository. You can specify the debug option to enable automatic updates when editing the source code, e.g. with `flask --app gymbuddies --debug run`. When importing certain modules, you may encounter the error "attempted relative import with no known parent package" (e.g. calling `import debug` within the `gymbuddies/database` directory). To prevent this issue from occurring, specify the required parent package in the import (e.g. rather than `import debug`, use `from database import debug` or `import databse.debug`).
 
 
 ## Codebase
@@ -16,7 +15,7 @@ To deploy the web application on your local machine, `cd` into the `gymbuddies` 
 The current structure of the main project directory is as follows:
 ```
 gymbuddies                           --- Flask application root directory
-├── app.py                           --- Main application
+├── __init__.py                      --- Provides Flask application initialization function
 ├── auth.py                          --- Authentication routing
 ├── master.py                        --- Master debugging page routing
 ├── database                         --- 

@@ -1,15 +1,7 @@
-<!DOCTYPE html>
+{% extends 'layout.html' %}
+{% block title %}Home{% endblock %}
 
-
-
-<html>
-
-<head>
-  <title>Interesting</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-
-<body>
+{% block content %}
   <div class="ColorMe">
     <h1>My first heading</h1>
     <p>My first paragraph</p>
@@ -21,6 +13,4 @@
     {% endif %}
 
   </div>
-</body>
-
-</html>
+{% endblock %}
