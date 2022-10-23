@@ -3,13 +3,14 @@
 import json
 import textwrap
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, cast
 from flask import Blueprint
 from flask import render_template
 from flask import request
 from .database import db, user, debug
 
 TEXTWIDTH = 72
+BLOCK_NUM = 12
 
 bp = Blueprint("master", __name__, url_prefix="/master")
 
@@ -29,14 +30,38 @@ def wrap(strs) -> str:
 @bp.route("/", methods=("GET", "POST"))
 def show():
     """Shows master page."""
-    query: str = ""
+    context: Dict[str, Any] = {"query": ""}
 
-    if request.method == "GET":
-        return render_template("master.html", query=query)
+    if request.method == "GET" or "submit-form" not in request.form:
+        return render_template("master.html")
 
     print(f"Got a request of the form: {request.form}")
 
-    profile: Dict[str, Any] = dict(request.form.items())
+    form: str = request.form["submit-form"]
+
+    match form:
+        case "user":
+            handle_user(context)
+
+
+    return render_template("master.html", **context)
+
+def handle_user(context) -> None:
+    """Handles POST requests for 'user' functions"""
+
+
+    profile: Dict[str, Any] = {
+            "netid" : "",
+            "name" : "",
+            "contact" : "",
+            "level" : "0",
+            "addinfo" : "",
+            "interests" : {},
+            "schedule" : [],
+            "open" : False,
+            "settings" : {},
+            }
+    profile.update({k: v for k, v in request.form.items() if k != "submit-form"})
     profile["interests"] = {v: True for v in request.form.getlist("interests")}
     profile["open"] = "open" in profile
 
@@ -51,30 +76,55 @@ def show():
         except ValueError:
             continue
 
-        timeblock: db.TimeBlock = db.TimeBlock.from_daytime(day, time)
-        schedule[timeblock.index] = db.ScheduleStatus.AVAILABLE
+        start: db.TimeBlock = db.TimeBlock.from_daytime(day, time * BLOCK_NUM)
+        print(f"{(day, time) = } to {start = }")
+        for i in range(start.index, start.index + BLOCK_NUM):
+            schedule[i] = db.ScheduleStatus.AVAILABLE
         profile.pop(k)
 
 
-    print(f"Converted request to profile: {json.dumps(profile, sort_keys=True, indent=4)}")
+    print("Converted request to profile: " +
+          f"{json.dumps({k: str(v) for k,v in profile.items()}, sort_keys=True, indent=4)}")
 
-    if profile.pop("submit-create", None) is not None:
-        user.create(**profile)
-        query = wrap(debug.sprint_users(db.User.netid == profile["netid"]))
+    match profile.pop("submit-user", ""):
+        case "Create":
+            user.create(**profile)
+            context["query"] = wrap(debug.sprint_users(db.User.netid == profile["netid"]))
 
-        print(f"Created a user with netid {profile['netid']}.")
+            print(f"Created a user with netid '{profile['netid']}'.")
 
-    elif profile.pop("submit-update", None) is not None:
-        user.update(**profile)
-        query = wrap(debug.sprint_users(db.User.netid == profile["netid"]))
+        case "Update":
+            user.update(**profile)
+            context["query"] = wrap(debug.sprint_users(db.User.netid == profile["netid"]))
 
-    elif profile.pop("submit-delete", None) is not None:
-        user.delete(profile["netid"])
+            print(f"Updated a user with netid '{profile['netid']}'.")
 
-    elif profile.pop("submit-query", None) is not None:
-        pass
+        case "Delete":
+            user.delete(profile["netid"])
 
-    elif profile.pop("submit-clear", None) is not None:
-        pass
+        case "Query":
+            u = user.get_user(profile["netid"])
+            if u is not None:
+                # basic info
+                context["netid"] = u.netid
+                context["name"] = u.name
+                context["contact"] = u.contact
+                context["addinfo"] = u.addinfo
+                context[f"level{u.level}"] = "checked"
+                context["open"] = "on" if u.open else ""
 
-    return render_template("master.html", query=query)
+                # interests
+                context["buildingmass"] = "checked" if u.interests.get("buildingmass") else ""
+                context["losingweight"] = "checked" if u.interests.get("losingweight") else ""
+                context["pecs"] = "checked" if u.interests.get("pecs") else ""
+                context["legs"] = "checked" if u.interests.get("legs") else ""
+
+                # schedule
+                for i, s in enumerate(u.schedule):
+                    day, time = db.TimeBlock(i).day_time()
+                    s = cast(db.ScheduleStatus, s)
+                    if s == db.ScheduleStatus.AVAILABLE and time % BLOCK_NUM == 0:
+                        context[f"s{day}_{time // BLOCK_NUM}"] = "checked"
+
+        case "Clear":
+            pass

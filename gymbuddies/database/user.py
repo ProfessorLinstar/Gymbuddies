@@ -1,6 +1,6 @@
 """Database API"""
 
-from typing import Optional
+from typing import Optional, Any, List
 from sqlalchemy.orm import Session
 from . import db
 
@@ -31,9 +31,12 @@ def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> Option
     assert session is not None
 
     user = session.query(db.User).filter(db.User.netid == netid).one()  # errors if no user exists
+
     for k, v in kwargs.items():
+        print(f"settings {k = } to {v = }")
         setattr(user, k, v)
 
+    session.commit()
     return True
 
 
@@ -53,6 +56,12 @@ def delete(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
 
 
 # TODO: report more useful errors for these items
+@db.session_decorator
+def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[Any]]:
+    """Attempts to return a list of all users satisfying a particular criterion."""
+    assert session is not None
+    return session.query(db.User).filter(*criterions).all()
+
 @db.session_decorator
 def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return a user object from the Users table given the netid of a user."""
