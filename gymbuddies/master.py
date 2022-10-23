@@ -88,23 +88,32 @@ def handle_user(context) -> None:
 
     match profile.pop("submit-user", ""):
         case "Create":
-            user.create(**profile)
-            context["query"] = wrap(debug.sprint_users(db.User.netid == profile["netid"]))
-
-            print(f"Created a user with netid '{profile['netid']}'.")
+            if profile["netid"] == "":
+                query = f"Cannot create user with empty netid. Creation aborted."
+            elif user.create(**profile):
+                query = f"Creation of user with netid '{profile['netid']}' successful.\n"
+                query += wrap(debug.sprint_users(db.User.netid == profile["netid"]))
+            else:
+                query = f"User with netid '{profile['netid']}' already exists. Skipping creation."
 
         case "Update":
-            user.update(**profile)
-            context["query"] = wrap(debug.sprint_users(db.User.netid == profile["netid"]))
+            if user.update(**profile):
+                query = f"Update of user with netid '{profile['netid']}' successful.\n"
+                query += wrap(debug.sprint_users(db.User.netid == profile["netid"]))
+            else:
+                query = f"netid '{profile['netid']}' not found in the database."
 
-            print(f"Updated a user with netid '{profile['netid']}'.")
+
 
         case "Delete":
-            user.delete(profile["netid"])
+            if user.delete(profile["netid"]):
+                query = f"Deletion of user with netid '{profile['netid']}' successful."
+            else:
+                query = f"netid '{profile['netid']}' not found in the database."
 
         case "Query":
             u = user.get_user(profile["netid"])
-            if u is not None:
+            if "netid" in request.form and u is not None:
                 # basic info
                 context["netid"] = u.netid
                 context["name"] = u.name
@@ -126,5 +135,17 @@ def handle_user(context) -> None:
                     if s == db.ScheduleStatus.AVAILABLE and time % BLOCK_NUM == 0:
                         context[f"s{day}_{time // BLOCK_NUM}"] = "checked"
 
+                query = f"Query of user with netid '{profile['netid']}' successful."
+
+            else:
+                query = "netid not found or not provided. Database contains the following users.\n"
+                query += json.dumps([u.netid for u in user.get_users()], sort_keys=True, indent=4)
+
         case "Clear":
-            pass
+            query = ""
+
+        case other:
+            query = f"Unknown submit request {other}"
+
+    context["query"] = query
+    print(query)
