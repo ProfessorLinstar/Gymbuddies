@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+  <h2>Login</h2>
+  <form action="{{ url_for('auth.login') }}" method="post">
+    <label for="netid">netid</label> <input name="netid" id="netid">
+    <input type="submit" name="submit-login" value="login">
+  </form>
+  <h2>Response</h2>
+  <pre>{{ response }}</pre>
+{% endblock %}
