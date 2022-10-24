@@ -41,4 +41,6 @@ The database schema (i.e. tables and columns), data classes, and enumerations fo
 
 
 #### Formatting
+Note: remember to configure your IDE settings such that you are indenting with 4 spaces, and not tabs.
+
 For this project we'll be using pylint as our linter and yapf as our formatter. If you have these tools installed, then they should work automatically in your IDE's with the provided `.style.yapf` and `.pylintrc` in the project repository.

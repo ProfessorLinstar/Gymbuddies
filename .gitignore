@@ -3,3 +3,5 @@ Sessionx.vim
 venv
 __pycache__
 gymbuddies.egg-info
+gymbuddies.sublime-project
+gymbuddies.sublime-workspace

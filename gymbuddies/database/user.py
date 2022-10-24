@@ -1,5 +1,4 @@
 """Database API"""
-
 from typing import Optional, Any, List
 from sqlalchemy.orm import Session
 from . import db
