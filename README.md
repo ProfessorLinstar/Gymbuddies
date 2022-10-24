@@ -5,6 +5,11 @@ To setup a Python environment for this repository, make sure you have `pg_config
 
 **NOTE:** For security's sake, the DATABASE_URL is not provided in the repository. You must modify the line `DATABASE_URL=""` in `venv/bin/activate` to have the actual external database URL provided by Render. To find this URL, login to the Gymbuddies Render account and click on the Gymbuddies Postgres database in the dashboard. Use the "External Database URL" provided in the "Connections section." This URL will use `postgres:` as its database type, but `sqlalchemy` only recognizes the prefix `postgresql:`, so you will have to make this change in the Render URL.
 
+#### Issues
+You may encounter the installation issues if you are using an M1 mac.
+ - "Trying to load an unsigned library" if you are using an M1 mac (see [here](https://fann.im/blog/2021/10/21/codesign-an-unsigned-library/) for more information). To fix this issue, run `xcrun codesign --sign - <path>`, replacing `<path>` with whatever `*.so` library is specified in the error.
+ - `psycopg2` errors: the usual `psycopg2` library will not compile properly on the M1 mac. In your virtual environment, you should `pip uninstall psycopg2` and instead do `pip install psycopg2-binary`.
+
 
 #### Local Deployment
 To deploy the web application on your local machine, call `flask --app gymbuddies run` in the root directory of the repository. You can specify the debug option to enable automatic updates when editing the source code, e.g. with `flask --app gymbuddies --debug run`. When importing certain modules, you may encounter the error "attempted relative import with no known parent package" (e.g. calling `import debug` within the `gymbuddies/database` directory). To prevent this issue from occurring, specify the required parent package in the import (e.g. rather than `import debug`, use `from database import debug` or `import databse.debug`).
