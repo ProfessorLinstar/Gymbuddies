@@ -12,8 +12,7 @@ def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """Returns a a list of 2016 blocks for a user showing the availability statuses for
     each of these times. Bitwise masking must be used to extract statuses"""
     assert session is not None
-    return session.query(db.User).filter(netid == netid).one(). schedule
-
+    return session.query(db.User).filter(db.User.netid == netid).one(). schedule
 
 def schedule_query(netid: str, user_table: bool, time: Optional[db.TimeBlock] = None, *,
         session: Optional[Session]=None) -> Query:
