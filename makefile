@@ -1,6 +1,6 @@
 # makefile for Gymbuddies Python virtual environment
 
-PYTHON = python3
+PYTHON = python3.10  # version >= 3.10 required for this project
 
 install:
 	$(PYTHON) -m venv venv              # Initialize a new python virtual environment
