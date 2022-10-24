@@ -22,10 +22,10 @@ replace+="    fi\n"
 sed "s@^${pattern}\$@${replace}@" "${activate_path}" > temp && mv temp "${activate_path}"
 
 pattern=""
-pattern+="deactivate nondestructive"
+pattern+="export PATH"
 
 replace=""
-replace+="deactivate nondestructive  # vsetup\n"
+replace+="export PATH  # vsetup\n"
 replace+="\n"
 replace+="_OLD_PYTHONPATH=\"\$PYTHONPATH\"\n"
 replace+="PYTHONPATH=\"\$VIRTUAL_ENV/lib/python3.10/site-packages\"\n"
