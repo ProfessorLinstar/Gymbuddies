@@ -6,7 +6,6 @@ block links %}
   {% if g.user is none%}
   <a href="{{ url_for('home.index') }}" class="nav-link" role="button">back to login page</a>
   {% endif %}
-  <h1>Basic user functions</h1>
 
   <form action="{{ url_for('master.show') }}" method="post">
     <div id="container">
@@ -381,6 +380,7 @@ block links %}
     </div>
 
     <br />
+    <h1>Basic user functions</h1>
     <input type="submit" name="submit-user" value="Create" />
     <input type="submit" name="submit-user" value="Update" />
     <input type="submit" name="submit-user" value="Delete" />

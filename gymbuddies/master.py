@@ -38,16 +38,22 @@ def show():
     print(f"Got a request of the form: {request.form}")
 
     form: str = request.form["submit-form"]
+    profile: Dict[str, Any] = form_to_profile()
+    print("Converted request to profile: " +
+          f"{json.dumps({k: str(v) for k,v in profile.items()}, sort_keys=True, indent=4)}")
+
 
     match form:
         case "user":
-            handle_user(context)
+            handle_user(context, profile)
+        case "schedule":
+            handle_schedule(context, profile)
 
 
     return render_template("master.html", **context)
 
 def form_to_profile() -> Dict[str, Any]:
-    """Converts request.form to a user profile dictionary. Ignores extraneou keys."""
+    """Converts request.form to a user profile dictionary. Ignores extraneous keys."""
     profile: Dict[str, Any] = {
             "netid" : "",
             "name" : "",
@@ -81,14 +87,8 @@ def form_to_profile() -> Dict[str, Any]:
 
     return profile
 
-def handle_user(context) -> None:
+def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'user' functions"""
-
-
-
-    profile: Dict[str, Any] = form_to_profile()
-    print("Converted request to profile: " +
-          f"{json.dumps({k: str(v) for k,v in profile.items()}, sort_keys=True, indent=4)}")
 
     match request.form.get("submit-user", ""):
         case "Create":
@@ -153,3 +153,17 @@ def handle_user(context) -> None:
 
     context["query"] = query
     print(query)
+
+def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
+    """Handles POST requests for 'schedule' functions."""
+
+    if user.get_user(profile["netid"]):
+        context["query"] = f"User with netid {profile['netid']} not found in the database."
+        return
+
+    match request.form.get("submit-schedule", ""):
+        case "Update":
+            pass
+
+        case "Get":
+            pass
