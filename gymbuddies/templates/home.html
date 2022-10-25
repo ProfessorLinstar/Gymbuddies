@@ -1,6 +1,27 @@
 {% extends 'layout.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
-  <h2>Welcome back, {{ netid }}!</h2>
+  <!-- <h2>Welcome back, {{ netid }}!</h2> -->
+  <section class="vh-100">
+  <div class="container py-5 h-100">
+    <div class="row justify-content-center" >
+      <div>
+      <h1 style="align-items: baseline;color:#73B8E5;"> You Look Great Today.</h1>
+      </div>
+    </div>
+    <div class="row d-flex justify-content-center align-items-center h-50">
+        <div class="col d-flex justify-content-center">
+          <a id = "home-buttons" href="{{ url_for('matching.search') }}" class="btn btn-square-md" type="button" style="width:30%">Find a Buddy</a>
+        </div>
+        <div class="col d-flex justify-content-center">
+          <a id ="home-buttons" type="button" class="btn btn-square-md" href="{{ url_for('matching.pending') }}">Incoming Requests</a>
+        </div>
+        <div class="col d-flex justify-content-center">
+          <a id ="home-buttons" type="button" class="btn btn-square-md" href="{{ url_for('matching.matched') }}">Your Matches</a>
+        </div>
+      
+    </div>
+  </div>
+</section>
 {% endblock %}
