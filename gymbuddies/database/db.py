@@ -55,12 +55,13 @@ class Request(BASE):
     requestid = Column(Integer, primary_key=True)  # unique auto-incrementing request transaction id
     srcnetid = Column(String)  # user who makes the request
     destnetid = Column(String)  # user who recieves the request
-    make_timestamp = Column(PickleType)  # timestamp when the request was made
-    accept_timestamp = Column(PickleType) # timestamp when the request was accepted
-    delete_timestamp = Column(PickleType) # timestamp when the request was deleted
+    maketimestamp = Column(PickleType)  # timestamp when the request was made
+    accepttimestamp = Column(PickleType) # timestamp when the request was accepted
+    finalizedtimestamp = Column(PickleType) # timestamp when the request was finalized
+    deletetimestamp = Column(PickleType) # timestamp when the request was deleted
     status = Column(Integer)  # status of the request
     schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
-
+    acceptschedule = Column(PickleType) # 2016-character sequenece for accepted times from schedule
 
 class Schedule(BASE):
     """Schedule table. Maps each 5-minute time block throughout the week to users and statuses."""
