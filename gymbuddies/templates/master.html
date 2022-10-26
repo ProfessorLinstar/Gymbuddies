@@ -380,14 +380,50 @@ block links %}
     </div>
 
     <br />
-    <h1>Basic user functions</h1>
+    <h2>Basic user functions</h2>
     <input type="submit" name="submit-user" value="Create" />
     <input type="submit" name="submit-user" value="Update" />
     <input type="submit" name="submit-user" value="Delete" />
     <input type="submit" name="submit-user" value="Query" />
     <input type="submit" name="submit-user" value="Clear" />
 
-    <input type="hidden" name="submit-form" value="user" />
+    <br />
+    <br />
+    <h2>Basic scheduling functions</h2>
+
+    <input
+      type="radio"
+      id="schedule-match"
+      name="which_schedule"
+      value="match"
+      {{
+      schedule_match
+      }}
+    />
+    <label for="schedule-match">Match</label>
+    <input
+      type="radio"
+      id="schedule-pending"
+      name="which_schedule"
+      value="pending"
+      {{
+      level1
+      }}
+    />
+    <label for="schedule-pending">Pending</label>
+    <input
+      type="radio"
+      id="schedule-available"
+      name="which_schedule"
+      value="available"
+      {{
+      level2
+      }}
+    />
+    <label for="schedule-available">Available</label>
+    <input type="submit" name="submit-schedule" value="Get">
+    <input type="submit" name="submit-schedule" value="Update">
+
   </form>
   <br />
   <hr />

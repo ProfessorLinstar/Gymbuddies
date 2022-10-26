@@ -102,8 +102,8 @@ def get_available_schedule(netid: str, *, session: Optional[Session] = None) -> 
     assert session is not None
 
     rows = session.query(db.Schedule).filter(db.Schedule.netid == netid).filter(
-        or_(db.Schedule.status >= 4 and
-            db.Schedule.status <= 7)).order_by(db.Schedule.timeblock).all()
+            db.Schedule.status >= 4,
+            db.Schedule.status <= 7).order_by(db.Schedule.timeblock).all()
     return [row.timeblock for row in rows]
 
 @db.session_decorator
@@ -111,10 +111,6 @@ def get_available_users(timeblock: int, *, session: Optional[Session] = None) ->
     """Return list of users showing available users at a certain timeframe"""
     assert session is not None
 
-    available_users: List[str] = []
     rows = session.query(db.Schedule).filter(db.Schedule.timeblock == timeblock).order_by(
         db.Schedule.netid).all()
-    for row in rows:
-        available_users.append(row.netid)
-    return available_users
-
+    return [row.netid for row in rows]

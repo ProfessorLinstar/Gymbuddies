@@ -4,6 +4,7 @@ import calendar
 import functools
 import os
 import sys
+import traceback
 
 from datetime import datetime
 from dataclasses import dataclass
@@ -51,7 +52,7 @@ class Request(BASE):
     finalized (i.e. completed matches)."""
     __tablename__ = "requests"
 
-    requestid = Column(Integer, primary_key=True)  # unique request transaction id
+    requestid = Column(Integer, primary_key=True)  # unique auto-incrementing request transaction id
     srcnetid = Column(String)  # user who makes the request
     destnetid = Column(String)  # user who recieves the request
     timestamp = Column(String)  # timestamp when the request was made
@@ -66,6 +67,9 @@ class Schedule(BASE):
     timeblock = Column(Integer, primary_key=True)  # a particular time block during the week
     netid = Column(String, primary_key=True)  # netid for a particular time block
     status = Column(Integer)  # status of netid for this time block
+    matched = Column(Boolean)  # user has been matched at this time
+    pending = Column(Boolean)  # user is awaiting a pending request for this time
+    available = Column(Boolean)  # user is available at this time
 
 
 class RequestStatus(int, Enum):
@@ -134,6 +138,7 @@ class TimeBlock:
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
 
 
+# TODO: add 'commit' kwarg to prevent multiple commits in one API call
 def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
     """Initializes a connection with the DATABASE_URL and returns a session. To be use this
        decoration, a function must have a signature of the form
@@ -155,8 +160,8 @@ def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             engine.dispose()
             return result
 
-        except Exception as ex:
-            print(f"{sys.argv[0]}: {ex}", file=sys.stderr)
+        except Exception:
+            traceback.print_exc(file=sys.stderr)
 
         return None
 

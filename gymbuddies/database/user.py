@@ -1,7 +1,8 @@
 """Database API"""
-from typing import Optional, Any, List
+from typing import Optional, Any, List, Dict
 from sqlalchemy.orm import Session
 from . import db
+from . import schedule as db_schedule
 
 
 # TODO: process kwargs to make sure no extraneous keywords were supplied. Provide defaults if any
@@ -15,7 +16,10 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> Option
     if session.query(db.User).filter(db.User.netid == netid).all():
         raise ValueError("User already exists. Skipping creation.")
 
-    user = db.User(netid=netid, **kwargs)
+    profile: Dict[str, Any] = _default_profile()
+    user: db.User = db.User(netid=netid)
+    _update_user(session, user, **(kwargs | profile))
+
     session.add(user)
     session.commit()
 
@@ -29,14 +33,45 @@ def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> Option
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
 
-    user = session.query(db.User).filter(db.User.netid == netid).one()  # errors if no user exists
-
-    for k, v in kwargs.items():
-        print(f"settings {k = } to {v = }")
-        setattr(user, k, v)
+    user: db.User = session.query(db.User).filter(db.User.netid == netid).one()  # errors if no user
+    _update_user(session, user, **kwargs)
 
     session.commit()
     return True
+
+def _default_profile() -> Dict[str, Any]:
+    """Returns a default user profile configuration. Keys are the attribute names of db.User, and
+    values are the default values."""
+    return {
+        "netid": "",
+        "name": "",
+        "contact": "",
+        "level": "0",
+        "addinfo": "",
+        "interests": {},
+        "schedule": [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
+        "open": False,
+        "settings": {},
+    }
+
+
+def _update_user(session: Session, user: db.User, /, **kwargs) -> None:
+    """Updates the attributes of 'user' according to 'kwargs'. Uses default properties to fill in
+    null values."""
+
+    for k, v in ((k,v) for k,v in kwargs.items() if k in db.User.__table__.columns):
+        print(f"setting {k = } to {v = }")
+        setattr(user, k, v)
+
+    schedule: Optional[List[db.ScheduleStatus]] = kwargs.get("schedule")
+    if schedule is None:
+        return
+
+    for i, status in enumerate(schedule):
+        if status == db.ScheduleStatus.UNAVAILABLE:
+            continue
+
+        db_schedule.add_time_status(user.netid, db.TimeBlock(i), status, session=session)
 
 
 # TODO: more useful error handling (report a more useful error message)
@@ -46,7 +81,7 @@ def delete(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
     Does nothing if the user does not exist."""
     assert session is not None
 
-    user = session.query(db.User).filter(db.User.netid == netid).one()  # errors if no user exists
+    user: db.User = session.query(db.User).filter(db.User.netid == netid).one()  # errors if no user
 
     session.delete(user)
     session.commit()
@@ -56,11 +91,12 @@ def delete(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
 
 # TODO: report more useful errors for these items
 @db.session_decorator
-def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[Any]]:
+def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[db.User]]:
     """Attempts to return a list of all users satisfying a particular criterion."""
     print(db.DATABASE_URL)
     assert session is not None
     return session.query(db.User).filter(*criterions).all()
+
 
 @db.session_decorator
 def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
