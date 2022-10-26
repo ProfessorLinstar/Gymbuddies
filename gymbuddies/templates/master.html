@@ -1,7 +1,16 @@
 {% extends 'layout.html' %} {% block title %}Master Debugger{% endblock %} {%
 block links %}
 <link rel="stylesheet" href="{{ url_for('static', filename='master.css') }}" />
-{% endblock %} {% block content %}
+{% endblock %} 
+{% block classdash %}<a class="nav-link" href="../home">{% endblock %}
+  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
+  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.pending') }}">{% endblock %}
+  {% block classmat %}<a class="nav-link " href="{{ url_for('matching.matched') }}">{% endblock %}
+  {% block classprof %}<a class="nav-link " href="../profile.html">{% endblock %}
+  {% block classmast %}<a class="nav-link active" href="{{ url_for('master.show') }}">{% endblock %}
+{% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Master Debug</li>{% endblock %}
+{% block pagename_large %} Master Debug{% endblock %}
+{% block content %}
 <div>
   {% if g.user is none%}
   <a href="{{ url_for('home.index') }}" class="nav-link" role="button">back to login page</a>
