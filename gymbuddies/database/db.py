@@ -109,6 +109,7 @@ class ScheduleStatus(IntFlag):
         return str(int(self))
 
 
+# TODO: convert fromt dataclass to int inheritor
 @dataclass
 class TimeBlock:
     """Data class representing a particular time block in a schedule. Provides conversion functions

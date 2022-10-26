@@ -17,8 +17,9 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> Option
         raise ValueError("User already exists. Skipping creation.")
 
     profile: Dict[str, Any] = _default_profile()
-    user: db.User = db.User(netid=netid)
-    _update_user(session, user, **(kwargs | profile))
+    user = db.User()
+    _update_user(session, user, **(profile | kwargs))
+    setattr(user, "netid", netid)
 
     session.add(user)
     session.commit()
@@ -60,18 +61,17 @@ def _update_user(session: Session, user: db.User, /, **kwargs) -> None:
     null values."""
 
     for k, v in ((k,v) for k,v in kwargs.items() if k in db.User.__table__.columns):
-        print(f"setting {k = } to {v = }")
         setattr(user, k, v)
 
     schedule: Optional[List[db.ScheduleStatus]] = kwargs.get("schedule")
     if schedule is None:
         return
 
-    for i, status in enumerate(schedule):
-        if status == db.ScheduleStatus.UNAVAILABLE:
-            continue
-
-        db_schedule.add_time_status(user.netid, db.TimeBlock(i), status, session=session)
+    # need to handle case where user row does not yet exist
+    # for i, status in enumerate(schedule):
+    #     if status == db.ScheduleStatus.UNAVAILABLE:
+    #         continue
+    #     db_schedule.add_time_status(user.netid, db.TimeBlock(i), status, session=session)
 
 
 # TODO: more useful error handling (report a more useful error message)
@@ -98,10 +98,12 @@ def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[d
     return session.query(db.User).filter(*criterions).all()
 
 
+# TODO: provide debug mode with diagnostics
 @db.session_decorator
 def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return a user object from the Users table given the netid of a user."""
     assert session is not None
+    print(f"querying this user: '{netid}'")
     return session.query(db.User).filter(db.User.netid == netid).one()
 
 
