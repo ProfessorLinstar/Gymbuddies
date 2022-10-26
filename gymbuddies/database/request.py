@@ -125,8 +125,6 @@ def accept_request(requestid: int, times: List[db.TimeBlock], *, session: Option
     row.status = db.RequestStatus.RETURN
     session.commit()
 
-    return
-
 
 def finalize_request(requestid: int, *, session: Optional[Session] = None):
     """finalize the request by approving the accept request"""
@@ -135,8 +133,6 @@ def finalize_request(requestid: int, *, session: Optional[Session] = None):
     row.finalizedtimestamp = datetime.now()
     row.status = db.RequestStatus.FINALIZED
     session.commit()
-
-    return
 
 @db.session_decorator
 def delete_request(requestid: int, *, session: Optional[Session] = None):
@@ -150,5 +146,3 @@ def delete_request(requestid: int, *, session: Optional[Session] = None):
     else:
         pass
     row.commit()
-
-    return
