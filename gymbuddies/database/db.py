@@ -56,12 +56,13 @@ class Request(BASE):
     srcnetid = Column(String)  # user who makes the request
     destnetid = Column(String)  # user who recieves the request
     maketimestamp = Column(PickleType)  # timestamp when the request was made
-    accepttimestamp = Column(PickleType) # timestamp when the request was accepted
-    finalizedtimestamp = Column(PickleType) # timestamp when the request was finalized
-    deletetimestamp = Column(PickleType) # timestamp when the request was deleted
+    accepttimestamp = Column(PickleType)  # timestamp when the request was accepted
+    finalizedtimestamp = Column(PickleType)  # timestamp when the request was finalized
+    deletetimestamp = Column(PickleType)  # timestamp when the request was deleted
     status = Column(Integer)  # status of the request
     schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
-    acceptschedule = Column(PickleType) # 2016-character sequenece for accepted times from schedule
+    acceptschedule = Column(PickleType)  # 2016-character sequenece for accepted times from schedule
+
 
 class Schedule(BASE):
     """Schedule table. Maps each 5-minute time block throughout the week to users and statuses."""
@@ -143,30 +144,36 @@ class TimeBlock:
 
 
 # TODO: add 'commit' kwarg to prevent multiple commits in one API call
-def session_decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-    """Initializes a connection with the DATABASE_URL and returns a session. To be use this
-       decoration, a function must have a signature of the form
-           func(a, b, ..., *args, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
-       where T is any type. The 'session' argument must be keyword only, and should be handled by
-       this session_decorator. At the beginning of a decorated function, it should assert that
-       'session' is not None. The wrapper will return the result of the function if successful;
-       otherwise, it will return None."""
+def session_decorator(*, commit: bool) -> Callable[..., Any]:
+    """Decorator factory for initializing a connection with the DATABASE_URL and returning a
+    session. To use this decoration, a function must have a signature of the form
+       func(a, b, ..., *args, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
+    where T is any type. The 'session' argument must be keyword only, and should be handled by this
+    session_decorator. At the beginning of a decorated function, it should assert that 'session' is
+    not None. The wrapper will return the result of the function if successful; otherwise, it will
+    return None."""
 
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            if "session" in kwargs:  # A session can be provided manually
-                return func(*args, **kwargs)
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
 
-            engine = create_engine(DATABASE_URL)
-            with Session(engine) as session:
-                result = func(*args, session=session, **kwargs)
-            engine.dispose()
-            return result
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                if "session" in kwargs:  # A session can be provided manually
+                    return func(*args, **kwargs)
 
-        except Exception:
-            traceback.print_exc(file=sys.stderr)
+                engine = create_engine(DATABASE_URL)
+                with Session(engine) as session:
+                    result = func(*args, session=session, **kwargs)
+                    if commit:
+                        session.commit()
+                engine.dispose()
+                return result
 
-        return None
+            except Exception:
+                traceback.print_exc(file=sys.stderr)
 
-    return wrapper
+            return None
+
+        return wrapper
+
+    return decorator

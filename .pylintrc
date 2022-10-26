@@ -5,7 +5,8 @@ overgeneral-exceptions=BaseException
 disable=multiple-statements,
         global-statement,
         too-few-public-methods,
-        import-error
+        import-error,
+        consider-using-in
 
 [FORMAT]
 max-line-length=100

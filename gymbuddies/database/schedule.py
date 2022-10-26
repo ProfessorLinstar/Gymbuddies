@@ -6,7 +6,7 @@ from . import db
 from . import user as db_user
 
 
-@db.session_decorator
+@db.session_decorator(commit=False)
 def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """Returns a a list of 2016 blocks for a user showing the availability statuses for
     each of these times. Bitwise masking must be used to extract statuses"""
@@ -20,7 +20,7 @@ def schedule_query(session: Session, netid: str, time: db.TimeBlock) -> Optional
                                              db.Schedule.timeblock == time.index).first()
 
 
-@db.session_decorator
+@db.session_decorator(commit=True)
 def add_time_status(netid: str,
                     time: db.TimeBlock,
                     which_status: int,
@@ -46,13 +46,12 @@ def add_time_status(netid: str,
     # make change to the User Table
     row = db_user.get_user(netid, session=session)
     row.schedule[time.index] |= which_status
-    session.commit()
 
     return True
 
 
 
-@db.session_decorator
+@db.session_decorator(commit=False)
 def get_match_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ Return schedule specifially showing time of matches"""
     assert session is not None
@@ -63,7 +62,7 @@ def get_match_schedule(netid: str, *, session: Optional[Session] = None) -> List
     return [row.timeblock for row in rows]
 
 
-@db.session_decorator
+@db.session_decorator(commit=False)
 def get_pending_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ Return schedule specifially showing time of pending matches"""
     assert session is not None
@@ -74,7 +73,7 @@ def get_pending_schedule(netid: str, *, session: Optional[Session] = None) -> Li
     return [row.timeblock for row in rows]
 
 
-@db.session_decorator
+@db.session_decorator(commit=False)
 def get_available_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """Return schedule specifically showing time of availabilities"""
     assert session is not None
@@ -84,7 +83,7 @@ def get_available_schedule(netid: str, *, session: Optional[Session] = None) -> 
     return [row.timeblock for row in rows]
 
 
-@db.session_decorator
+@db.session_decorator(commit=False)
 def get_available_users(timeblock: int, *, session: Optional[Session] = None) -> List[str]:
     """Return list of users showing available users at a certain timeframe"""
     assert session is not None
