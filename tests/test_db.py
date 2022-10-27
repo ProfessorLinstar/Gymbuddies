@@ -1,9 +1,9 @@
 """Tests database initialization."""
-import json
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from gymbuddies.database import db
 
+from gymbuddies.database import db
+from gymbuddies import database
 
 def main():
     """Basic test of database API."""
@@ -13,19 +13,19 @@ def main():
     session = Session()
 
     for user in session.query(db.User):
-        print(json.dumps({k: v for k, v in vars(user).items() if "_" not in k}, sort_keys=True, indent=4))
+        database.debug.printv(user)
         if user.name == "jon":
             return
 
     user = db.User(netid=1,
-                name="jon",
-                level=1,
-                addinfo="I like running!",
-                interests={
-                    "Losing weight": 1,
-                    "Building mass": -1
-                },
-                schedule="n" * db.NUM_WEEK_BLOCKS)
+                   name="jon",
+                   level=1,
+                   addinfo="I like running!",
+                   interests={
+                       "Losing weight": 1,
+                       "Building mass": -1
+                   },
+                   schedule="n" * db.NUM_WEEK_BLOCKS)
 
     session.add(user)
     session.commit()

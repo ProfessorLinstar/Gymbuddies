@@ -12,7 +12,7 @@ class UserNotFound(Exception):
         if message:
             pass
         elif netid is not None:
-            message = "User with netid {netid} not found in the datbase."
+            message = f"User with netid '{netid}' not found in the datbase."
         else:
             message = "User not found in the database."
         super().__init__(message)
@@ -67,6 +67,7 @@ def _default_profile() -> Dict[str, Any]:
     }
 
 
+# TODO: assert about interests, schedule, and settings
 def _update_user(session: Session, user: db.User, /, **kwargs) -> None:
     """Updates the attributes of 'user' according to 'kwargs'. Uses default properties to fill in
     null values."""
@@ -106,24 +107,31 @@ def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[d
     return session.query(db.User).filter(*criterions).all()
 
 
-# TODO: provide debug mode with diagnostics
 @db.session_decorator(commit=False)
-def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[db.MappedUser]:
-    """Attempts to return a user object from the Users table given the netid of a user."""
+def get_user(netid: str, *, session: Optional[Session] = None) -> db.MappedUser:
+    """Attempts to return a user object from the Users table given the netid of a user. If the user
+    does not exist, throws an error."""
     assert session is not None
 
     user: Optional[db.MappedUser] = session.query(db.User).filter(db.User.netid == netid).first()
     if user is None:
-        raise UserNotFound(netid)
+        raise UserNotFound(netid=netid)
 
     return user
+
+
+@db.session_decorator(commit=False)
+def has_user(netid: str, *, session: Optional[Session] = None) -> bool:
+    """Checks if the database has a user object in the Users table with the given user netid. If the
+    user does not exist, returns None."""
+    assert session is not None
+    return session.query(db.User.netid).filter(db.User.netid == netid).first() is not None
 
 
 @db.session_decorator(commit=False)
 def get_name(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return the name of a user."""
     assert session is not None
-
     user = get_user(netid, session=session)
     return user.name if user else None
 

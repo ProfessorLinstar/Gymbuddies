@@ -12,7 +12,6 @@ from . import database
 from .database import db
 
 TEXTWIDTH = 72
-BLOCK_NUM = 12
 
 bp = Blueprint("master", __name__, url_prefix="/master")
 
@@ -78,15 +77,17 @@ def form_to_profile() -> Dict[str, Any]:
         except ValueError:
             continue
 
-        start: db.TimeBlock = db.TimeBlock.from_daytime(day, time * BLOCK_NUM)
+        start: db.TimeBlock = db.TimeBlock.from_daytime(day, time * db.NUM_HOUR_BLOCKS)
         print(f"{(day, time) = } to {start = }")
-        for i in range(start.index, start.index + BLOCK_NUM):
+        for i in range(start, start + db.NUM_HOUR_BLOCKS):
             schedule[i] = db.ScheduleStatus.AVAILABLE
 
     return profile
 
 def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'user' functions"""
+
+    query: str = ""
 
     match request.form.get("submit-user", ""):
         case "Create":
@@ -114,8 +115,19 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
                 query = f"netid '{profile['netid']}' not found in the database."
 
         case "Query":
-            user = database.user.get_user(profile["netid"])
-            if "netid" in request.form and user is not None:
+            user: Optional[db.MappedUser] = None
+            user_found: Optional[bool] = database.user.has_user(profile["netid"])
+
+            if user_found:
+                user = database.user.get_user(profile["netid"])
+            else:
+                query = "netid not found or not provided. Database contains the following users.\n"
+                users: Optional[List] = database.user.get_users()
+                users = users if users else []
+                query += json.dumps(
+                        [u.netid for u in users], sort_keys=True, indent=4)
+
+            if user_found and user is not None:
                 # basic info
                 context["netid"] = user.netid
                 context["name"] = user.name
@@ -134,19 +146,15 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
                 for i, s in enumerate(user.schedule):
                     day, time = db.TimeBlock(i).day_time()
                     s = cast(db.ScheduleStatus, s)
-                    if s == db.ScheduleStatus.AVAILABLE and time % BLOCK_NUM == 0:
-                        context[f"s{day}_{time // BLOCK_NUM}"] = "checked"
+                    if s == db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
+                        context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
                 query = f"Query of user with netid '{profile['netid']}' successful."
                 print(f"User '{profile['netid']}' query result:")
                 database.debug.printv(user)
-
-            else:
-                query = "netid not found or not provided. Database contains the following users.\n"
-                users: Optional[List] = database.user.get_users()
-                users = users if users else []
-                query += json.dumps(
-                        [u.netid for u in users], sort_keys=True, indent=4)
+            elif user_found:
+                query = f"User with netid '{profile['netid']}' found, but server encountered \n"
+                query += "an error."
 
         case "Clear":
             query = ""
@@ -160,7 +168,7 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'schedule' functions."""
 
-    if database.user.get_user(profile["netid"]) is None:
+    if not database.user.has_user(profile["netid"]):
         context["query"] = f"User with netid '{profile['netid']}' not found in the database."
         return
 
@@ -181,7 +189,7 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
                 print(f"{timeblocks = }")
                 for t in timeblocks:
                     day, time = db.TimeBlock(t).day_time()
-                    context[f"s{day}_{time // BLOCK_NUM}"] = "checked"
+                    context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
                 query = f"Get {which_schedule} schedule for user '{profile['netid']}' successful.\n"
                 query += f"Found these timeblocks: {timeblocks}"

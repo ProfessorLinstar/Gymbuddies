@@ -1,7 +1,9 @@
 """Database API"""
 from typing import List, Optional
-from sqlalchemy.orm import Session
+from typing import cast
+from sqlalchemy import Column
 from sqlalchemy import or_
+from sqlalchemy.orm import Session
 from . import db
 from . import user as db_user
 
@@ -17,7 +19,7 @@ def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
 def schedule_query(session: Session, netid: str, time: db.TimeBlock) -> Optional[db.Schedule]:
     """ Helper method for eliminating some repetitive code"""
     return session.query(db.Schedule).filter(db.Schedule.netid == netid,
-                                             db.Schedule.timeblock == time.index).first()
+                                             db.Schedule.timeblock == time).first()
 
 
 @db.session_decorator(commit=True)
@@ -34,18 +36,21 @@ def add_time_status(netid: str,
     # make change to the Schedule Table
     row = schedule_query(session, netid, time)
     if row is None:
-        row = db.Schedule(timeblock=time.index, netid=netid)
+        row = db.Schedule(timeblock=time, netid=netid)
         session.add(row)
     else:
         if row.status & which_status:
             return False
-    row.matched = db.ScheduleStatus.MATCHED & which_status
-    row.pending = db.ScheduleStatus.PENDING & which_status
-    row.available = db.ScheduleStatus.AVAILABLE & which_status
+
+    row.matched = cast(Column, db.ScheduleStatus.MATCHED & which_status)
+    row.pending = cast(Column, db.ScheduleStatus.PENDING & which_status)
+    row.available = cast(Column, db.ScheduleStatus.AVAILABLE & which_status)
 
     # make change to the User Table
     row = db_user.get_user(netid, session=session)
-    row.schedule[time.index] |= which_status
+    if row is None:
+        raise db_user.UserNotFound(netid=netid)
+    row.schedule[time] |= which_status
 
     return True
 

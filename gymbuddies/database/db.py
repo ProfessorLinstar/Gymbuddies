@@ -7,7 +7,6 @@ import sys
 import traceback
 
 from datetime import datetime
-from dataclasses import dataclass
 from enum import Enum, IntFlag
 from typing import Tuple, Callable, ParamSpec, TypeVar, Optional, Dict, List, Any
 from typing import cast
@@ -32,6 +31,7 @@ BLOCK_LENGTH = 5  # minutes
 NUM_HOUR_BLOCKS = 60 // BLOCK_LENGTH
 NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
 NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
+
 
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
@@ -113,12 +113,12 @@ class ScheduleStatus(IntFlag):
         return str(int(self))
 
 
-# TODO: convert fromt dataclass to int inheritor
-@dataclass
-class TimeBlock:
-    """Data class representing a particular time block in a schedule. Provides conversion functions
-    to human readable times and vice versa."""
-    index: int
+class TimeBlock(int):
+    """Integer derivative representing a particular time block in a schedule. Provides conversion
+    functions to human readable times and vice versa."""
+
+    def __new__(cls, index: int):
+        return super().__new__(cls, index)
 
     @classmethod
     def from_daytime(cls, day: int, time: int) -> "TimeBlock":
@@ -140,7 +140,7 @@ class TimeBlock:
         """Converts a TimeBlock to a (day, time) tuple. 'day' is an integer from 0-6, corresponding
         to Monday, ..., Sunday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
         00:00-00:05, ..., 23:55-24:00."""
-        return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
+        return self // NUM_DAY_BLOCKS, self % NUM_DAY_BLOCKS
 
 
 class User(BASE):
@@ -170,7 +170,7 @@ class MappedUser(User):
     addinfo: str
     interests: Dict[str, Any]
 
-    schedule: List[Integer]
+    schedule: List[int]
     open: bool
 
     settings: Dict[str, Any]
@@ -192,6 +192,7 @@ class Request(BASE):
     schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
     acceptschedule = Column(PickleType)  # 2016-character sequenece for accepted times from schedule
 
+
 class MappedRequest(BASE):
     """An extension of the Request class which casts each column to its respective Python type.
     Enables LSP and static type checkers to infer the correct type of a row."""
@@ -207,6 +208,7 @@ class MappedRequest(BASE):
     status: int
     schedule: List[int]
     acceptschedule: List[int]
+
 
 class Schedule(BASE):
     """Schedule table. Maps each 5-minute time block throughout the week to users and statuses."""
@@ -231,5 +233,3 @@ class MappedSchedule(BASE):
     matched: bool
     pending: bool
     available: bool
-
-
