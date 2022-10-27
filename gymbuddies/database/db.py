@@ -9,14 +9,14 @@ import traceback
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum, IntFlag
-from typing import Tuple, Callable, ParamSpec, TypeVar, Optional
+from typing import Tuple, Callable, ParamSpec, TypeVar, Optional, Dict, List, Any
 from typing import cast
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.orm import Session
 
 P = ParamSpec('P')
 R = TypeVar('R')
@@ -33,51 +33,47 @@ NUM_HOUR_BLOCKS = 60 // BLOCK_LENGTH
 NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
 NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 
+def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
+    """Decorator factory for initializing a connection with the DATABASE_URL and returning a
+    session. To use this decoration, a function must have a signature of the form
+       func(..., *, session: Session=None, x, y, ..., **kwargs) -> R,
+    where T is any type. The 'session' argument must be keyword only, and should be handled by this
+    session_decorator. At the beginning of a decorated function, it should assert that 'session' is
+    not None. The wrapper will return the result of the function if successful; otherwise, it will
+    return None. The wrapper will call 'session.commit' after the function finishes, unless 'commit'
+    is False or a 'session' is already provided.
 
-class User(BASE):
-    """Users database. Maps each netid to their Gymbuddies profile information."""
-    __tablename__ = "users"
+    NOTE: if a function might not require 'session.commit', it is permissible to set 'commit' to
+    False, and then call 'session.commit' manually where required. Beware, however, that this may
+    result in multiple 'session.commit' calls, if, for instance, this function is called by another
+    function decorated by '@session_decorator(commit=True)'. Because of this, it is recommended that
+    any such function use 'commit=True' instead of manually calling 'session.commit'."""
 
-    netid = Column(String, primary_key=True)  # unique user id
-    name = Column(String)  # alias displayed in system, e.g. mrpieguy
-    contact = Column(String)  # Contact information
-    level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
-    addinfo = Column(String)  # additional info in user profile
-    interests = Column(PickleType)  # Dictionary indicating interests
+    def decorator(func: Callable[P, R]) -> Callable[P, Optional[R]]:
 
-    schedule = Column(MutableList.as_mutable(PickleType))  # int[2016] with status for each block
-    open = Column(Boolean)  # open for matching
+        @functools.wraps(func)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
+            try:
+                if "session" in kwargs:  # A session can be provided manually
+                    return func(*args, **kwargs)
 
-    settings = Column(PickleType)  # Notification and account settings
+                engine = create_engine(DATABASE_URL)
+                with Session(engine) as session:
+                    kwargs["session"] = session
+                    result = func(*args, **kwargs)
+                    if commit:
+                        session.commit()
+                engine.dispose()
+                return result
 
+            except Exception:
+                traceback.print_exc(file=sys.stderr)
 
-class Request(BASE):
-    """Requests table. Includes requests that are pending, rejected, or
-    finalized (i.e. completed matches)."""
-    __tablename__ = "requests"
+            return None
 
-    requestid = Column(Integer, primary_key=True)  # unique auto-incrementing request transaction id
-    srcnetid = Column(String)  # user who makes the request
-    destnetid = Column(String)  # user who recieves the request
-    maketimestamp = Column(PickleType)  # timestamp when the request was made
-    accepttimestamp = Column(PickleType)  # timestamp when the request was accepted
-    finalizedtimestamp = Column(PickleType)  # timestamp when the request was finalized
-    deletetimestamp = Column(PickleType)  # timestamp when the request was deleted
-    status = Column(Integer)  # status of the request
-    schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
-    acceptschedule = Column(PickleType)  # 2016-character sequenece for accepted times from schedule
+        return wrapper
 
-
-class Schedule(BASE):
-    """Schedule table. Maps each 5-minute time block throughout the week to users and statuses."""
-    __tablename__ = "schedule"
-
-    timeblock = Column(Integer, primary_key=True)  # a particular time block during the week
-    netid = Column(String, primary_key=True)  # netid for a particular time block
-    status = Column(Integer)  # status of netid for this time block
-    matched = Column(Boolean)  # user has been matched at this time
-    pending = Column(Boolean)  # user is awaiting a pending request for this time
-    available = Column(Boolean)  # user is available at this time
+    return decorator
 
 
 class RequestStatus(int, Enum):
@@ -147,39 +143,93 @@ class TimeBlock:
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
 
 
+class User(BASE):
+    """Users database. Maps each netid to their Gymbuddies profile information."""
+    __tablename__ = "users"
 
-# TODO: add 'commit' kwarg to prevent multiple commits in one API call
-def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
-    """Decorator factory for initializing a connection with the DATABASE_URL and returning a
-    session. To use this decoration, a function must have a signature of the form
-       func(a, b, ..., *args, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
-    where T is any type. The 'session' argument must be keyword only, and should be handled by this
-    session_decorator. At the beginning of a decorated function, it should assert that 'session' is
-    not None. The wrapper will return the result of the function if successful; otherwise, it will
-    return None."""
+    netid = Column(String, primary_key=True)  # unique user id
+    name = Column(String)  # alias displayed in system, e.g. mrpieguy
+    contact = Column(String)  # Contact information
+    level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
+    addinfo = Column(String)  # additional info in user profile
+    interests = Column(PickleType)  # Dictionary indicating interests
 
-    def decorator(func: Callable[P, R]) -> Callable[P, Optional[R]]:
+    schedule = Column(MutableList.as_mutable(PickleType))  # int[2016] with status for each block
+    open = Column(Boolean)  # open for matching
 
-        @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
-            try:
-                if "session" in kwargs:  # A session can be provided manually
-                    return func(*args, **kwargs)
+    settings = Column(PickleType)  # Notification and account settings
 
-                engine = create_engine(DATABASE_URL)
-                with Session(engine) as session:
-                    kwargs["session"] = session
-                    result = func(*args, **kwargs)
-                    if commit:
-                        session.commit()
-                engine.dispose()
-                return result
 
-            except Exception:
-                traceback.print_exc(file=sys.stderr)
+class MappedUser(User):
+    """An extension of the User class which casts each column to its respective Python type. Enables
+    LSP and static type checkers to infer the correct type of a row."""
+    netid: str
+    name: str
+    contact: str
+    level: int
+    addinfo: str
+    interests: Dict[str, Any]
 
-            return None
+    schedule: List[Integer]
+    open: bool
 
-        return wrapper
+    settings: Dict[str, Any]
 
-    return decorator
+
+class Request(BASE):
+    """Requests table. Includes requests that are pending, rejected, or finalized (i.e. completed
+    matches)."""
+    __tablename__ = "requests"
+
+    requestid = Column(Integer, primary_key=True)  # unique auto-incrementing request transaction id
+    srcnetid = Column(String)  # user who makes the request
+    destnetid = Column(String)  # user who recieves the request
+    maketimestamp = Column(PickleType)  # timestamp when the request was made
+    accepttimestamp = Column(PickleType)  # timestamp when the request was accepted
+    finalizedtimestamp = Column(PickleType)  # timestamp when the request was finalized
+    deletetimestamp = Column(PickleType)  # timestamp when the request was deleted
+    status = Column(Integer)  # status of the request
+    schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
+    acceptschedule = Column(PickleType)  # 2016-character sequenece for accepted times from schedule
+
+class MappedRequest(BASE):
+    """An extension of the Request class which casts each column to its respective Python type.
+    Enables LSP and static type checkers to infer the correct type of a row."""
+    __tablename__ = "requests"
+
+    requestid: int
+    srcnetid: str
+    destnetid: str
+    maketimestamp: Any
+    accepttimestamp: Any
+    finalizedtimestamp: Any
+    deletetimestamp: Any
+    status: int
+    schedule: List[int]
+    acceptschedule: List[int]
+
+class Schedule(BASE):
+    """Schedule table. Maps each 5-minute time block throughout the week to users and statuses."""
+    __tablename__ = "schedule"
+
+    timeblock = Column(Integer, primary_key=True)  # a particular time block during the week
+    netid = Column(String, primary_key=True)  # netid for a particular time block
+    status = Column(Integer)  # status of netid for this time block
+    matched = Column(Boolean)  # user has been matched at this time
+    pending = Column(Boolean)  # user is awaiting a pending request for this time
+    available = Column(Boolean)  # user is available at this time
+
+
+class MappedSchedule(BASE):
+    """An extension of the Schedule class which casts each column to its respective Python type.
+    Enables LSP and static type checkers to infer the correct type of a row."""
+    __tablename__ = "schedule"
+
+    timeblock: int
+    netid: str
+    status: int
+    matched: bool
+    pending: bool
+    available: bool
+
+

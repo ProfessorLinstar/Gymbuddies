@@ -3,7 +3,8 @@
 import json
 import textwrap
 
-from typing import Dict, Any, List, cast
+from typing import Dict, Any, List, Optional
+from typing import cast
 from flask import Blueprint
 from flask import render_template
 from flask import request
@@ -124,10 +125,10 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
                 context["open"] = "on" if user.open else ""
 
                 # interests
-                context["buildingmass"] = "checked" if user.interests.get("buildingmass") else ""
-                context["losingweight"] = "checked" if user.interests.get("losingweight") else ""
-                context["pecs"] = "checked" if user.interests.get("pecs") else ""
-                context["legs"] = "checked" if user.interests.get("legs") else ""
+                context["buildingmass"] = "checked" if user.interests.get("Building Mass") else ""
+                context["losingweight"] = "checked" if user.interests.get("Losing Weight") else ""
+                context["pecs"] = "checked" if user.interests.get("Pecs") else ""
+                context["legs"] = "checked" if user.interests.get("Legs") else ""
 
                 # schedule
                 for i, s in enumerate(user.schedule):
@@ -142,8 +143,10 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 
             else:
                 query = "netid not found or not provided. Database contains the following users.\n"
+                users: Optional[List] = database.user.get_users()
+                users = users if users else []
                 query += json.dumps(
-                        [u.netid for u in database.user.get_users()], sort_keys=True, indent=4)
+                        [u.netid for u in users], sort_keys=True, indent=4)
 
         case "Clear":
             query = ""
@@ -166,7 +169,7 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     query: str = ""
     match request.form.get("submit-schedule", ""):
         case "Get":
-            timeblocks: List[db.TimeBlock] = []
+            timeblocks: Optional[List[int]] = []
             if which_schedule == "match":
                 timeblocks = database.schedule.get_match_schedule(profile["netid"])
             elif which_schedule == "pending":
@@ -174,14 +177,16 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             elif which_schedule == "available":
                 timeblocks = database.schedule.get_available_schedule(profile["netid"])
 
-            print(f"{timeblocks = }")
+            if timeblocks is not None:
+                print(f"{timeblocks = }")
+                for t in timeblocks:
+                    day, time = db.TimeBlock(t).day_time()
+                    context[f"s{day}_{time // BLOCK_NUM}"] = "checked"
 
-            for t in timeblocks:
-                day, time = t.day_time()
-                context[f"s{day}_{time // BLOCK_NUM}"] = "checked"
-
-            query = f"Get {which_schedule} schedule for user '{profile['netid']}' successful.\n"
-            query += f"Found these timeblocks: {timeblocks}"
+                query = f"Get {which_schedule} schedule for user '{profile['netid']}' successful.\n"
+                query += f"Found these timeblocks: {timeblocks}"
+            else:
+                query = f"Get {which_schedule} schedule for user '{profile['netid']}' failed.\n"
 
         case "Update":
             pass

@@ -1,5 +1,6 @@
 """Database API"""
 from typing import List, Optional, Dict
+from typing import cast
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -117,7 +118,7 @@ def make_request(srcnetid: int,
     session.commit()
     # session.refresh(request) # insert line if session.commit() does not refresh request
 
-    return request.requestid
+    return cast(int, request.requestid)
 
 
 @db.session_decorator(commit=True)

@@ -1,5 +1,5 @@
 """Database API"""
-from typing import Optional, Any, List, Dict, cast
+from typing import Optional, Any, List, Dict
 from sqlalchemy.orm import Session
 from . import db
 from . import schedule as db_schedule
@@ -91,7 +91,7 @@ def delete(netid: str, *, session: Optional[Session] = None) -> bool:
     Does nothing if the user does not exist."""
     assert session is not None
 
-    user: Optional[db.User] = session.query(db.User).filter(db.User.netid == netid).first()
+    user: Optional[db.MappedUser] = session.query(db.User).filter(db.User.netid == netid).first()
     if user is None:
         raise UserNotFound(netid)
     session.delete(user)
@@ -100,7 +100,7 @@ def delete(netid: str, *, session: Optional[Session] = None) -> bool:
 
 
 @db.session_decorator(commit=False)
-def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[db.User]]:
+def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[db.MappedUser]]:
     """Attempts to return a list of all users satisfying a particular criterion."""
     assert session is not None
     return session.query(db.User).filter(*criterions).all()
@@ -108,11 +108,11 @@ def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[d
 
 # TODO: provide debug mode with diagnostics
 @db.session_decorator(commit=False)
-def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[db.User]:
+def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[db.MappedUser]:
     """Attempts to return a user object from the Users table given the netid of a user."""
     assert session is not None
 
-    user: Optional[db.User] = session.query(db.User).filter(db.User.netid == netid).first()
+    user: Optional[db.MappedUser] = session.query(db.User).filter(db.User.netid == netid).first()
     if user is None:
         raise UserNotFound(netid)
 
@@ -129,7 +129,7 @@ def get_name(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
 
 
 @db.session_decorator(commit=False)
-def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
     """Attempts to return the level of a user."""
     assert session is not None
     user = get_user(netid, session=session)
