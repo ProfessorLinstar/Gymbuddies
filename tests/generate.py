@@ -30,35 +30,36 @@ def users():
             "interests": {
                 "Pecs": True
             },
-            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+            # "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+            "schedule": [db.ScheduleStatus.AVAILABLE] * db.NUM_WEEK_BLOCKS
         },
-        "ejcho": {
-            "netid": "ejcho",
-            "name": "Joy Cho",
-            "contact": "ejcho@princeton.edu",
-            "level": "0",
-            "addinfo": "):<",
-            "interests": {},
-            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
-        },
-        "jasono": {
-            "netid": "jasono",
-            "name": "Jason Oh",
-            "contact": "jasono@princeton.edu",
-            "level": "2",
-            "addinfo": "):<",
-            "interests": {},
-            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
-        },
-        "eyc2": {
-            "netid": "eyc2",
-            "name": "Genie Choi",
-            "contact": "eyc2@princeton.edu",
-            "level": "0",
-            "addinfo": "):<",
-            "interests": {},
-            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
-        },
+        # "ejcho": {
+        #     "netid": "ejcho",
+        #     "name": "Joy Cho",
+        #     "contact": "ejcho@princeton.edu",
+        #     "level": "0",
+        #     "addinfo": "):<",
+        #     "interests": {},
+        #     "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+        # },
+        # "jasono": {
+        #     "netid": "jasono",
+        #     "name": "Jason Oh",
+        #     "contact": "jasono@princeton.edu",
+        #     "level": "2",
+        #     "addinfo": "):<",
+        #     "interests": {},
+        #     "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+        # },
+        # "eyc2": {
+        #     "netid": "eyc2",
+        #     "name": "Genie Choi",
+        #     "contact": "eyc2@princeton.edu",
+        #     "level": "0",
+        #     "addinfo": "):<",
+        #     "interests": {},
+        #     "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+        # },
     }
 
     for user in data.values():

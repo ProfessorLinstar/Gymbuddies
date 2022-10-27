@@ -109,7 +109,7 @@ def make_request(srcnetid: int,
                  session: Optional[Session] = None) -> int:
     """make a new outgoing request to another user with specific times"""
     assert session is not None
-    request = db.Request(srcnetid=srcnetid,
+    request = db.MappedRequest(srcnetid=srcnetid,
                          destnetid=destnetid,
                          maketimestamp=datetime.now(),
                          status=db.RequestStatus.PENDING,
@@ -118,7 +118,7 @@ def make_request(srcnetid: int,
     session.commit()
     # session.refresh(request) # insert line if session.commit() does not refresh request
 
-    return cast(int, request.requestid)
+    return request.requestid
 
 
 @db.session_decorator(commit=True)

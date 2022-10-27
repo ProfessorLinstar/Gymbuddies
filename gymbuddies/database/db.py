@@ -215,10 +215,13 @@ class Schedule(BASE):
 
     timeblock = Column(Integer, primary_key=True)  # a particular time block during the week
     netid = Column(String, primary_key=True)  # netid for a particular time block
-    status = Column(Integer)  # status of netid for this time block
     matched = Column(Boolean)  # user has been matched at this time
     pending = Column(Boolean)  # user is awaiting a pending request for this time
     available = Column(Boolean)  # user is available at this time
+
+    def get_status(self) -> ScheduleStatus:
+        """Returns this entry as a ScheduleStatus."""
+        return ScheduleStatus(self.matched | self.pending | self.available)
 
 
 class MappedSchedule(BASE):

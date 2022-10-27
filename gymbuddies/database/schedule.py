@@ -1,8 +1,6 @@
 """Database API"""
 from typing import List, Optional
 from typing import cast
-from sqlalchemy import Column
-from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from . import db
 from . import user as db_user
@@ -16,14 +14,15 @@ def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     return session.query(db.User).filter(db.User.netid == netid).one().schedule
 
 
-def _get_block(session: Session, netid: str, time: db.TimeBlock) -> Optional[db.Schedule]:
-    """ Helper method for eliminating some repetitive code"""
+def _get_block(session: Session, netid: str, time: db.TimeBlock) -> Optional[db.MappedSchedule]:
+    """Retrieves a row of the Schedule table given a netid and a time. If the row exists, returns
+    the row. Otherwise, returns None."""
     return session.query(db.Schedule).filter(db.Schedule.netid == netid,
                                              db.Schedule.timeblock == time).first()
 
 
 @db.session_decorator(commit=True)
-def add_time_status(netid: str,
+def update_status(netid: str,
                     time: db.TimeBlock,
                     status: db.ScheduleStatus,
                     *,
@@ -35,17 +34,17 @@ def add_time_status(netid: str,
     assert session is not None
 
     # make change to the Schedule Table
-    block = _get_block(session, netid, time)
+    block: db.MappedSchedule = _get_block(session, netid, time)
     if block is None:
-        block = db.Schedule(timeblock=time, netid=netid)
+        block = db.MappedSchedule(timeblock=time, netid=netid)
         session.add(block)
     else:
-        if block.status & status:
+        if status == block.matched | block.pending | block.available:
             return False
 
-    block.matched = cast(Column, db.ScheduleStatus.MATCHED & status)
-    block.pending = cast(Column, db.ScheduleStatus.PENDING & status)
-    block.available = cast(Column, db.ScheduleStatus.AVAILABLE & status)
+    block.matched = bool(db.ScheduleStatus.MATCHED & status)
+    block.pending = bool(db.ScheduleStatus.PENDING & status)
+    block.available = bool(db.ScheduleStatus.AVAILABLE & status)
 
     # make change to the User Table
     if user is None:
@@ -59,13 +58,13 @@ def add_time_status(netid: str,
 
 
 @db.session_decorator(commit=False)
-def get_match_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
+def get_matched_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ Return schedule specifially showing time of matches"""
     assert session is not None
 
-    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid).filter(
-        or_(db.Schedule.status == 1, db.Schedule.status == 3, db.Schedule.status == 5,
-            db.Schedule.status == 7)).order_by(db.Schedule.timeblock).all()
+    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid,
+                                             db.Schedule.matched == True).order_by(
+                                                 db.Schedule.timeblock).all()
     return [row.timeblock for row in rows]
 
 
@@ -74,9 +73,9 @@ def get_pending_schedule(netid: str, *, session: Optional[Session] = None) -> Li
     """ Return schedule specifially showing time of pending matches"""
     assert session is not None
 
-    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid).filter(
-        or_(db.Schedule.status == 2, db.Schedule.status == 3, db.Schedule.status == 6,
-            db.Schedule.status == 7)).order_by(db.Schedule.timeblock).all()
+    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid,
+                                             db.Schedule.pending == True).order_by(
+                                                 db.Schedule.timeblock).all()
     return [row.timeblock for row in rows]
 
 
@@ -85,8 +84,9 @@ def get_available_schedule(netid: str, *, session: Optional[Session] = None) -> 
     """Return schedule specifically showing time of availabilities"""
     assert session is not None
 
-    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid).filter(
-        db.Schedule.status >= 4, db.Schedule.status <= 7).order_by(db.Schedule.timeblock).all()
+    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid,
+                                             db.Schedule.available == True).order_by(
+                                                 db.Schedule.timeblock).all()
     return [row.timeblock for row in rows]
 
 

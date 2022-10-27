@@ -179,7 +179,7 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
         case "Get":
             timeblocks: Optional[List[int]] = []
             if which_schedule == "match":
-                timeblocks = database.schedule.get_match_schedule(profile["netid"])
+                timeblocks = database.schedule.get_matched_schedule(profile["netid"])
             elif which_schedule == "pending":
                 timeblocks = database.schedule.get_pending_schedule(profile["netid"])
             elif which_schedule == "available":

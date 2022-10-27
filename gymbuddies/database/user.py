@@ -1,5 +1,6 @@
 """Database API"""
 from typing import Optional, Any, List, Dict
+from typing import cast
 from sqlalchemy.orm import Session
 from . import db
 from . import schedule as db_schedule
@@ -24,13 +25,15 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     user already exists."""
     assert session is not None
 
-    if get_user(netid, session=session) is not None:
+    if has_user(netid, session=session):
         raise ValueError("User already exists. Skipping creation.")
 
     profile: Dict[str, Any] = _default_profile()
     user = db.User()
     _update_user(session, user, **(profile | kwargs))
     setattr(user, "netid", netid)
+
+    print("called _update_user!")
 
     session.add(user)
 
@@ -47,6 +50,7 @@ def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     if user is None:
         raise UserNotFound(netid)
     _update_user(session, user, **kwargs)
+
 
     return True
 
@@ -80,10 +84,11 @@ def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
         return
 
     # need to handle case where user row does not yet exist
-    # for i, status in enumerate(schedule):
-    #     if status == db.ScheduleStatus.UNAVAILABLE:
-    #         continue
-    #     db_schedule.add_time_status(user.netid, db.TimeBlock(i), status, session=session)
+    for i, status in enumerate(schedule):
+        print(f"working on {(i, status) = }")
+        if status == db.ScheduleStatus.UNAVAILABLE:
+            continue
+        db_schedule.update_status(user.netid, db.TimeBlock(i), status, session=session, user=user)
 
 
 @db.session_decorator(commit=True)
@@ -132,21 +137,28 @@ def has_user(netid: str, *, session: Optional[Session] = None) -> bool:
 def get_name(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return the name of a user."""
     assert session is not None
-    user = get_user(netid, session=session)
-    return user.name if user else None
+    query = cast(db.MappedUser, session.query(db.User.name).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.name
 
 
 @db.session_decorator(commit=False)
 def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
     """Attempts to return the level of a user."""
     assert session is not None
-    user = get_user(netid, session=session)
-    return user.level if user else None
+    query = cast(db.MappedUser, session.query(db.User.level).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.level
 
 
 @db.session_decorator(commit=False)
 def get_addinfo(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return the additional info of a user."""
     assert session is not None
-    user = get_user(netid, session=session)
-    return user.addinfo if user else None
+    query = cast(db.MappedUser,
+                 session.query(db.User.addinfo).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.addinfo

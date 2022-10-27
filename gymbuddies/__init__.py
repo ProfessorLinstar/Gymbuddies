@@ -25,4 +25,6 @@ def create_app():
 
     app.jinja_env.globals.update(database=database)
 
+    print("Started a flask application!")
+
     return app
