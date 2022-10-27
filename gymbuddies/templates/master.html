@@ -6,7 +6,7 @@ block links %}
   {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
   {% block classreq %}<a class="nav-link " href="{{ url_for('matching.pending') }}">{% endblock %}
   {% block classmat %}<a class="nav-link " href="{{ url_for('matching.matched') }}">{% endblock %}
-  {% block classprof %}<a class="nav-link " href="../profile.html">{% endblock %}
+  {% block classprof %}<a class="nav-link " href="{{ url_for('home.profile') }}">{% endblock %}
   {% block classmast %}<a class="nav-link active" href="{{ url_for('master.show') }}">{% endblock %}
 {% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Master Debug</li>{% endblock %}
 {% block pagename_large %} Master Debug{% endblock %}

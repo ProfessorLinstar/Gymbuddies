@@ -24,4 +24,4 @@ def home():
 @bp.route("/profile")
 def profile():
     """Profile page for editing user information."""
-    return ""
+    return render_template("profile.html")
