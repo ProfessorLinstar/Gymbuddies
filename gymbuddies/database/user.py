@@ -1,19 +1,30 @@
 """Database API"""
-from typing import Optional, Any, List, Dict
+from typing import Optional, Any, List, Dict, cast
 from sqlalchemy.orm import Session
 from . import db
 from . import schedule as db_schedule
 
 
-# TODO: process kwargs to make sure no extraneous keywords were supplied. Provide defaults if any
-# are null
+class UserNotFound(Exception):
+    """Exception raised in API call if user required but not found in database."""
+
+    def __init__(self, message: str = "", netid: Optional[str] = None):
+        if message:
+            pass
+        elif netid is not None:
+            message = "User with netid {netid} not found in the datbase."
+        else:
+            message = "User not found in the database."
+        super().__init__(message)
+
+
 @db.session_decorator(commit=True)
-def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> Optional[bool]:
+def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     """Attempts to create a user with netid and a profile provided by **kwargs. Does nothing if the
     user already exists."""
     assert session is not None
 
-    if session.query(db.User).filter(db.User.netid == netid).all():
+    if get_user(netid, session=session) is not None:
         raise ValueError("User already exists. Skipping creation.")
 
     profile: Dict[str, Any] = _default_profile()
@@ -26,14 +37,15 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> Option
     return True
 
 
-# TODO: same here: process kwargs
 @db.session_decorator(commit=True)
-def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> Optional[bool]:
+def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
 
-    user: db.User = session.query(db.User).filter(db.User.netid == netid).one()  # errors if no user
+    user: db.User = get_user(netid, session=session)
+    if user is None:
+        raise UserNotFound(netid)
     _update_user(session, user, **kwargs)
 
     return True
@@ -73,60 +85,60 @@ def _update_user(session: Session, user: db.User, /, **kwargs) -> None:
     #     db_schedule.add_time_status(user.netid, db.TimeBlock(i), status, session=session)
 
 
-# TODO: more useful error handling (report a more useful error message)
 @db.session_decorator(commit=True)
-def delete(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+def delete(netid: str, *, session: Optional[Session] = None) -> bool:
     """Attempts to remove a user from the database, removing all related entries and references.
     Does nothing if the user does not exist."""
     assert session is not None
 
-    user: db.User = session.query(db.User).filter(db.User.netid == netid).one()  # errors if no user
+    user: Optional[db.User] = session.query(db.User).filter(db.User.netid == netid).first()
+    if user is None:
+        raise UserNotFound(netid)
     session.delete(user)
 
     return True
 
 
-# TODO: report more useful errors for these items
 @db.session_decorator(commit=False)
 def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[db.User]]:
     """Attempts to return a list of all users satisfying a particular criterion."""
-    print(db.DATABASE_URL)
     assert session is not None
     return session.query(db.User).filter(*criterions).all()
 
 
 # TODO: provide debug mode with diagnostics
 @db.session_decorator(commit=False)
-def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_user(netid: str, *, session: Optional[Session] = None) -> Optional[db.User]:
     """Attempts to return a user object from the Users table given the netid of a user."""
     assert session is not None
-    print(f"querying this user: '{netid}'")
-    return session.query(db.User).filter(db.User.netid == netid).one()
+
+    user: Optional[db.User] = session.query(db.User).filter(db.User.netid == netid).first()
+    if user is None:
+        raise UserNotFound(netid)
+
+    return user
 
 
 @db.session_decorator(commit=False)
 def get_name(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return the name of a user."""
     assert session is not None
-    return session.query(db.User).filter(db.User.netid == netid).one().name
 
-
-@db.session_decorator(commit=False)
-def get_bio(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
-    """Attempts to return the bio of a user."""
-    assert session is not None
-    return session.query(db.User).filter(db.User.netid == netid).one().bio
+    user = get_user(netid, session=session)
+    return user.name if user else None
 
 
 @db.session_decorator(commit=False)
 def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return the level of a user."""
     assert session is not None
-    return session.query(db.User).filter(db.User.netid == netid).one().level
+    user = get_user(netid, session=session)
+    return user.level if user else None
 
 
 @db.session_decorator(commit=False)
 def get_addinfo(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     """Attempts to return the additional info of a user."""
     assert session is not None
-    return session.query(db.User).filter(db.User.netid == netid).one().addinfo
+    user = get_user(netid, session=session)
+    return user.addinfo if user else None

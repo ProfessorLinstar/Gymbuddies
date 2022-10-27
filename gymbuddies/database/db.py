@@ -9,13 +9,17 @@ import traceback
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum, IntFlag
-from typing import Tuple, Callable, Any, cast
+from typing import Tuple, Callable, ParamSpec, TypeVar, Optional
+from typing import cast
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.mutable import MutableList
+
+P = ParamSpec('P')
+R = TypeVar('R')
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL is None:
@@ -143,8 +147,9 @@ class TimeBlock:
         return self.index // NUM_DAY_BLOCKS, self.index % NUM_DAY_BLOCKS
 
 
+
 # TODO: add 'commit' kwarg to prevent multiple commits in one API call
-def session_decorator(*, commit: bool) -> Callable[..., Any]:
+def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
        func(a, b, ..., *args, *, session: Session, x, y, ..., **kwargs) -> Optional[T],
@@ -153,17 +158,18 @@ def session_decorator(*, commit: bool) -> Callable[..., Any]:
     not None. The wrapper will return the result of the function if successful; otherwise, it will
     return None."""
 
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+    def decorator(func: Callable[P, R]) -> Callable[P, Optional[R]]:
 
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
             try:
                 if "session" in kwargs:  # A session can be provided manually
                     return func(*args, **kwargs)
 
                 engine = create_engine(DATABASE_URL)
                 with Session(engine) as session:
-                    result = func(*args, session=session, **kwargs)
+                    kwargs["session"] = session
+                    result = func(*args, **kwargs)
                     if commit:
                         session.commit()
                 engine.dispose()
