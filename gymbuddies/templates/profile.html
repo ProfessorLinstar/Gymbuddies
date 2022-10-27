@@ -31,7 +31,7 @@
             <div class="card-header pb-0">
               <div class="d-flex align-items-center">
                 <p class="mb-0">Edit Profile</p>
-                <button class="btn btn-primary btn-sm ms-auto">Settings</button>
+                <!-- <button class="btn btn-primary btn-sm ms-auto">Settings</button> -->
               </div>
             </div>
             <div class="card-body">
@@ -86,7 +86,7 @@
                 </div>
                 <div class = "col md-4">
                   <label for = "level2">Level</label> 
-                  <select class="form-control" name="choices-button" id="choices-button" placeholder="Departure">
+                  <select class="form-control" name="choices-button" id="choices-button" placeholder="Level">
                     <option value="Choice 1" selected="">Beginner</option>
                     <option value="Choice 2">Intermediate</option>
                     <option value="Choice 3">Advanced</option>
@@ -139,14 +139,19 @@
                   </div>
                 </div>
               </div>
+              <!-- update button -->
+              <button class="btn btn-primary btn-sm ms-auto">Update</button>
             </div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="card card-profile">
+            <div class="card-header pb-0 pt-3 bg-transparent">
+              <h6 class="text-capitalize">Your Schedule</h6>
             <!--
             <img src="../assets/img/bg-profile.jpg" alt="Image placeholder" class="card-img-top"> -->
-            <div class="row justify-content-center">
+            
+            <!-- <div class="row justify-content-center">
               <div class="col-4 col-lg-4 order-lg-2">
                 <div class="mt-n4 mt-lg-n6 mb-4 mb-lg-0">
                   <a href="javascript:;">
@@ -196,6 +201,16 @@
                   <i class="ni education_hat mr-2"></i>University of Computer Science
                 </div>
               </div>
+            </div>
+          -->
+            </div>
+            <div class="card-body p-3">
+              <img src = "{{ url_for('static', filename='calendar.png') }}" width="100%">
+          <!--<div class="chart">
+            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+          </div>-->
+            <br>
+              <button class="btn btn-primary btn-sm ms-auto">Update</button>
             </div>
           </div>
         </div>
