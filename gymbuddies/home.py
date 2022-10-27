@@ -28,4 +28,9 @@ def home():
 @bp.route("/profile")
 def profile():
     """Profile page for editing user information."""
-    return render_template("profile.html")
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    return render_template("profile.html", netid=netid)

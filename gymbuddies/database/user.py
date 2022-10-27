@@ -162,3 +162,14 @@ def get_addinfo(netid: str, *, session: Optional[Session] = None) -> Optional[st
     if query is None:
         raise UserNotFound(netid=netid)
     return query.addinfo
+
+
+@db.session_decorator(commit=False)
+def get_contact(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+    """Attempts to return the additional info of a user."""
+    assert session is not None
+    query = cast(db.MappedUser,
+                 session.query(db.User.contact).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.contact

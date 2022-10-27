@@ -40,19 +40,19 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="netid" class="form-control-label">Net Id</label>
-                    <p>{{ g.netid }}</p>
+                    <input class="form-control" type="text" value="{{ netid }}">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="email" class="form-control-label">Email address</label>
-                    <input class="form-control" type="email" value="{{ contact }}">
+                    <label for="email" class="form-control-label">Email</label>
+                    <input class="form-control" type="email" value="{{netid}}@princeton.edu">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="name" class="form-control-label">Name</label>
-                    <input class="form-control" type="text" value="{{ name }}">
+                    <input class="form-control" type="text" value="{{ database.user.get_name(netid) }}">
                   </div>
                 </div>
               </div>

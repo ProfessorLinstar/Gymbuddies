@@ -181,7 +181,7 @@
               </div>
             </div> -->
             <div class="card-body pt-2">
-              <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{ g.user.name }}</span>
+              <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{ netid }}</span>
               <a href="javascript:;" class="card-title h5 d-block text-darker">
                 Hello, {{ database.user.get_user(netid).name }}
               </a>
@@ -189,13 +189,13 @@
                 Bio: Hi, I love working out at the gym, but I really need a partner to keep me motivated. hmu if you’re interested! generally i like to do upper body, in particular shoulders and arms. 
               </p>
               <p class="card-description mb-4">
-                Contact: {{ contact }} 1112223333
+                Contact: {{ database.user.get_contact(netid) }} 
               </p>
               <p class="card-description mb-4">
-                Level: {{ level0 }} Beginner
+                Level: {{ database.user.get_level(netid) }}
               </p>
               <p class="card-description mb-4">
-                Additional Information: {{ addinfo }} I have a knee injury. Would prefer a partner who does not want to do a lot of movement involving the knee. 
+                Additional Information: {{ database.user.get_addinfo(netid) }} 
               </p>
               <p class="card-description mb-4">
                 Open: {{ open }} 
