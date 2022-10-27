@@ -1,8 +1,9 @@
 """Home page blueprint."""
 
 from flask import Blueprint
-from flask import session
+from flask import session, g
 from flask import render_template, redirect, url_for
+from . import database
 
 bp = Blueprint("home", __name__, url_prefix="")
 
@@ -20,6 +21,7 @@ def home():
     if not netid:
         return redirect(url_for("auth.login"))
 
+    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     return render_template("home.html", netid=netid)
 
 

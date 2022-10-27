@@ -2,6 +2,7 @@
 
 from flask import Flask
 from . import home, master, auth, matching
+from . import database
 
 
 
@@ -21,5 +22,7 @@ def create_app():
     app.register_blueprint(master.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(matching.bp)
+
+    app.jinja_env.globals.update(database=database)
 
     return app

@@ -80,10 +80,10 @@ def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
         return
 
     # need to handle case where user row does not yet exist
-    for i, status in enumerate(schedule):
-        if status == db.ScheduleStatus.UNAVAILABLE:
-            continue
-        db_schedule.add_time_status(user.netid, db.TimeBlock(i), status, session=session)
+    # for i, status in enumerate(schedule):
+    #     if status == db.ScheduleStatus.UNAVAILABLE:
+    #         continue
+    #     db_schedule.add_time_status(user.netid, db.TimeBlock(i), status, session=session)
 
 
 @db.session_decorator(commit=True)

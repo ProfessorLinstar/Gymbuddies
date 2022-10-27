@@ -65,7 +65,10 @@ def users():
         print(json.dumps({k: str(v) for k, v in user.items()}, sort_keys=True, indent=4))
 
     for user in data.values():
-        database.user.create(**user)
+        if database.user.has_user(user["netid"]):
+            database.user.update(**user)
+        else:
+            database.user.create(**user)
 
 
 def main():
