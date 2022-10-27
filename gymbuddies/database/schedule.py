@@ -16,7 +16,7 @@ def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     return session.query(db.User).filter(db.User.netid == netid).one().schedule
 
 
-def schedule_query(session: Session, netid: str, time: db.TimeBlock) -> Optional[db.Schedule]:
+def _get_block(session: Session, netid: str, time: db.TimeBlock) -> Optional[db.Schedule]:
     """ Helper method for eliminating some repetitive code"""
     return session.query(db.Schedule).filter(db.Schedule.netid == netid,
                                              db.Schedule.timeblock == time).first()
@@ -25,35 +25,37 @@ def schedule_query(session: Session, netid: str, time: db.TimeBlock) -> Optional
 @db.session_decorator(commit=True)
 def add_time_status(netid: str,
                     time: db.TimeBlock,
-                    which_status: int,
+                    status: db.ScheduleStatus,
                     *,
-                    session: Optional[Session] = None) -> bool:
+                    session: Optional[Session] = None,
+                    user: Optional[db.MappedUser] = None) -> bool:
     """Updates either Availability, Pending, or Matched to be set for a certain time block.
-    In the case that the attribute was already set, False is returned. which_status should
+    In the case that the attribute was already set, False is returned. status should
     be a ScheduleStatus enum value"""
     assert session is not None
 
     # make change to the Schedule Table
-    row = schedule_query(session, netid, time)
-    if row is None:
-        row = db.Schedule(timeblock=time, netid=netid)
-        session.add(row)
+    block = _get_block(session, netid, time)
+    if block is None:
+        block = db.Schedule(timeblock=time, netid=netid)
+        session.add(block)
     else:
-        if row.status & which_status:
+        if block.status & status:
             return False
 
-    row.matched = cast(Column, db.ScheduleStatus.MATCHED & which_status)
-    row.pending = cast(Column, db.ScheduleStatus.PENDING & which_status)
-    row.available = cast(Column, db.ScheduleStatus.AVAILABLE & which_status)
+    block.matched = cast(Column, db.ScheduleStatus.MATCHED & status)
+    block.pending = cast(Column, db.ScheduleStatus.PENDING & status)
+    block.available = cast(Column, db.ScheduleStatus.AVAILABLE & status)
 
     # make change to the User Table
-    row = db_user.get_user(netid, session=session)
-    if row is None:
+    if user is None:
+        user = db_user.get_user(netid, session=session)
+    if user is None:
         raise db_user.UserNotFound(netid=netid)
-    row.schedule[time] |= which_status
+
+    user.schedule[time] |= status
 
     return True
-
 
 
 @db.session_decorator(commit=False)

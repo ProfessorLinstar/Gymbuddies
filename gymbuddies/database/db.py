@@ -33,6 +33,7 @@ NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
 NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 
 
+engine = create_engine(DATABASE_URL)
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
@@ -57,13 +58,11 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
                 if "session" in kwargs:  # A session can be provided manually
                     return func(*args, **kwargs)
 
-                engine = create_engine(DATABASE_URL)
                 with Session(engine) as session:
                     kwargs["session"] = session
                     result = func(*args, **kwargs)
                     if commit:
                         session.commit()
-                engine.dispose()
                 return result
 
             except Exception:
