@@ -10,27 +10,66 @@
 {% block pagename_large %} Find a Buddy {% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12 mb-4">
-    <!--<div class="card ">
-      <div class="card-header pb-0 px-3">
-        <h6 class="mb-0">Insert Calendar</h6>
-      </div>
-    </div>-->
-    <div class="card z-index-2 h-100">
-      <div class="card-header pb-0 pt-3 bg-transparent">
-        <h6 class="text-capitalize">Insert Calendar</h6>
-        <!-- <p class="text-sm mb-0">
-          <i class="fa fa-arrow-up text-success"></i>
-          <span class="font-weight-bold">4% more</span> in 2021
-        </p> -->
-      </div>
-      <div class="card-body p-3">
-        <div class="chart">
-          <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header pb-0 pt-3 bg-transparent">
+          <h6 class="text-capitalize">Find a Buddy</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Person's Schedule -->
+              <div class="p-3">
+                <img src = "{{ url_for('static', filename='andiecalendar.png') }}" width="100%">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <!-- Person's Profile Card -->
+              <div class="card z-index-2 h-90">
+                <div class="card-header pb-0 pt-3 bg-transparent">
+                    <h6 class="text-capitalize">Profile</h6>
+                <div class="card-body pt-2">
+                  <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
+                  <a href="javascript:;" class="card-title h5 d-block text-darker">
+                    Andie Uh
+                  </a>
+                  <p class="card-description mb-4">
+                    <br>
+                    Bio: i love doing leg day and stuff. hit me up if you wanna learn how to lift more than 500 lbs
+                  </p>
+                  <!--<p class="card-description mb-4">
+                    Contact: {{ database.user.get_contact(testandie) }} 
+                  </p>-->
+                  <p class="card-description mb-4">
+                    Level: Intermediate
+                  </p>
+                  <p class="card-description mb-4">
+                    Interests: Building Mass, Legs
+                  </p>
+                  <p class="card-description mb-4">
+                    Additional Information: {{ database.user.get_addinfo(testandie) }} 
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br>
+          <div class="row mt-4">
+            <div class="col-md-6 text-sm-right">
+                <!-- Pass button -->
+                <button class="btn btn-primary btn-sm" >Pass</button>
+            </div>
+            <div class="col-md-6 text-sm-left">
+              <!-- Match button -->
+              <button class="btn btn-primary btn-sm" >Match</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </div>  
 </div>
+
 {% endblock %}
