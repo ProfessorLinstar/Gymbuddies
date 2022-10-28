@@ -62,7 +62,7 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label for="example-text-input" class="form-control-label">Bio</label>
-                    <input class="form-control" type="text" value="Hi, I love working out at the gym, but I really need a partner to keep me motivated. hmu if you’re interested! generally i like to do upper body, in particular shoulders and arms.">
+                    <input class="form-control" type="text" value="{{ database.user.get_bio(netid) }}">
                   </div>
                 </div>
               </div>
@@ -99,7 +99,7 @@
                 <div class = "col md-4">
                   <label for = "level2">Level</label> 
                   <select class="form-control" name="choices-button" id="choices-button" placeholder="Level">
-                    <option value="Choice 1" selected="">Beginner</option>
+                    <option value="Choice 1" selected="">Newbie</option>
                     <option value="Choice 2">Intermediate</option>
                     <option value="Choice 3">Advanced</option>
                   </select>
@@ -125,7 +125,7 @@
                     <label for="example-text-input" class="form-control-label">Interests</label>
                     <label class="custom-toggle">
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck2" checked>
+                        <input type="checkbox" class="custom-control-input" id="customCheck2">
                         <label class="custom-control-label" for="customCheck2">Building Mass</label>
                       </div>
                       <div class="custom-control custom-checkbox">
@@ -134,7 +134,7 @@
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="customCheck4">
-                        <label class="custom-control-label" for="customCheck4">Pecs</label>
+                        <label class="custom-control-label" for="customCheck4" checked >Pecs</label>
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="customCheck5">
