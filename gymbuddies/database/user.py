@@ -2,6 +2,7 @@
 from typing import Optional, Any, List, Dict
 from typing import cast
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import func
 from . import db
 from . import schedule as db_schedule
 
@@ -111,6 +112,16 @@ def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[d
     assert session is not None
     return session.query(db.User).filter(*criterions).all()
 
+@db.session_decorator(commit=False)
+def get_rand_users(number: int, netid: str, session: Optional[
+    Session] = None) -> Optional[List[db.MappedUser]]:
+    """Attempts to return a <number> random sample of users, from which <userid> is not a user"""
+    assert session is not None
+    rows = session.query(db.User).filter(db.User.netid != netid).order_by(func.random()).all()
+    if len(rows) <= 10:
+        return rows
+    return rows[0: number]
+
 
 @db.session_decorator(commit=False)
 def get_user(netid: str, *, session: Optional[Session] = None) -> db.MappedUser:
@@ -152,6 +163,16 @@ def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[int]
         raise UserNotFound(netid=netid)
     return query.level
 
+@db.session_decorator(commit=False)
+def get_level_preference(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
+    """Attemps to return the level preference of a user."""
+    assert session is not None
+    query = cast(db.MappedUser, session.query(db.User.levelpreference).filter(
+        db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.levelpreference
+
 
 @db.session_decorator(commit=False)
 def get_addinfo(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
@@ -173,3 +194,14 @@ def get_contact(netid: str, *, session: Optional[Session] = None) -> Optional[st
     if query is None:
         raise UserNotFound(netid=netid)
     return query.contact
+
+
+@db.session_decorator(commit=False)
+def get_interests(netid: str, *, session: Optional[Session] = None) -> Optional[Dict[str, bool]]:
+    """Attemps to return interests of a user"""
+    assert session is not None
+    query = cast(db.MappedUser,
+                session.query(db.User.interests).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.interests

@@ -112,6 +112,20 @@ class ScheduleStatus(IntFlag):
         return str(int(self))
 
 
+class Level(int, Enum):
+    """User level enumeration"""
+    NEWBIE = 0
+    ROOKIE = 1
+    GYMSHARK = 2
+
+
+class LevelPreference(int, Enum):
+    """User level preference enumeration"""
+    EQUAL = 0
+    LOWEREQUAL = 1
+    GREATEREQUAL = 2
+
+
 class TimeBlock(int):
     """Integer derivative representing a particular time block in a schedule. Provides conversion
     functions to human readable times and vice versa."""
@@ -150,6 +164,7 @@ class User(BASE):
     name = Column(String)  # alias displayed in system, e.g. mrpieguy
     contact = Column(String)  # Contact information
     level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
+    levelpreference = Column(Integer) #
     addinfo = Column(String)  # additional info in user profile
     interests = Column(PickleType)  # Dictionary indicating interests
 
@@ -166,6 +181,7 @@ class MappedUser(User):
     name: str
     contact: str
     level: int
+    levelpreference: int
     addinfo: str
     interests: Dict[str, Any]
 
