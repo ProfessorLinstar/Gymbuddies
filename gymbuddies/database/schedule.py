@@ -1,5 +1,7 @@
 """Database API"""
-from typing import List, Optional
+from typing import List, Optional, Any
+from typing import cast
+from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from . import db
 from . import user as db_user
@@ -71,37 +73,31 @@ def update_schedule_status(
     return True
 
 
+def _get_blocks(session: Session, netid: str, status_flag: Column) -> List[int]:
+    rows = session.query(db.Schedule.timeblock).filter(
+        db.Schedule.netid == netid, status_flag == True).order_by(db.Schedule.timeblock).all()
+    return [row.timeblock for row in cast(List[Any], rows)]
+
+
 @db.session_decorator(commit=False)
 def get_matched_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ Return schedule specifially showing time of matches"""
     assert session is not None
-
-    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid,
-                                             db.Schedule.matched == True).order_by(
-                                                 db.Schedule.timeblock).all()
-    return [row.timeblock for row in rows]
+    return _get_blocks(session, netid, db.Schedule.matched)
 
 
 @db.session_decorator(commit=False)
 def get_pending_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ Return schedule specifially showing time of pending matches"""
     assert session is not None
-
-    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid,
-                                             db.Schedule.pending == True).order_by(
-                                                 db.Schedule.timeblock).all()
-    return [row.timeblock for row in rows]
+    return _get_blocks(session, netid, db.Schedule.pending)
 
 
 @db.session_decorator(commit=False)
 def get_available_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """Return schedule specifically showing time of availabilities"""
     assert session is not None
-
-    rows = session.query(db.Schedule).filter(db.Schedule.netid == netid,
-                                             db.Schedule.available == True).order_by(
-                                                 db.Schedule.timeblock).all()
-    return [row.timeblock for row in rows]
+    return _get_blocks(session, netid, db.Schedule.available)
 
 
 @db.session_decorator(commit=False)
@@ -109,6 +105,6 @@ def get_available_users(timeblock: int, *, session: Optional[Session] = None) ->
     """Return list of users showing available users at a certain timeframe"""
     assert session is not None
 
-    rows = session.query(db.Schedule).filter(db.Schedule.timeblock == timeblock).order_by(
+    rows = session.query(db.Schedule.netid).filter(db.Schedule.timeblock == timeblock).order_by(
         db.Schedule.netid).all()
-    return [row.netid for row in rows]
+    return [row.netid for row in cast(List[Any], rows)]

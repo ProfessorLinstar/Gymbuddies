@@ -94,6 +94,19 @@ class RequestStatus(int, Enum):
     FINALIZED = 3
     TERMINATED = 4
 
+    def to_readable(self) -> str:
+        """Converts a Level to a human readable form."""
+        return _REQUESTSTATUS_TO_READABLE_MAP[self]
+
+
+_REQUESTSTATUS_TO_READABLE_MAP = {
+    RequestStatus.REJECTED: "REJECTED",
+    RequestStatus.PENDING: "PENDING",
+    RequestStatus.RETURN: "RETURN",
+    RequestStatus.FINALIZED: "FINALIZED",
+    RequestStatus.TERMINATED: "TERMINATED",
+}
+
 
 class ScheduleStatus(IntFlag):
     """Time block status enumeration. Indicates user status in a particular time block.
@@ -110,16 +123,9 @@ class ScheduleStatus(IntFlag):
     AVAILABLE = 4
 
     @classmethod
-    def from_str(cls,
-                 status: str,
-                 *,
-                 from_str_map={
-                     "unavailable": UNAVAILABLE,
-                     "matched": MATCHED,
-                     "pending": PENDING,
-                     "available": AVAILABLE,
-                 }) -> "ScheduleStatus":
-        return cls(from_str_map[status])
+    def from_str(cls, status: str) -> "ScheduleStatus":
+        """Returns a ScheduleStatus given a status string."""
+        return cls(_SCHEDULE_STATUS_FROM_STR_MAP[status])
 
     def __repr__(self):  # Print self as an integer
         return str(int(self))
@@ -127,6 +133,13 @@ class ScheduleStatus(IntFlag):
     def flags(self):
         """Returns string version of self as an IntFlag"""
         return super().__repr__()
+
+_SCHEDULE_STATUS_FROM_STR_MAP = {
+    "unavailable": ScheduleStatus.UNAVAILABLE,
+    "matched": ScheduleStatus.MATCHED,
+    "pending": ScheduleStatus.PENDING,
+    "available": ScheduleStatus.AVAILABLE,
+}
 
 
 class LevelPreference(int, Enum):
@@ -178,15 +191,16 @@ class Level(int, Enum):
     ROOKIE = 1
     GYMSHARK = 2
 
-    def to_readable(self,
-                    *,
-                    to_readable_map={
-                        0: "BEGINNER",
-                        1: "INTERMEDIATE",
-                        2: "ADVANCED",
-                    }) -> str:
+    def to_readable(self) -> str:
         """Converts a Level to a human readable form."""
-        return to_readable_map[self]
+        return _LEVEL_TO_READABLE_MAP[self]
+
+
+_LEVEL_TO_READABLE_MAP = {
+    Level.NEWBIE: "NEWBIE",
+    Level.ROOKIE: "ROOKIE",
+    Level.GYMSHARK: "GYMSHARK",
+}
 
 
 class User(BASE):

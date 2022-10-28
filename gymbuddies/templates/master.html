@@ -386,7 +386,7 @@ block links %}
     </div>
 
     <br />
-    <h2>Basic user functions</h2>
+    <h2>User functions</h2>
     <input type="submit" name="submit-user" value="Create" />
     <input type="submit" name="submit-user" value="Update" />
     <input type="submit" name="submit-user" value="Delete" />
@@ -395,8 +395,7 @@ block links %}
 
     <br />
     <br />
-    <h2>Basic scheduling functions</h2>
-
+    <h2>Scheduling functions</h2>
     <input
       type="radio"
       id="schedule-match"
@@ -429,6 +428,67 @@ block links %}
     <label for="schedule-available">Available</label>
     <input type="submit" name="submit-schedule" value="Get">
     <input type="submit" name="submit-schedule" value="Update">
+
+    <br />
+    <br />
+    <h2>Request functions</h2>
+    <input
+      type="radio"
+      id="request-rejected"
+      name="which_request"
+      value="rejected"
+      {{
+      schedule_match
+      }}
+    />
+    <label for="request-rejected">Rejected</label>
+    <input
+      type="radio"
+      id="request-pending"
+      name="which_request"
+      value="pending"
+      {{
+      level1
+      }}
+    />
+    <label for="request-pending">Pending</label>
+    <input
+      type="radio"
+      id="request-finalized"
+      name="which_request"
+      value="finalized"
+      {{
+      level2
+      }}
+    />
+    <label for="request-finalized">Finalized</label>
+    <input
+      type="radio"
+      id="request-terminated"
+      name="which_request"
+      value="terminated"
+      {{
+      level2
+      }}
+    />
+    <label for="request-terminated">Terminated</label>
+    <input type="submit" name="submit-request" value="Get">
+    <input type="submit" name="submit-request" value="Update">
+    <input type="submit" name="submit-request" value="Reject">
+    <input type="submit" name="submit-request" value="Finalize">
+    <input type="submit" name="submit-request" value="Terminate">
+    <br />
+    <table>
+      <tr>
+        <td> <label for="srcnetid">srcnetid</label> </td>
+        <td> <input name="srcnetid" id="srcnetid" value="{{ srcnetid }}" /> </td>
+      </tr>
+      <tr>
+        <td> <label for="destnetid">destnetid</label> </td>
+        <td> <input name="destnetid" id="destnetid" value="{{ destnetid }}" /> </td>
+      </tr>
+    </table>
+
 
   </form>
   <br />
