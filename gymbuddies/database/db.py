@@ -32,8 +32,9 @@ NUM_HOUR_BLOCKS = 60 // BLOCK_LENGTH
 NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
 NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 
-
 engine = create_engine(DATABASE_URL)
+
+
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
@@ -108,15 +109,24 @@ class ScheduleStatus(IntFlag):
     PENDING = 2
     AVAILABLE = 4
 
+    @classmethod
+    def from_str(cls,
+                 status: str,
+                 *,
+                 from_str_map={
+                     "unavailable": UNAVAILABLE,
+                     "matched": MATCHED,
+                     "pending": PENDING,
+                     "available": AVAILABLE,
+                 }) -> "ScheduleStatus":
+        return cls(from_str_map[status])
+
     def __repr__(self):  # Print self as an integer
         return str(int(self))
 
-
-class Level(int, Enum):
-    """User level enumeration"""
-    NEWBIE = 0
-    ROOKIE = 1
-    GYMSHARK = 2
+    def flags(self):
+        """Returns string version of self as an IntFlag"""
+        return super().__repr__()
 
 
 class LevelPreference(int, Enum):
@@ -138,7 +148,7 @@ class TimeBlock(int):
         """Converts a (day, time) tuple to a TimeBlock. 'day' is an integer from 0-6, corresponding
         to Monday, ..., Sunday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
         00:00-00:05, ..., 23:55-24:00."""
-        return TimeBlock(day * NUM_DAY_BLOCKS + time)
+        return cls(day * NUM_DAY_BLOCKS + time)
 
     def to_readable(self) -> str:
         """Converts a TimeBlock to the human readable format 'Day, HH:MM'."""
@@ -156,6 +166,29 @@ class TimeBlock(int):
         return self // NUM_DAY_BLOCKS, self % NUM_DAY_BLOCKS
 
 
+class Level(int, Enum):
+    """Integer derivative representing a level. Provides conversion function to human readable
+    forms. Integers map to the following levels.
+        0 : Beginner
+        1 : Intermediate
+        2 : Advanced
+    """
+
+    NEWBIE = 0
+    ROOKIE = 1
+    GYMSHARK = 2
+
+    def to_readable(self,
+                    *,
+                    to_readable_map={
+                        0: "BEGINNER",
+                        1: "INTERMEDIATE",
+                        2: "ADVANCED",
+                    }) -> str:
+        """Converts a Level to a human readable form."""
+        return to_readable_map[self]
+
+
 class User(BASE):
     """Users database. Maps each netid to their Gymbuddies profile information."""
     __tablename__ = "users"
@@ -165,9 +198,9 @@ class User(BASE):
     contact = Column(String)  # Contact information
     level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
     levelpreference = Column(Integer) #
+    bio = Column(String)  # short bio for user
     addinfo = Column(String)  # additional info in user profile
     interests = Column(PickleType)  # Dictionary indicating interests
-
     schedule = Column(MutableList.as_mutable(PickleType))  # int[2016] with status for each block
     open = Column(Boolean)  # open for matching
 
@@ -182,6 +215,7 @@ class MappedUser(User):
     contact: str
     level: int
     levelpreference: int
+    bio: str
     addinfo: str
     interests: Dict[str, Any]
 

@@ -31,10 +31,7 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
 
     profile: Dict[str, Any] = _default_profile()
     user = db.User()
-    _update_user(session, user, **(profile | kwargs))
-    setattr(user, "netid", netid)
-
-    print("called _update_user!")
+    _update_user(session, user, **(profile | kwargs | {"netid": netid}))
 
     session.add(user)
 
@@ -51,7 +48,6 @@ def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     if user is None:
         raise UserNotFound(netid)
     _update_user(session, user, **kwargs)
-
 
     return True
 
@@ -85,11 +81,7 @@ def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
         return
 
     # need to handle case where user row does not yet exist
-    for i, status in enumerate(schedule):
-        print(f"working on {(i, status) = }")
-        if status == db.ScheduleStatus.UNAVAILABLE:
-            continue
-        db_schedule.update_status(user.netid, db.TimeBlock(i), status, session=session, user=user)
+    db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
 
 
 @db.session_decorator(commit=True)
@@ -155,13 +147,44 @@ def get_name(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
 
 
 @db.session_decorator(commit=False)
-def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
+def get_contact(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+    """Attempts to return the additional info of a user."""
+    assert session is not None
+    query = cast(db.MappedUser,
+                 session.query(db.User.contact).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.contact
+
+
+@db.session_decorator(commit=False)
+def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[db.Level]:
     """Attempts to return the level of a user."""
     assert session is not None
     query = cast(db.MappedUser, session.query(db.User.level).filter(db.User.netid == netid).first())
     if query is None:
         raise UserNotFound(netid=netid)
-    return query.level
+    return db.Level(query.level)
+
+
+@db.session_decorator(commit=False)
+def get_level_str(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+    """Attempts to return the level of a user as a string."""
+    assert session is not None
+    query = cast(db.MappedUser, session.query(db.User.level).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return db.Level(query.level).to_readable()
+
+
+@db.session_decorator(commit=False)
+def get_bio(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+    """Attempts to return the additional info of a user."""
+    assert session is not None
+    query = cast(db.MappedUser, session.query(db.User.bio).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.bio
 
 @db.session_decorator(commit=False)
 def get_level_preference(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
@@ -186,22 +209,43 @@ def get_addinfo(netid: str, *, session: Optional[Session] = None) -> Optional[st
 
 
 @db.session_decorator(commit=False)
-def get_contact(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_interests(netid: str, *, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
     """Attempts to return the additional info of a user."""
     assert session is not None
     query = cast(db.MappedUser,
-                 session.query(db.User.contact).filter(db.User.netid == netid).first())
-    if query is None:
-        raise UserNotFound(netid=netid)
-    return query.contact
-
-
-@db.session_decorator(commit=False)
-def get_interests(netid: str, *, session: Optional[Session] = None) -> Optional[Dict[str, bool]]:
-    """Attemps to return interests of a user"""
-    assert session is not None
-    query = cast(db.MappedUser,
-                session.query(db.User.interests).filter(db.User.netid == netid).first())
+                 session.query(db.User.interests).filter(db.User.netid == netid).first())
     if query is None:
         raise UserNotFound(netid=netid)
     return query.interests
+
+
+@db.session_decorator(commit=False)
+def get_schedule(netid: str, *, session: Optional[Session] = None) -> Optional[List[int]]:
+    """Attempts to return the additional info of a user."""
+    assert session is not None
+    query = cast(db.MappedUser,
+                 session.query(db.User.schedule).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.schedule
+
+
+@db.session_decorator(commit=False)
+def get_open(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+    """Attempts to return the additional info of a user."""
+    assert session is not None
+    query = cast(db.MappedUser, session.query(db.User.open).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.open
+
+
+@db.session_decorator(commit=False)
+def get_settings(netid: str, *, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+    """Attempts to return the additional info of a user."""
+    assert session is not None
+    query = cast(db.MappedUser,
+                 session.query(db.User.settings).filter(db.User.netid == netid).first())
+    if query is None:
+        raise UserNotFound(netid=netid)
+    return query.settings

@@ -1,6 +1,5 @@
 """Database API"""
 from typing import List, Optional
-from typing import cast
 from sqlalchemy.orm import Session
 from . import db
 from . import user as db_user
@@ -14,46 +13,61 @@ def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     return session.query(db.User).filter(db.User.netid == netid).one().schedule
 
 
-def _get_block(session: Session, netid: str, time: db.TimeBlock) -> Optional[db.MappedSchedule]:
-    """Retrieves a row of the Schedule table given a netid and a time. If the row exists, returns
-    the row. Otherwise, returns None."""
-    return session.query(db.Schedule).filter(db.Schedule.netid == netid,
-                                             db.Schedule.timeblock == time).first()
-
-
 @db.session_decorator(commit=True)
-def update_status(netid: str,
-                    time: db.TimeBlock,
-                    status: db.ScheduleStatus,
+def update_schedule(netid: str,
+                    schedule: List[int],
                     *,
                     session: Optional[Session] = None,
-                    user: Optional[db.MappedUser] = None) -> bool:
+                    update_user: bool = True) -> bool:
     """Updates either Availability, Pending, or Matched to be set for a certain time block.
     In the case that the attribute was already set, False is returned. status should
     be a ScheduleStatus enum value"""
     assert session is not None
+    assert len(schedule) == db.NUM_WEEK_BLOCKS
 
     # make change to the Schedule Table
-    block: db.MappedSchedule = _get_block(session, netid, time)
-    if block is None:
-        block = db.MappedSchedule(timeblock=time, netid=netid)
+    session.query(db.Schedule).filter(db.Schedule.netid == netid).delete()
+    for i, status in enumerate(schedule):
+        block = db.Schedule(
+            timeblock=i,
+            netid=netid,
+            matched=bool(db.ScheduleStatus.MATCHED & status),
+            pending=bool(db.ScheduleStatus.PENDING & status),
+            available=bool(db.ScheduleStatus.AVAILABLE & status),
+        )
+
         session.add(block)
-    else:
-        if status == block.matched | block.pending | block.available:
-            return False
 
-    block.matched = bool(db.ScheduleStatus.MATCHED & status)
-    block.pending = bool(db.ScheduleStatus.PENDING & status)
-    block.available = bool(db.ScheduleStatus.AVAILABLE & status)
+    # make change to the User table if necessary
+    if update_user:
+        db_user.update(netid, session=session, schedule=schedule)
 
-    # make change to the User Table
-    if user is None:
-        user = db_user.get_user(netid, session=session)
-    if user is None:
+    return True
+
+
+@db.session_decorator(commit=True)
+def update_schedule_status(
+    netid: str,
+    marked: List[int | bool],
+    status: db.ScheduleStatus,
+    *,
+    session: Optional[Session] = None,
+) -> bool:
+    """Updates the pending schedule for a user with netid 'netid', according to the marked list. The
+    indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
+    is marked for the corresponding TimeBlock."""
+
+    schedule: Optional[List[int]] = db_user.get_schedule(netid, session=session)
+    if schedule is None:
         raise db_user.UserNotFound(netid=netid)
 
-    user.schedule[time] |= status
+    for i, m in enumerate(marked):
+        if m:
+            schedule[i] |= status
+        else:
+            schedule[i] &= ~status
 
+    update_schedule(netid, schedule, session=session)
     return True
 
 

@@ -26,6 +26,7 @@ def users():
             "name": "Andy Wang",
             "contact": "919-265-8342",
             "level": "0",
+            "bio": "I go to Princeton!",
             "addinfo": "):<",
             "interests": {
                 "Pecs": True
@@ -38,6 +39,7 @@ def users():
         #     "name": "Joy Cho",
         #     "contact": "ejcho@princeton.edu",
         #     "level": "0",
+        #     "bio": "I go to Princeton!",
         #     "addinfo": "):<",
         #     "interests": {},
         #     "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
@@ -48,6 +50,7 @@ def users():
         #     "contact": "jasono@princeton.edu",
         #     "level": "2",
         #     "addinfo": "):<",
+        #     "bio": "I go to Princeton!",
         #     "interests": {},
         #     "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
         # },
@@ -56,6 +59,7 @@ def users():
         #     "name": "Genie Choi",
         #     "contact": "eyc2@princeton.edu",
         #     "level": "0",
+        #     "bio": "I go to Princeton!",
         #     "addinfo": "):<",
         #     "interests": {},
         #     "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
