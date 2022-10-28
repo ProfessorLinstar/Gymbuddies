@@ -1,5 +1,5 @@
 """Database API"""
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from typing import cast
 from datetime import datetime
 
@@ -8,18 +8,78 @@ from sqlalchemy.orm import Session
 from . import db
 
 
+class RequestNotFound(Exception):
+    """Exception raised in API call if user required but not found in database."""
+
+    def __init__(self, message: str = "", requestid: Optional[int] = None):
+        if message:
+            pass
+        elif requestid is not None:
+            message = f"Request with requestid '{requestid}' not found in the database."
+        else:
+            message = "Request not found in the database."
+        super().__init__(message)
+
+
 # TODO: ERROR HANDLING FOR ALL OF THESE FUNCTIONS
-#### Matching ####
+
+
 @db.session_decorator(commit=False)
-def get_matches(srcuserid: int, *, session: Optional[Session] = None) -> List[int]:
+def get_active_outgoing(destnetid: str, *, session: Optional[Session] = None) -> List[int]:
+    """Attempts to return a list of the active outgoing requests for a user with netid
+    'destnetid'."""
+    assert session is not None
+    requests = session.query(db.Request.requestid).filter(
+        db.Request.destnetid == destnetid, db.Request.status == db.RequestStatus.PENDING).all()
+    return [r.requestid for r in cast(List[Any], requests)]
+
+
+@db.session_decorator(commit=False)
+def get_active_incoming(srcnetid: str, *, session: Optional[Session] = None) -> List[int]:
+    """Attempts to return a list of the active incoming requests for a user with netid
+    'srcnetid'."""
+    assert session is not None
+    requests = session.query(db.Request.requestid).filter(
+        db.Request.srcnetid == srcnetid, db.Request.status == db.RequestStatus.PENDING).all()
+    return [r.requestid for r in cast(List[Any], requests)]
+
+
+@db.session_decorator(commit=False)
+def get_active_id(srcnetid: str,
+                  destnetid: str,
+                  *,
+                  session: Optional[Session] = None) -> Optional[int]:
+    """Attempts to return the requestid of an active request from a user with netid 'srcnetid' to a
+    user with netid 'destnetid'. If no such request exists, returns None."""
+    assert session is not None
+    request = session.query(db.Request.requestid).filter(
+        db.Request.srcnetid == srcnetid, db.Request.destnetid == destnetid,
+        db.Request.status == db.RequestStatus.PENDING).first()
+
+    return cast(Any, request).requestid if request is not None else None
+
+
+@db.session_decorator(commit=False)
+def get_request(requestid: int, *, session: Optional[Session] = None) -> db.MappedRequest:
+    """Attempts to return a request with a given requestid. If no such request exists, raises an
+    exception."""
+    assert session is not None
+    request = session.query(db.Request).filter(db.Request.requestid == requestid).first()
+    if request is None:
+        raise RequestNotFound(requestid=requestid)
+    return request
+
+
+@db.session_decorator(commit=False)
+def get_matches(srcnetid: str, *, session: Optional[Session] = None) -> List[int]:
     """ get a list of matches associated with a user"""
     assert session is not None
     matches: List[int] = []
-    rows = session.query(db.Request).filter(db.Request.srcuserid == srcuserid,
+    rows = session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
                                             db.Request.status == db.RequestStatus.FINALIZED).all()
     for row in rows:
         matches.append(row.requestid)
-    rows = session.query(db.Request).filter(db.Request.destuserid == srcuserid,
+    rows = session.query(db.Request).filter(db.Request.destnetid == srcnetid,
                                             db.Request.status == db.RequestStatus.FINALIZED).all()
     for row in rows:
         matches.append(row.requestid)
@@ -73,75 +133,74 @@ def get_accept_schedule(requestid: int, *, session: Optional[Session] = None) ->
 
 
 @db.session_decorator(commit=False)
-def incoming_requests(destnetid: int,
+def incoming_requests(destnetid: str,
                       *,
-                      session: Optional[Session] = None) -> dict[int, db.RequestStatus]:
+                      session: Optional[Session] = None) -> Dict[int, db.RequestStatus]:
     """get a list of incoming matches associatec with a user"""
     assert session is not None
-    rows = session.query(db.Request).filter(db.Request.destnetid == destnetid).order_by(
-        db.Request.srcnetid).all()
+    rows: List[db.MappedRequest] = session.query(
+        db.Request).filter(db.Request.destnetid == destnetid).order_by(db.Request.srcnetid).all()
     incoming_request_statuses: Dict[int, db.RequestStatus] = {}
     for row in rows:
-        incoming_request_statuses[row.requestid] = row.status
+        incoming_request_statuses[row.requestid] = db.RequestStatus(row.status)
 
     return incoming_request_statuses
 
 
 @db.session_decorator(commit=False)
-def outgoing_requests(srcnetid: int,
+def outgoing_requests(srcnetid: str,
                       *,
-                      session: Optional[Session] = None) -> dict[int, db.RequestStatus]:
+                      session: Optional[Session] = None) -> Dict[int, db.RequestStatus]:
     """get a list of outgoing matches associated with a user"""
     assert session is not None
-    rows = session.query(db.Request).filter(db.Request.srcnetid == srcnetid).order_by(
-        db.Request.destnetid).all()
+    rows: List[db.MappedRequest] = session.query(
+        db.Request).filter(db.Request.srcnetid == srcnetid).order_by(db.Request.destnetid).all()
     outgoing_request_statuses: Dict[int, db.RequestStatus] = {}
     for row in rows:
-        outgoing_request_statuses[row.requestid] = row.status
+        outgoing_request_statuses[row.requestid] = db.RequestStatus(row.status)
     return outgoing_request_statuses
 
 
 @db.session_decorator(commit=True)
-def make_request(srcnetid: int,
-                 destnetid: int,
-                 times: List[db.TimeBlock],
+def make_request(srcnetid: str,
+                 destnetid: str,
+                 schedule: List[db.ScheduleStatus],
                  *,
-                 session: Optional[Session] = None) -> int:
+                 session: Optional[Session] = None) -> db.MappedRequest:
     """make a new outgoing request to another user with specific times"""
     assert session is not None
+    assert len(schedule) == db.NUM_WEEK_BLOCKS
+    # TODO: use get_active to check if there is already an active request
     request = db.MappedRequest(srcnetid=srcnetid,
-                         destnetid=destnetid,
-                         maketimestamp=datetime.now(),
-                         status=db.RequestStatus.PENDING,
-                         schedule=times)
+                               destnetid=destnetid,
+                               maketimestamp=datetime.now(),
+                               status=db.RequestStatus.PENDING,
+                               schedule=schedule)
     session.add(request)
-    session.commit()
-    # session.refresh(request) # insert line if session.commit() does not refresh request
 
-    return request.requestid
+    return request
 
 
 @db.session_decorator(commit=True)
-def accept_request(requestid: int, times: List[db.TimeBlock], *, session: Optional[Session] = None):
+def accept_request(requestid: int, *, session: Optional[Session] = None):
     """send the accept for the request, selecting the final schedule times"""
     assert session is not None
     row = session.query(db.Request).filter(db.Request.requestid == requestid).one()
     row.accepttimestamp = datetime.now()
     row.status = db.RequestStatus.RETURN
-    session.commit()
 
 
+@db.session_decorator(commit=True)
 def finalize_request(requestid: int, *, session: Optional[Session] = None):
     """finalize the request by approving the accept request"""
     assert session is not None
     row = session.query(db.Request).filter(db.Request.requestid == requestid).one()
     row.finalizedtimestamp = datetime.now()
     row.status = db.RequestStatus.FINALIZED
-    session.commit()
 
 
 @db.session_decorator(commit=True)
-def delete_request(requestid: int, *, session: Optional[Session] = None):
+def delete_request(requestid: int, *, session: Optional[Session] = None) -> bool:
     """delete outgoing request"""
     assert session is not None
     row = session.query(db.Request).filter(db.Request.requestid == requestid).one()
@@ -150,5 +209,5 @@ def delete_request(requestid: int, *, session: Optional[Session] = None):
     elif row.status == db.RequestStatus.FINALIZED:
         row.status = db.RequestStatus.TERMINATED
     else:
-        pass
-    row.commit()
+        return False
+    return True

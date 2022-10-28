@@ -46,7 +46,11 @@ def show():
         handle_user(context, profile)
     elif "submit-schedule" in request.form:
         handle_schedule(context, profile)
+    elif "submit-request" in request.form:
+        handle_request(context, profile)
 
+    print("Made context of this form:")
+    print(context["query"])
     return render_template("master.html", **context)
 
 def form_to_profile() -> Dict[str, Any]:
@@ -87,34 +91,32 @@ def form_to_profile() -> Dict[str, Any]:
 
 def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'user' functions"""
-
     netid: str = profile["netid"]
-    query: str = ""
 
     match request.form.get("submit-user", ""):
         case "Create":
             if netid == "":
-                query = "Cannot create user with empty netid. Creation aborted."
+                context["query"] += "Cannot create user with empty netid. Creation aborted."
             elif database.user.create(**profile):
-                query = f"Creation of user with netid '{profile['netid']}' successful.\n"
-                query += wrap(database.debug.sprint_users(db.User.netid == netid))
+                context["query"] += f"Creation of user with netid '{netid}' successful.\n"
+                context["query"] += wrap(database.debug.sprint_users(db.User.netid == netid))
             else:
-                query = f"User with netid '{profile['netid']}' already exists. Skipping creation."
+                context["query"] += f"User with netid '{netid}' already exists. Skipping creation."
 
         case "Update":
             if database.user.update(**profile):
-                query = f"Update of user with netid '{profile['netid']}' successful.\n"
-                query += wrap(database.debug.sprint_users(db.User.netid == netid))
+                context["query"] += f"Update of user with netid '{netid}' successful.\n"
+                context["query"] += wrap(database.debug.sprint_users(db.User.netid == netid))
             else:
-                query = f"netid '{profile['netid']}' not found in the database."
+                context["query"] += f"netid '{netid}' not found in the database."
 
 
 
         case "Delete":
             if database.user.delete(netid):
-                query = f"Deletion of user with netid '{profile['netid']}' successful."
+                context["query"] += f"Deletion of user with netid '{netid}' successful."
             else:
-                query = f"netid '{profile['netid']}' not found in the database."
+                context["query"] += f"netid '{netid}' not found in the database."
 
         case "Query":
             user: Optional[db.MappedUser] = None
@@ -123,10 +125,10 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             if user_found:
                 user = database.user.get_user(netid)
             else:
-                query = "netid not found or not provided. Database contains the following users.\n"
+                context["query"] += "netid not found. Database contains the following users.\n"
                 users: Optional[List] = database.user.get_users()
                 users = users if users else []
-                query += json.dumps(
+                context["query"] += json.dumps(
                         [u.netid for u in users], sort_keys=True, indent=4)
 
             if user_found and user is not None:
@@ -149,32 +151,28 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
                 for i, s in enumerate(user.schedule):
                     day, time = db.TimeBlock(i).day_time()
                     s = cast(db.ScheduleStatus, s)
-                    if s == db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
+                    if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
                         context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
-                query = f"Query of user with netid '{profile['netid']}' successful."
-                print(f"User '{profile['netid']}' query result:")
+                context["query"] += f"Query of user with netid '{netid}' successful."
+                print(f"User '{netid}' query result:")
                 database.debug.printv(user)
             elif user_found:
-                query = f"User with netid '{profile['netid']}' found, but server encountered \n"
-                query += "an error."
+                context["query"] += f"User with netid '{netid}' found, but server encountered \n"
+                context["query"] += "an error."
 
         case "Clear":
-            query = ""
+            pass
 
         case other:
-            query = f"Unknown submit request {other}"
-
-    context["query"] = query
-    print(query)
+            context["query"] += f"Unknown submit request {other}"
 
 def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'schedule' functions."""
     netid: str = profile["netid"]
-    query: str = ""
 
     if not database.user.has_user(netid):
-        context["query"] = f"User with netid '{profile['netid']}' not found in the database."
+        context["query"] = f"User with netid '{netid}' not found in the database."
         return
 
     which_schedule: str = request.form.get("which_schedule", "available")
@@ -194,18 +192,100 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
                     day, time = db.TimeBlock(t).day_time()
                     context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
-                query = f"Get {which_schedule} schedule for user '{profile['netid']}' successful.\n"
-                query += f"Found these timeblocks: {timeblocks}"
+                context["query"] += f"Get {which_schedule} schedule for user '{netid}' successful."
+                context["query"] += f"\nFound these timeblocks: {timeblocks}"
             else:
-                query = f"Get {which_schedule} schedule for user '{profile['netid']}' failed.\n"
+                context["query"] += f"Get {which_schedule} schedule for user '{netid}' failed."
 
         case "Update":
             status: db.ScheduleStatus = db.ScheduleStatus.from_str(which_schedule)
             if database.schedule.update_schedule_status(netid, profile["schedule"], status):
-                query = f"Update {which_schedule} schedule for user '{profile['netid']}' successful"
-                query += "."
+                context["query"] += f"Update {which_schedule} schedule for user '{netid}' "
+                context["query"] += "successful."
             else:
-                query = f"Update {which_schedule} schedule for user '{profile['netid']}' failed."
+                context["query"] += f"Update {which_schedule} schedule for user '{netid}' failed."
 
-    context["query"] = query
-    print(query)
+def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
+    """Handles POST requests for 'request' functions."""
+    netid: str = profile["netid"]
+    destnetid: str = request.form.get("destnetid", "")
+    srcnetid: str = request.form.get("srcnetid", "")
+
+    if not database.user.has_user(netid):
+        context["query"] += f"User with netid '{netid}' not found in the database."
+        return
+
+    if destnetid and srcnetid:
+        context["query"] += "Use only one of srcnetid and destnetid."
+        return
+
+    if not database.user.has_user(srcnetid) and not database.user.has_user(destnetid):
+        context["query"] += f"Request users '{srcnetid}' and '{destnetid}' not found.\n"
+        in_requests: Optional[Dict[int, db.RequestStatus]] = database.request.incoming_requests(
+                netid)
+        if in_requests is None:
+            context["query"] += f"Incoming requests query for user with netid '{netid}' failed."
+            return
+
+        context["query"] += f"Incoming requests for user with netid '{netid}':\n"
+        context["query"] += json.dumps(
+            {requestid: {
+                "id": requestid,
+                "users": database.request.get_request_users(requestid),
+                "status": status.to_readable()
+            } for requestid, status in in_requests.items()},
+            sort_keys=True,
+            indent=4)
+        context["query"] += "\n"
+
+        out_requests: Optional[Dict[int, db.RequestStatus]] = database.request.outgoing_requests(
+                netid)
+        if out_requests is None:
+            context["query"] += f"Outgoing requests query for user with netid '{netid}' failed."
+            return
+
+        context["query"] += f"Outgoing requests for user with netid '{netid}':\n"
+        context["query"] += json.dumps(
+            {requestid: {
+                "id": requestid,
+                "users": database.request.get_request_users(requestid),
+                "status": status.to_readable()
+            } for requestid, status in out_requests.items()},
+            sort_keys=True,
+            indent=4)
+        context["query"] += "\n"
+        return
+
+    if destnetid:
+        srcnetid = netid
+    else:
+        destnetid = netid
+
+    match request.form.get("submit-request", ""):
+        case "Get":
+            requestid: Optional[int] = database.request.get_active_id(srcnetid, destnetid)
+            if requestid is None:
+                context["query"] += f"Active request not found between '{srcnetid}' and "
+                context["query"] += f"'{destnetid}'."
+                return
+            req: db.MappedRequest = database.request.get_request(requestid)
+            print(req)
+        case "Update":
+            if database.request.get_active_id(srcnetid, destnetid):
+                context["query"] += f"Pending request between {srcnetid} and {destnetid} "
+                context["query"] += "already exists."
+            elif database.request.make_request(srcnetid, destnetid, profile["schedule"]):
+                context["query"] += f"Request made between {srcnetid} and {destnetid}."
+            else:
+                context["query"] += f"Request between {srcnetid} and {destnetid} failed."
+        case "Reject":
+            requestid: Optional[int] = database.request.get_active_id(srcnetid, destnetid)
+            if requestid is None:
+                context["query"] += f"Reject request between {srcnetid} and {destnetid} failed. "
+                context["query"] += "No such active request exists."
+            elif database.request.delete_request(requestid):
+                context["query"] += f"Reject request between {srcnetid} and {destnetid} successful."
+            else:
+                context["query"] += f"Reject request between {srcnetid} and {destnetid} failed."
+        case "Terminate":
+            pass
