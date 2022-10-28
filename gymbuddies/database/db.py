@@ -132,7 +132,7 @@ class ScheduleStatus(IntFlag):
 class LevelPreference(int, Enum):
     """User level preference enumeration"""
     EQUAL = 0
-    LOWEREQUAL = 1
+    LESSEQUAL = 1
     GREATEREQUAL = 2
 
 
