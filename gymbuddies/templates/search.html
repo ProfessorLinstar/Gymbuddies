@@ -33,23 +33,23 @@
                 <div class="card-body pt-2">
                   <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
                   <a href="javascript:;" class="card-title h5 d-block text-darker">
-                    Andie Uh
+                    {{ database.user.get_user("ejcho").name }}
                   </a>
                   <p class="card-description mb-4">
                     <br>
-                    Bio: i love doing leg day and stuff. hit me up if you wanna learn how to lift more than 500 lbs
+                    Bio: {{ database.user.get_bio("ejcho") }}
                   </p>
                   <!--<p class="card-description mb-4">
                     Contact: {{ database.user.get_contact(testandie) }} 
                   </p>-->
                   <p class="card-description mb-4">
-                    Level: Intermediate
+                    Level: {{ database.user.get_level_str("ejcho") }}
                   </p>
                   <p class="card-description mb-4">
-                    Interests: Building Mass, Legs
+                    Interests: Legs, building mass <!-- {{ database.user.get_interests("ejcho") }} -->
                   </p>
                   <p class="card-description mb-4">
-                    Additional Information: {{ database.user.get_addinfo(testandie) }} 
+                    Additional Information: {{ database.user.get_addinfo("ejcho") }} 
                   </p>
                 </div>
               </div>
