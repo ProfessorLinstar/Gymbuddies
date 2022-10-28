@@ -4,6 +4,7 @@ who have the greatest similarities for weighted user interests and schedule avai
 """
 from typing import List, Dict
 import database.user
+import database.schedule
 import database.db
 
 # TODO: IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
@@ -12,6 +13,7 @@ RANDOM_NUMBER: int = 10 # number of users queried in random selection
 RETURN_NUMBER: int = 3 # number of users returned by find_matches
 LEVEL_WEIGHT: float = 0.5 # weight of level to compatability score
 INTERESTS_WEIGHT: float = 1 / NUMBER_INTERESTS # weight of interests to compatability score
+SCHEDULE_WEIGHT: float = 1 # weight of schedule intersection to compatability score
 
 def find_matches(netid: str) -> List[str]:
     """run algorithm to find top matches for user <netid>"""
@@ -66,6 +68,14 @@ def find_matches(netid: str) -> List[str]:
             if user_interests[interest] == main_user_interests[interest]:
                 interests_score += 1
         user_compatabilities[user.netid] += interests_score * INTERESTS_WEIGHT
+    # update user compatability scores based on schedule intersection
+    main_user_schedule: List[int] | None = database.schedule.get_schedule(netid)
+    assert main_user_schedule is not None
+    for user in randusers:
+        user_schedule: List[int] | None = database.schedule.get_schedule(user.netid)
+        assert user_schedule is not None
+
+
     # return users with the highest compatabilties to the main user
     compatabilities = sorted(user_compatabilities.items(), key = lambda x: x[1], reverse = True)
     for i in range(RETURN_NUMBER):
