@@ -32,8 +32,9 @@ NUM_HOUR_BLOCKS = 60 // BLOCK_LENGTH
 NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
 NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 
-
 engine = create_engine(DATABASE_URL)
+
+
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
@@ -142,6 +143,29 @@ class TimeBlock(int):
         return self // NUM_DAY_BLOCKS, self % NUM_DAY_BLOCKS
 
 
+class Level(int, Enum):
+    """Integer derivative representing a level. Provides conversion function to human readable
+    forms. Integers map to the following levels.
+        0 : Beginner
+        1 : Intermediate
+        2 : Advanced
+    """
+
+    BEGINNER = 0
+    INTERMEDIATE = 1
+    ADVANCED = 2
+
+    def to_readable(self,
+                    *,
+                    to_readable_map={
+                        0: "BEGINNER",
+                        1: "INTERMEDIATE",
+                        2: "ADVANCED",
+                    }) -> str:
+        """Converts a Level to a human readable form."""
+        return to_readable_map[self]
+
+
 class User(BASE):
     """Users database. Maps each netid to their Gymbuddies profile information."""
     __tablename__ = "users"
@@ -150,6 +174,7 @@ class User(BASE):
     name = Column(String)  # alias displayed in system, e.g. mrpieguy
     contact = Column(String)  # Contact information
     level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
+    bio = Column(String)  # short bio for user
     addinfo = Column(String)  # additional info in user profile
     interests = Column(PickleType)  # Dictionary indicating interests
 
@@ -166,6 +191,7 @@ class MappedUser(User):
     name: str
     contact: str
     level: int
+    bio: str
     addinfo: str
     interests: Dict[str, Any]
 

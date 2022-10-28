@@ -56,6 +56,7 @@ def form_to_profile() -> Dict[str, Any]:
             "name" : "",
             "contact" : "",
             "level" : "0",
+            "bio" : "",
             "addinfo" : "",
             "interests" : {},
             "schedule" : [],
@@ -132,6 +133,7 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
                 context["netid"] = user.netid
                 context["name"] = user.name
                 context["contact"] = user.contact
+                context["bio"] = user.bio
                 context["addinfo"] = user.addinfo
                 context[f"level{user.level}"] = "checked"
                 context["open"] = "on" if user.open else ""
