@@ -10,7 +10,8 @@ disable=multiple-statements,
         no-member,
         too-many-statements,
         too-many-branches,
-        singleton-comparison
+        singleton-comparison,
+        too-many-locals
 
 [FORMAT]
 max-line-length=100
