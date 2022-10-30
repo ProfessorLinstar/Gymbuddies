@@ -69,7 +69,6 @@ def _default_profile() -> Dict[str, Any]:
     }
 
 
-# TODO: assert about interests, schedule, and settings
 def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
     """Updates the attributes of 'user' according to 'kwargs'. Uses default properties to fill in
     null values."""

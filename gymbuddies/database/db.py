@@ -134,6 +134,7 @@ class ScheduleStatus(IntFlag):
         """Returns string version of self as an IntFlag"""
         return super().__repr__()
 
+
 _SCHEDULE_STATUS_FROM_STR_MAP = {
     "unavailable": ScheduleStatus.UNAVAILABLE,
     "matched": ScheduleStatus.MATCHED,
@@ -202,6 +203,8 @@ _LEVEL_TO_READABLE_MAP = {
     Level.GYMSHARK: "GYMSHARK",
 }
 
+# TODO: interests and settings objects
+
 
 class User(BASE):
     """Users database. Maps each netid to their Gymbuddies profile information."""
@@ -211,7 +214,7 @@ class User(BASE):
     name = Column(String)  # alias displayed in system, e.g. mrpieguy
     contact = Column(String)  # Contact information
     level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
-    levelpreference = Column(Integer) #
+    levelpreference = Column(Integer)  #
     bio = Column(String)  # short bio for user
     addinfo = Column(String)  # additional info in user profile
     interests = Column(PickleType)  # Dictionary indicating interests

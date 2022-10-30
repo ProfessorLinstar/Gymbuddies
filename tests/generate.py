@@ -29,7 +29,8 @@ def users():
             "bio": "I go to Princeton!",
             "addinfo": "):<",
             "interests": {
-                "Pecs": True
+                "Pecs": True,
+                "Legs": True,
             },
             # "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
             "schedule": [db.ScheduleStatus.AVAILABLE] * db.NUM_WEEK_BLOCKS
