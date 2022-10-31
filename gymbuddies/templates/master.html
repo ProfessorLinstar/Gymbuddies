@@ -432,20 +432,23 @@ block links %}
     <br />
     <br />
     <h2>Request functions</h2>
+    <input type="submit" name="submit-request" value="Get">
     <input type="submit" name="submit-request" value="New">
+    <input type="submit" name="submit-request" value="Finalize">
     <input type="submit" name="submit-request" value="Modify">
     <input type="submit" name="submit-request" value="Reject">
-    <input type="submit" name="submit-request" value="Finalize">
     <input type="submit" name="submit-request" value="Terminate">
+    <input type="submit" name="submit-request" value="History">
+    <input type="submit" name="submit-request" value="Query">
     <br />
     <table>
       <tr>
-        <td> <label for="srcnetid">srcnetid</label> </td>
-        <td> <input name="srcnetid" id="srcnetid" value="{{ srcnetid }}" /> </td>
-      </tr>
-      <tr>
         <td> <label for="destnetid">destnetid</label> </td>
         <td> <input name="destnetid" id="destnetid" value="{{ destnetid }}" /> </td>
+      </tr>
+      <tr>
+        <td> <label for="requestid">requestid</label> </td>
+        <td> <input type="number" min="0" step="1" name="requestid" id="requestid" value="{{ requestid }}" /> </td>
       </tr>
     </table>
 

@@ -1,10 +1,11 @@
 """Database API"""
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple, Any
 from datetime import datetime
-
+from sqlalchemy import Column
+from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import Session
-
 from . import db
+from . import user as db_user
 
 
 class MultipleActiveRequests(Exception):
@@ -45,19 +46,24 @@ def get_active_incoming(srcnetid: str, *, session: Optional[Session] = None) -> 
 
 
 @db.session_decorator(commit=False)
-def get_active_id(netid1: str, netid2: str, *, session: Optional[Session] = None) -> Optional[int]:
+def get_active(netid1: str,
+               netid2: str,
+               entities: Tuple[Column, ...] = (db.Request,),
+               *,
+               session: Optional[Session] = None) -> Any:
     """Attempts to return the requestid of an active request from a user with netid 'srcnetid' to a
     user with netid 'destnetid'. If no such request exists, returns None."""
     assert session is not None
 
-    requests = session.query(db.Request.requestid).filter(
-        ((db.Request.srcnetid == netid1) & (db.Request.destnetid == netid2)) |
-        ((db.Request.srcnetid == netid2) & (db.Request.destnetid == netid1)),
-        db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).all()
-    if len(requests) <= 2:
-        raise MultipleActiveRequests(netid1, netid2)
+    try:
+        request = session.query(*entities).filter(
+            ((db.Request.srcnetid == netid1) & (db.Request.destnetid == netid2)) |
+            ((db.Request.srcnetid == netid2) & (db.Request.destnetid == netid1)),
+            db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).scalar()
+    except MultipleResultsFound as ex:
+        raise MultipleActiveRequests(netid1, netid2) from ex
 
-    return requests[0][0] if requests else None
+    return request
 
 
 @db.session_decorator(commit=False)
@@ -65,7 +71,8 @@ def get_request(requestid: int, *, session: Optional[Session] = None) -> db.Mapp
     """Attempts to return a request with a given requestid. If no such request exists, raises an
     exception."""
     assert session is not None
-    request = session.query(db.Request).filter(db.Request.requestid == requestid).first()
+
+    request = session.query(db.Request).filter(db.Request.requestid == requestid).scalar()
     if request is None:
         raise RequestNotFound(requestid)
     return request
@@ -104,7 +111,7 @@ def get_request_stamps(requestid: int, *, session: Optional[Session] = None) -> 
 def get_request_status(requestid: int, *, session: Optional[Session] = None) -> db.RequestStatus:
     """Return request status of a requestid. If the request is not found, raises an exception."""
     assert session is not None
-    row = session.query(db.Request.status).filter(db.Request.requestid == requestid).first()
+    row = session.query(db.Request.status).filter(db.Request.requestid == requestid).scalar()
     if row is None:
         raise RequestNotFound(requestid)
     return row[0]
@@ -170,7 +177,11 @@ def new(srcnetid: str,
     or finalized request between 'srcnetid' and 'destnetid', then returns False."""
     assert session is not None
     assert len(schedule) == db.NUM_WEEK_BLOCKS
-    if get_active_id(srcnetid, destnetid, session=session):
+    for netid in (srcnetid, destnetid):
+        if not db_user.has_user(netid):
+            raise db_user.UserNotFound(netid)
+
+    if get_active(srcnetid, destnetid, session=session):
         return False
 
     request = db.MappedRequest(srcnetid=srcnetid,
@@ -183,28 +194,36 @@ def new(srcnetid: str,
     return request
 
 
+def _get(session: Session, requestid: int, entities: Tuple[Column, ...] = (db.Request,)) -> Any:
+    query = session.query(*entities).filter(db.Request.requestid == requestid).scalar()
+    if query is None:
+        raise RequestNotFound(requestid)
+    return query
+
+
 @db.session_decorator(commit=True)
 def finalize(requestid: int, *, session: Optional[Session] = None) -> bool:
     """finalize the request by approving the accept request"""
     assert session is not None
-    row = session.query(db.Request.status).filter(db.Request.requestid == requestid).one()
-    row.finalizedtimestamp = datetime.now()
-    row.status = db.RequestStatus.FINALIZED
+    request = _get(session, requestid)
+    if request.status != db.RequestStatus.PENDING:
+        return False
 
-    return False
+    request.finalizedtimestamp = datetime.now()  # TODO: specify timezone
+    request.status = db.RequestStatus.FINALIZED
+
+    return True
 
 
 @db.session_decorator(commit=True)
 def reject(requestid: int, *, session: Optional[Session] = None) -> bool:
     """delete outgoing request"""
     assert session is not None
-    row = session.query(db.Request).filter(db.Request.requestid == requestid).one()
-    if row.status == db.RequestStatus.PENDING or row.status == db.RequestStatus.RETURN:
-        row.status = db.RequestStatus.REJECTED
-    elif row.status == db.RequestStatus.FINALIZED:
-        row.status = db.RequestStatus.TERMINATED
-    else:
+    request = _get(session, requestid)
+    if request.status != db.RequestStatus.PENDING:
         return False
+
+    request.status = db.RequestStatus.REJECTED
     return True
 
 
@@ -212,13 +231,11 @@ def reject(requestid: int, *, session: Optional[Session] = None) -> bool:
 def terminate(requestid: int, *, session: Optional[Session] = None) -> bool:
     """delete outgoing request"""
     assert session is not None
-    row = session.query(db.Request).filter(db.Request.requestid == requestid).one()
-    if row.status == db.RequestStatus.PENDING or row.status == db.RequestStatus.RETURN:
-        row.status = db.RequestStatus.REJECTED
-    elif row.status == db.RequestStatus.FINALIZED:
-        row.status = db.RequestStatus.TERMINATED
-    else:
+    request = _get(session, requestid)
+    if request.status != db.RequestStatus.FINALIZED:
         return False
+
+    request.status = db.RequestStatus.TERMINATED
     return True
 
 

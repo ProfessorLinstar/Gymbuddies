@@ -79,6 +79,14 @@ def form_to_profile() -> Dict[str, Any]:
     return profile
 
 
+def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
+    """Checks the master schedule boxes according to the provided 'schedule'."""
+    for i, s in enumerate(schedule):
+        day, time = db.TimeBlock(i).day_time()
+        if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
+            context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
+
+
 def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'user' functions"""
     netid: str = profile["netid"]
@@ -134,11 +142,7 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             context["pecs"] = "checked" if user.interests.get("Pecs") else ""
             context["legs"] = "checked" if user.interests.get("Legs") else ""
 
-            # schedule
-            for i, s in enumerate(user.schedule):
-                day, time = db.TimeBlock(i).day_time()
-                if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
-                    context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
+            fill_schedule(context, user.schedule)
 
             context["query"] += f"Query of user with netid '{netid}' successful."
             print(f"User '{netid}' query result:")
@@ -195,71 +199,80 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 
 def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'request' functions."""
-    netid: str = profile["netid"]
+    srcnetid: str = profile["netid"]
     destnetid: str = request.form.get("destnetid", "")
-    srcnetid: str = request.form.get("srcnetid", "")
 
-    if not database.user.has_user(netid):
-        context["query"] += f"User with netid '{netid}' not found in the database."
+    if not database.user.has_user(srcnetid):
+        context["query"] += f"User with netid '{srcnetid}' not found in the database."
         return
-
-    if destnetid and srcnetid:
-        context["query"] += "Use only one of 'srcnetid' and 'destnetid'; the other will be 'netid'."
-        return
-
-    if not database.user.has_user(srcnetid) and not database.user.has_user(destnetid):
-        context["query"] += f"Request users '{srcnetid}' and '{destnetid}' not found.\n"
-        in_requests = database.request.incoming_requests(netid)
-        if in_requests is None:
-            context["query"] += f"Incoming requests query for user with netid '{netid}' failed."
-            return
-
-        context["query"] += f"Incoming requests for user with netid '{netid}':\n"
-        context["query"] += database.debug.sprint_requests(in_requests) + "\n"
-
-        out_requests = database.request.outgoing_requests(netid)
-        if out_requests is None:
-            context["query"] += f"Outgoing requests query for user with netid '{netid}' failed."
-            return
-
-        context["query"] += f"Outgoing requests for user with netid '{netid}':\n"
-        context["query"] += database.debug.sprint_requests(out_requests) + "\n"
-        return
-
-    if destnetid:
-        srcnetid = netid
-    else:
-        destnetid = netid
 
     submit: str = request.form.get("submit-request", "")
+    requestid = request.form.get("requestid", "")
+    requestid = int(requestid) if requestid.isdigit() else 0
+
     if submit == "Get":
-        requestid: Optional[int] = database.request.get_active_id(srcnetid, destnetid)
-        if requestid is None:
-            context["query"] += f"Active request not found between '{srcnetid}' and "
-            context["query"] += f"'{destnetid}'."
-            return
-        req: db.MappedRequest = database.request.get_request(requestid)
-        print(req)
+        response = database.request.get_request(requestid)
+
+        if response is None:
+            context["query"] += f"Query for request {requestid} failed."
+        else:
+            fill_schedule(context, response.schedule)
+            context["query"] += f"Query for request {requestid} successful."
 
     # TODO: compile necessary API for this section, and implement/revise API
-    elif submit == "Update":
-        if database.request.get_active_id(srcnetid, destnetid):
-            context["query"] += f"Pending request between {srcnetid} and {destnetid} "
-            context["query"] += "already exists."
-        elif database.request.new(srcnetid, destnetid, profile["schedule"]):
-            context["query"] += f"Request made between {srcnetid} and {destnetid}."
+    elif submit == "New":
+        response = database.request.new(srcnetid, destnetid, profile["schedule"])
+
+        if response:
+            context["query"] += f"Request made from '{srcnetid}' to '{destnetid}'."
+        elif response is None:
+            context["query"] += f"Request from '{srcnetid}' to '{destnetid}' failed."
         else:
-            context["query"] += f"Request between {srcnetid} and {destnetid} failed."
+            context["query"] += f"Active request from '{srcnetid}' to '{destnetid}' already exists."
+
+    elif submit == "Finalize":
+        response = database.request.finalize(requestid)
+
+        if response:
+            context["query"] += f"Request {requestid} successfully finalized."
+        elif response is None:
+            context["query"] += f"Finalization of request {requestid} failed."
+        else:
+            context["query"] += f"Request {requestid} is not pending. Unable to finalize."
 
     elif submit == "Reject":
-        requestid: Optional[int] = database.request.get_active_id(srcnetid, destnetid)
-        if requestid is None:
-            context["query"] += f"Reject request between {srcnetid} and {destnetid} failed. "
-            context["query"] += "No such active request exists."
-        elif database.request.reject(requestid):
-            context["query"] += f"Reject request between {srcnetid} and {destnetid} successful."
+        response = database.request.reject(requestid)
+
+        if response:
+            context["query"] += f"Request {requestid} successfully rejected."
+        elif response is None:
+            context["query"] += f"Rejection of request {requestid} failed."
         else:
-            context["query"] += f"Reject request between {srcnetid} and {destnetid} failed."
+            context["query"] += f"Request {requestid} is not pending. Unable to reject."
 
     elif submit == "Terminate":
-        pass
+        response = database.request.terminate(requestid)
+
+        if response:
+            context["query"] += f"Request {requestid} successfully terminated."
+        elif response is None:
+            context["query"] += f"Termination of request {requestid} failed."
+        else:
+            context["query"] += f"Request {requestid} is not finalized. Unable to terminate."
+
+    elif submit == "Query":
+        in_requests = database.request.incoming_requests(srcnetid)
+        if in_requests is None:
+            context["query"] += f"Incoming requests query for user with netid '{srcnetid}' failed."
+            return
+
+        context["query"] += f"Incoming requests for user with netid '{srcnetid}':\n"
+        context["query"] += database.debug.sprint_requests(in_requests) + "\n"
+
+        out_requests = database.request.outgoing_requests(srcnetid)
+        if out_requests is None:
+            context["query"] += f"Outgoing requests query for user with netid '{srcnetid}' failed."
+            return
+
+        context["query"] += f"Outgoing requests for user with netid '{srcnetid}':\n"
+        context["query"] += database.debug.sprint_requests(out_requests) + "\n"

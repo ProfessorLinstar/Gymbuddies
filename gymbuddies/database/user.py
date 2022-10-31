@@ -1,5 +1,5 @@
 """Database API"""
-from typing import Optional, Any, List, Dict
+from typing import Optional, Any, List, Dict, Tuple
 from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import func
@@ -78,7 +78,7 @@ def delete(netid: str, *, session: Optional[Session] = None) -> bool:
     Does nothing if the user does not exist."""
     assert session is not None
 
-    user: Optional[db.MappedUser] = session.query(db.User).filter(db.User.netid == netid).first()
+    user = _get(session, netid)
     if user is None:
         raise UserNotFound(netid)
     session.delete(user)
@@ -111,7 +111,7 @@ def get_user(netid: str, *, session: Optional[Session] = None) -> db.MappedUser:
     does not exist, raises an exception."""
     assert session is not None
 
-    user: Optional[db.MappedUser] = session.query(db.User).filter(db.User.netid == netid).first()
+    user = _get(session, netid)
     if user is None:
         raise UserNotFound(netid)
 
@@ -123,14 +123,17 @@ def has_user(netid: str, *, session: Optional[Session] = None) -> bool:
     """Checks if the database has a user object in the Users table with the given user netid. If the
     user does not exist, returns None."""
     assert session is not None
-    return session.query(db.User.netid).filter(db.User.netid == netid).first() is not None
+    return session.query(db.User.netid).filter(db.User.netid == netid).scalar() is not None
 
 
-def _get_column(session: Session, netid: str, column: Column) -> Any:
-    query = session.query(column).filter(db.User.netid == netid).first()
+def _get(session: Session, netid: str, entities: Tuple[Column, ...] = (db.User,)) -> Any:
+    query = session.query(*entities).filter(db.User.netid == netid).scalar()
     if query is None:
         raise UserNotFound(netid)
-    return query[0]
+    return query
+
+def _get_column(session: Session, netid: str, column: Column) -> Any:
+    return _get(session, netid, (column,))[0]
 
 
 @db.session_decorator(commit=False)
