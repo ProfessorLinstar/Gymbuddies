@@ -206,48 +206,26 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
         return
 
     if destnetid and srcnetid:
-        context["query"] += "Use only one of srcnetid and destnetid."
+        context["query"] += "Use only one of 'srcnetid' and 'destnetid'; the other will be 'netid'."
         return
 
     if not database.user.has_user(srcnetid) and not database.user.has_user(destnetid):
         context["query"] += f"Request users '{srcnetid}' and '{destnetid}' not found.\n"
-        in_requests: Optional[Dict[int,
-                                   db.RequestStatus]] = database.request.incoming_requests(netid)
+        in_requests = database.request.incoming_requests(netid)
         if in_requests is None:
             context["query"] += f"Incoming requests query for user with netid '{netid}' failed."
             return
 
         context["query"] += f"Incoming requests for user with netid '{netid}':\n"
-        context["query"] += json.dumps(
-            {
-                requestid: {
-                    "id": requestid,
-                    "users": database.request.get_request_users(requestid),
-                    "status": status.to_readable()
-                } for requestid, status in in_requests.items()
-            },
-            sort_keys=True,
-            indent=4)
-        context["query"] += "\n"
+        context["query"] += database.debug.sprint_requests(in_requests) + "\n"
 
-        out_requests: Optional[Dict[int,
-                                    db.RequestStatus]] = database.request.outgoing_requests(netid)
+        out_requests = database.request.outgoing_requests(netid)
         if out_requests is None:
             context["query"] += f"Outgoing requests query for user with netid '{netid}' failed."
             return
 
         context["query"] += f"Outgoing requests for user with netid '{netid}':\n"
-        context["query"] += json.dumps(
-            {
-                requestid: {
-                    "id": requestid,
-                    "users": database.request.get_request_users(requestid),
-                    "status": status.to_readable()
-                } for requestid, status in out_requests.items()
-            },
-            sort_keys=True,
-            indent=4)
-        context["query"] += "\n"
+        context["query"] += database.debug.sprint_requests(out_requests) + "\n"
         return
 
     if destnetid:
@@ -265,6 +243,7 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
         req: db.MappedRequest = database.request.get_request(requestid)
         print(req)
 
+    # TODO: compile necessary API for this section, and implement/revise API
     elif submit == "Update":
         if database.request.get_active_id(srcnetid, destnetid):
             context["query"] += f"Pending request between {srcnetid} and {destnetid} "

@@ -432,48 +432,8 @@ block links %}
     <br />
     <br />
     <h2>Request functions</h2>
-    <input
-      type="radio"
-      id="request-rejected"
-      name="which_request"
-      value="rejected"
-      {{
-      schedule_match
-      }}
-    />
-    <label for="request-rejected">Rejected</label>
-    <input
-      type="radio"
-      id="request-pending"
-      name="which_request"
-      value="pending"
-      {{
-      level1
-      }}
-    />
-    <label for="request-pending">Pending</label>
-    <input
-      type="radio"
-      id="request-finalized"
-      name="which_request"
-      value="finalized"
-      {{
-      level2
-      }}
-    />
-    <label for="request-finalized">Finalized</label>
-    <input
-      type="radio"
-      id="request-terminated"
-      name="which_request"
-      value="terminated"
-      {{
-      level2
-      }}
-    />
-    <label for="request-terminated">Terminated</label>
-    <input type="submit" name="submit-request" value="Get">
-    <input type="submit" name="submit-request" value="Update">
+    <input type="submit" name="submit-request" value="New">
+    <input type="submit" name="submit-request" value="Modify">
     <input type="submit" name="submit-request" value="Reject">
     <input type="submit" name="submit-request" value="Finalize">
     <input type="submit" name="submit-request" value="Terminate">

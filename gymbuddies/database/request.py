@@ -54,8 +54,7 @@ def get_active_id(srcnetid: str,
     assert session is not None
     request = session.query(db.Request.requestid).filter(
         db.Request.srcnetid == srcnetid, db.Request.destnetid == destnetid,
-        db.Request.status == db.RequestStatus.PENDING).first()
-
+        db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).first()
     return cast(Any, request).requestid if request is not None else None
 
 
@@ -71,20 +70,14 @@ def get_request(requestid: int, *, session: Optional[Session] = None) -> db.Mapp
 
 
 @db.session_decorator(commit=False)
-def get_matches(srcnetid: str, *, session: Optional[Session] = None) -> List[int]:
+def get_matches(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ get a list of matches associated with a user"""
     assert session is not None
-    matches: List[int] = []
-    rows = session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
-                                            db.Request.status == db.RequestStatus.FINALIZED).all()
-    for row in rows:
-        matches.append(row.requestid)
-    rows = session.query(db.Request).filter(db.Request.destnetid == srcnetid,
-                                            db.Request.status == db.RequestStatus.FINALIZED).all()
-    for row in rows:
-        matches.append(row.requestid)
+    requestids = session.query(db.Request.requestid).filter(
+        (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
+        db.Request.status == db.RequestStatus.FINALIZED).all()
 
-    return matches
+    return [r.requestid for r in cast(List[Any], requestids)]
 
 
 @db.session_decorator(commit=False)

@@ -2,14 +2,16 @@
 
 import json
 
-from typing import Any, Generator
-from . import user
+from typing import Any, Generator, Dict
+from . import db
+from . import user as db_user
+from . import request as db_request
 
 
 def sprint_users(*criterions) -> Generator[str, None, None]:
     """Yields a generator whose elements are strings representing a user in json format."""
 
-    users = user.get_users(*criterions)
+    users = db_user.get_users(*criterions)
     if users is None:
         return
 
@@ -33,3 +35,18 @@ def sprintv(x: Any) -> str:
 def printv(x: Any) -> None:
     """Like sprint_users, but prints out each user instead."""
     print(sprintv(x))
+
+
+def sprint_requests(requests: Dict[int, db.RequestStatus]) -> str:
+    """Returns a formatted string of a 'requests', dictionary of request_id's and the corresponding
+    RequestStatus."""
+    return json.dumps(
+        {
+            requestid: {
+                "id": requestid,
+                "users": db_request.get_request_users(requestid),
+                "status": status.to_readable()
+            } for requestid, status in requests.items()
+        },
+        sort_keys=True,
+        indent=4)

@@ -70,18 +70,13 @@ def _default_profile() -> Dict[str, Any]:
 
 
 def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
-    """Updates the attributes of 'user' according to 'kwargs'. Uses default properties to fill in
-    null values."""
+    """Updates the attributes of 'user' according to 'kwargs'. """
 
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         setattr(user, k, v)
 
-    schedule: Optional[List[db.ScheduleStatus]] = kwargs.get("schedule")
-    if schedule is None:
-        return
-
-    # need to handle case where user row does not yet exist
-    db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
+    if kwargs.get("schedule") is not None:
+        db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
 
 
 @db.session_decorator(commit=True)
@@ -104,15 +99,17 @@ def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[d
     assert session is not None
     return session.query(db.User).filter(*criterions).all()
 
+
 @db.session_decorator(commit=False)
-def get_rand_users(number: int, netid: str, session: Optional[
-    Session] = None) -> Optional[List[db.MappedUser]]:
+def get_rand_users(number: int,
+                   netid: str,
+                   session: Optional[Session] = None) -> Optional[List[db.MappedUser]]:
     """Attempts to return a <number> random sample of users, from which <userid> is not a user"""
     assert session is not None
     rows = session.query(db.User).filter(db.User.netid != netid).order_by(func.random()).all()
     if len(rows) <= 10:
         return rows
-    return rows[0: number]
+    return rows[0:number]
 
 
 @db.session_decorator(commit=False)
@@ -182,12 +179,13 @@ def get_bio(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
     assert session is not None
     return _get_column(session, netid, db.User.bio).bio
 
+
 @db.session_decorator(commit=False)
 def get_level_preference(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
     """Attemps to return the level preference of a user."""
     assert session is not None
-    query = cast(db.MappedUser, session.query(db.User.levelpreference).filter(
-        db.User.netid == netid).first())
+    query = cast(db.MappedUser,
+                 session.query(db.User.levelpreference).filter(db.User.netid == netid).first())
     if query is None:
         raise UserNotFound(netid=netid)
     return query.levelpreference
