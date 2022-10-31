@@ -10,14 +10,8 @@ from . import schedule as db_schedule
 class UserNotFound(Exception):
     """Exception raised in API call if user required but not found in database."""
 
-    def __init__(self, message: str = "", netid: Optional[str] = None):
-        if message:
-            pass
-        elif netid is not None:
-            message = f"User with netid '{netid}' not found in the database."
-        else:
-            message = "User not found in the database."
-        super().__init__(message)
+    def __init__(self, netid: str):
+        super().__init__(f"User with netid '{netid}' not found in the database.")
 
 
 @db.session_decorator(commit=True)
@@ -119,7 +113,7 @@ def get_user(netid: str, *, session: Optional[Session] = None) -> db.MappedUser:
 
     user: Optional[db.MappedUser] = session.query(db.User).filter(db.User.netid == netid).first()
     if user is None:
-        raise UserNotFound(netid=netid)
+        raise UserNotFound(netid)
 
     return user
 
@@ -135,7 +129,7 @@ def has_user(netid: str, *, session: Optional[Session] = None) -> bool:
 def _get_column(session: Session, netid: str, column: Column) -> Any:
     query = session.query(column).filter(db.User.netid == netid).first()
     if query is None:
-        raise UserNotFound(netid=netid)
+        raise UserNotFound(netid)
     return query[0]
 
 
@@ -183,10 +177,7 @@ def get_bio(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
 def get_level_preference(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
     """Attemps to return the level preference of a user."""
     assert session is not None
-    query = session.query(db.User.levelpreference).filter(db.User.netid == netid).first()
-    if query is None:
-        raise UserNotFound(netid=netid)
-    return query.levelpreference
+    return _get_column(session, netid, db.User.levelpreference)
 
 
 @db.session_decorator(commit=False)

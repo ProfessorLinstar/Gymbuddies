@@ -7,17 +7,18 @@ from sqlalchemy.orm import Session
 from . import db
 
 
+class MultipleActiveRequests(Exception):
+    """Exception raised in API call if user required but not found in database."""
+
+    def __init__(self, netid1: str, netid2: str):
+        super().__init__(f"Multiple active requests found between users '{netid1}' and '{netid2}'.")
+
+
 class RequestNotFound(Exception):
     """Exception raised in API call if user required but not found in database."""
 
-    def __init__(self, message: str = "", requestid: Optional[int] = None):
-        if message:
-            pass
-        elif requestid is not None:
-            message = f"Request with requestid '{requestid}' not found in the database."
-        else:
-            message = "Request not found in the database."
-        super().__init__(message)
+    def __init__(self, requestid: int):
+        super().__init__(f"Request with requestid '{requestid}' not found in the database.")
 
 
 # TODO: ERROR HANDLING FOR ALL OF THESE FUNCTIONS
@@ -48,11 +49,15 @@ def get_active_id(netid1: str, netid2: str, *, session: Optional[Session] = None
     """Attempts to return the requestid of an active request from a user with netid 'srcnetid' to a
     user with netid 'destnetid'. If no such request exists, returns None."""
     assert session is not None
-    request = session.query(db.Request.requestid).filter(
+
+    requests = session.query(db.Request.requestid).filter(
         ((db.Request.srcnetid == netid1) & (db.Request.destnetid == netid2)) |
         ((db.Request.srcnetid == netid2) & (db.Request.destnetid == netid1)),
-        db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).first()
-    return request[0] if request is not None else None
+        db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).all()
+    if len(requests) <= 2:
+        raise MultipleActiveRequests(netid1, netid2)
+
+    return requests[0][0] if requests else None
 
 
 @db.session_decorator(commit=False)
@@ -62,7 +67,7 @@ def get_request(requestid: int, *, session: Optional[Session] = None) -> db.Mapp
     assert session is not None
     request = session.query(db.Request).filter(db.Request.requestid == requestid).first()
     if request is None:
-        raise RequestNotFound(requestid=requestid)
+        raise RequestNotFound(requestid)
     return request
 
 
@@ -101,7 +106,7 @@ def get_request_status(requestid: int, *, session: Optional[Session] = None) -> 
     assert session is not None
     row = session.query(db.Request.status).filter(db.Request.requestid == requestid).first()
     if row is None:
-        raise RequestNotFound(requestid=requestid)
+        raise RequestNotFound(requestid)
     return row[0]
 
 
@@ -218,6 +223,11 @@ def terminate(requestid: int, *, session: Optional[Session] = None) -> bool:
 
 
 @db.session_decorator(commit=True)
-def modify(requestid: int, *, session: Optional[Session] = None) -> bool:
-    """Modify active (pending or matching) request."""
+def modify(requestid: int,
+           schedule: List[db.ScheduleStatus],
+           *,
+           session: Optional[Session] = None) -> bool:
+    """Modifies active (pending or matching) request."""
+    assert session is not None
+    print(requestid, schedule)
     return False
