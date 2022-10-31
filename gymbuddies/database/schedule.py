@@ -1,6 +1,5 @@
 """Database API"""
-from typing import List, Optional, Any
-from typing import cast
+from typing import List, Optional
 from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from . import db
@@ -76,7 +75,7 @@ def update_schedule_status(
 def _get_blocks(session: Session, netid: str, status_flag: Column) -> List[int]:
     rows = session.query(db.Schedule.timeblock).filter(
         db.Schedule.netid == netid, status_flag == True).order_by(db.Schedule.timeblock).all()
-    return [row.timeblock for row in cast(List[Any], rows)]
+    return [row[0] for row in rows]
 
 
 @db.session_decorator(commit=False)
@@ -107,4 +106,4 @@ def get_available_users(timeblock: int, *, session: Optional[Session] = None) ->
 
     rows = session.query(db.Schedule.netid).filter(db.Schedule.timeblock == timeblock).order_by(
         db.Schedule.netid).all()
-    return [row.netid for row in cast(List[Any], rows)]
+    return [row[0] for row in rows]

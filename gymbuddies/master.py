@@ -4,7 +4,6 @@ import json
 import textwrap
 
 from typing import Dict, Any, List, Optional
-from typing import cast
 from flask import Blueprint
 from flask import render_template
 from flask import request
@@ -138,7 +137,6 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             # schedule
             for i, s in enumerate(user.schedule):
                 day, time = db.TimeBlock(i).day_time()
-                s = cast(db.ScheduleStatus, s)
                 if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
                     context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
@@ -248,7 +246,7 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
         if database.request.get_active_id(srcnetid, destnetid):
             context["query"] += f"Pending request between {srcnetid} and {destnetid} "
             context["query"] += "already exists."
-        elif database.request.make_request(srcnetid, destnetid, profile["schedule"]):
+        elif database.request.new(srcnetid, destnetid, profile["schedule"]):
             context["query"] += f"Request made between {srcnetid} and {destnetid}."
         else:
             context["query"] += f"Request between {srcnetid} and {destnetid} failed."
@@ -258,7 +256,7 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
         if requestid is None:
             context["query"] += f"Reject request between {srcnetid} and {destnetid} failed. "
             context["query"] += "No such active request exists."
-        elif database.request.delete_request(requestid):
+        elif database.request.reject(requestid):
             context["query"] += f"Reject request between {srcnetid} and {destnetid} successful."
         else:
             context["query"] += f"Reject request between {srcnetid} and {destnetid} failed."

@@ -9,7 +9,6 @@ import traceback
 from datetime import datetime
 from enum import Enum, IntFlag
 from typing import Tuple, Callable, ParamSpec, TypeVar, Optional, Dict, List, Any
-from typing import cast
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
@@ -23,7 +22,6 @@ R = TypeVar('R')
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL is None:
     raise ValueError("Database URL must be provided with the 'DATABASE_URL' environment variable.")
-DATABASE_URL = cast(str, DATABASE_URL)
 
 BASE = declarative_base()
 
