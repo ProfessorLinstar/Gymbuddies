@@ -33,6 +33,7 @@ NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 engine = create_engine(DATABASE_URL)
 
 
+# TODO: return exception to client
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
@@ -53,9 +54,10 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
 
         @functools.wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
+            if "session" in kwargs:  # A session can be provided manually
+                return func(*args, **kwargs)  # propogate exception to outer session
+
             try:
-                if "session" in kwargs:  # A session can be provided manually
-                    return func(*args, **kwargs)
 
                 with Session(engine) as session:
                     kwargs["session"] = session
@@ -186,6 +188,7 @@ class Level(int, Enum):
         2 : Advanced
     """
 
+    # TODO: -> beginner, intermediate, advanced
     NEWBIE = 0
     ROOKIE = 1
     GYMSHARK = 2
@@ -249,12 +252,11 @@ class Request(BASE):
     srcnetid = Column(String)  # user who makes the request
     destnetid = Column(String)  # user who recieves the request
     maketimestamp = Column(PickleType)  # timestamp when the request was made
-    accepttimestamp = Column(PickleType)  # timestamp when the request was accepted
     finalizedtimestamp = Column(PickleType)  # timestamp when the request was finalized
     deletetimestamp = Column(PickleType)  # timestamp when the request was deleted
     status = Column(Integer)  # status of the request
     schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
-    acceptschedule = Column(PickleType)  # 2016-character sequenece for accepted times from schedule
+    prevrequestid = Column(Integer)  # Id of previous request; 0 if no such request
 
 
 class MappedRequest(BASE):
@@ -265,13 +267,11 @@ class MappedRequest(BASE):
     requestid: int
     srcnetid: str
     destnetid: str
-    maketimestamp: Any
-    accepttimestamp: Any
-    finalizedtimestamp: Any
-    deletetimestamp: Any
+    maketimestamp: datetime
+    finalizedtimestamp: datetime
+    deletetimestamp: datetime
     status: int
     schedule: List[int]
-    acceptschedule: List[int]
 
 
 class Schedule(BASE):

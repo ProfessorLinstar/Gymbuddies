@@ -26,7 +26,6 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     profile: Dict[str, Any] = _default_profile()
     user = db.User()
     _update_user(session, user, **(profile | kwargs | {"netid": netid}))
-
     session.add(user)
 
     return True
@@ -37,12 +36,7 @@ def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
-
-    user: db.User = get_user(netid, session=session)
-    if user is None:
-        raise UserNotFound(netid)
-    _update_user(session, user, **kwargs)
-
+    _update_user(session, get_user(netid, session=session), **kwargs)
     return True
 
 
@@ -78,9 +72,7 @@ def delete(netid: str, *, session: Optional[Session] = None) -> bool:
     Does nothing if the user does not exist."""
     assert session is not None
 
-    user = _get(session, netid)
-    if user is None:
-        raise UserNotFound(netid)
+    user = get_user(netid, session=session)
     session.delete(user)
 
     return True
@@ -111,11 +103,7 @@ def get_user(netid: str, *, session: Optional[Session] = None) -> db.MappedUser:
     does not exist, raises an exception."""
     assert session is not None
 
-    user = _get(session, netid)
-    if user is None:
-        raise UserNotFound(netid)
-
-    return user
+    return _get(session, netid)
 
 
 @db.session_decorator(commit=False)
@@ -131,6 +119,7 @@ def _get(session: Session, netid: str, entities: Tuple[Column, ...] = (db.User,)
     if query is None:
         raise UserNotFound(netid)
     return query
+
 
 def _get_column(session: Session, netid: str, column: Column) -> Any:
     return _get(session, netid, (column,))[0]

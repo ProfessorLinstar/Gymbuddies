@@ -239,6 +239,17 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
         else:
             context["query"] += f"Request {requestid} is not pending. Unable to finalize."
 
+
+    elif submit == "Modify":
+        response = database.request.modify(requestid, profile["schedule"])
+
+        if response:
+            context["query"] += f"Request {requestid} successfully modified."
+        elif response is None:
+            context["query"] += f"Modification of request {requestid} failed."
+        else:
+            context["query"] += f"Request {requestid} is not pending/finalized. Unable to modify."
+
     elif submit == "Reject":
         response = database.request.reject(requestid)
 
