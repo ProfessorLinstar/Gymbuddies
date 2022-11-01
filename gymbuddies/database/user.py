@@ -7,6 +7,13 @@ from . import db
 from . import schedule as db_schedule
 
 
+class UserAlreadyExists(Exception):
+    """Exception raised in API call if attempting to create a user with a netid already in the
+    database."""
+
+    def __init__(self, netid: str):
+        super().__init__(f"User with netid '{netid}' already exists.")
+
 class UserNotFound(Exception):
     """Exception raised in API call if user required but not found in database."""
 
@@ -20,8 +27,8 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     user already exists."""
     assert session is not None
 
-    if has_user(netid, session=session):
-        raise ValueError("User already exists. Skipping creation.")
+    if exists(netid, session=session):
+        raise UserAlreadyExists(netid)
 
     profile: Dict[str, Any] = _default_profile()
     user = db.User()
@@ -66,6 +73,7 @@ def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
         db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
 
 
+# TODO: terminate/delete all requests related to netid
 @db.session_decorator(commit=True)
 def delete(netid: str, *, session: Optional[Session] = None) -> bool:
     """Attempts to remove a user from the database, removing all related entries and references.
@@ -107,7 +115,7 @@ def get_user(netid: str, *, session: Optional[Session] = None) -> db.MappedUser:
 
 
 @db.session_decorator(commit=False)
-def has_user(netid: str, *, session: Optional[Session] = None) -> bool:
+def exists(netid: str, *, session: Optional[Session] = None) -> bool:
     """Checks if the database has a user object in the Users table with the given user netid. If the
     user does not exist, returns None."""
     assert session is not None
@@ -166,7 +174,7 @@ def get_bio(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
 
 
 @db.session_decorator(commit=False)
-def get_level_preference(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
+def get_levelpreference(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
     """Attemps to return the level preference of a user."""
     assert session is not None
     return _get_column(session, netid, db.User.levelpreference)

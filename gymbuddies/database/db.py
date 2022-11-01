@@ -19,8 +19,8 @@ from sqlalchemy.orm import Session
 P = ParamSpec('P')
 R = TypeVar('R')
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL is None:
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if not DATABASE_URL:
     raise ValueError("Database URL must be provided with the 'DATABASE_URL' environment variable.")
 
 BASE = declarative_base()

@@ -1,5 +1,6 @@
 """Collection of functions for generating sample data for the database."""
 import json
+import random
 from typing import Dict, Any, Tuple, List
 from gymbuddies.database import db
 from gymbuddies import database
@@ -71,14 +72,21 @@ def users():
         print(json.dumps({k: str(v) for k, v in user.items()}, sort_keys=True, indent=4))
 
     for user in data.values():
-        if database.user.has_user(user["netid"]):
+        if database.user.exists(user["netid"]):
             database.user.update(**user)
         else:
             database.user.create(**user)
 
 
+def schedule():
+    return [
+        db.ScheduleStatus.AVAILABLE if random.random() < .5 else db.ScheduleStatus.UNAVAILABLE
+        for _ in range(db.NUM_WEEK_BLOCKS)
+    ]
+
+
 def main():
-    """Calls all database initialization functions."""
+    """Calls database initialization functions."""
     users()
 
 

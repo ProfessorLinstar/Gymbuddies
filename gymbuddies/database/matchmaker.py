@@ -33,7 +33,7 @@ def find_matches(netid: str) -> List[str]:
     user_compatabilities: Dict[str, float] = {}
     main_user_level = database.user.get_level(netid)
     assert main_user_level is not None
-    main_user_level_preference = database.user.get_level_preference(netid)
+    main_user_level_preference = database.user.get_levelpreference(netid)
     for user in randusers:
         user_level = database.user.get_level(user.netid)
         assert user_level is not None
@@ -50,7 +50,7 @@ def find_matches(netid: str) -> List[str]:
                 user_compatabilities[user.netid] += 1
 
         # record whether the main user is compatable with the level preference of user
-        user_level_preference = database.user.get_level_preference(netid)
+        user_level_preference = database.user.get_levelpreference(netid)
         if user_level_preference is database.db.LevelPreference.EQUAL:
             if user_level == main_user_level:
                 user_compatabilities[user.netid] += 1

@@ -116,7 +116,7 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 
     elif submit == "Query":
         user: Optional[db.MappedUser] = None
-        user_found: Optional[bool] = database.user.has_user(netid)
+        user_found: Optional[bool] = database.user.exists(netid)
 
         if user_found:
             user = database.user.get_user(netid)
@@ -162,7 +162,7 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'schedule' functions."""
     netid: str = profile["netid"]
 
-    if not database.user.has_user(netid):
+    if not database.user.exists(netid):
         context["query"] = f"User with netid '{netid}' not found in the database."
         return
 
@@ -202,7 +202,7 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     srcnetid: str = profile["netid"]
     destnetid: str = request.form.get("destnetid", "")
 
-    if not database.user.has_user(srcnetid):
+    if not database.user.exists(srcnetid):
         context["query"] += f"User with netid '{srcnetid}' not found in the database."
         return
 

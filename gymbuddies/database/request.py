@@ -1,4 +1,5 @@
 """Database API"""
+import time
 from typing import List, Optional, Dict, Tuple, Any
 from datetime import datetime
 from sqlalchemy import Column
@@ -207,7 +208,7 @@ def new(srcnetid: str,
     assert session is not None
     assert len(schedule) == db.NUM_WEEK_BLOCKS
     for netid in (srcnetid, destnetid):
-        if not db_user.has_user(netid):
+        if not db_user.exists(netid):
             raise db_user.UserNotFound(netid)
 
     if get_active(srcnetid, destnetid, session=session) and prev is None:
@@ -230,6 +231,7 @@ def new(srcnetid: str,
                          prevrequestid=prevrequestid)
     session.add(request)
 
+    time.sleep(5)
     return True
 
 
@@ -249,7 +251,8 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> bool:
 
 @db.session_decorator(commit=True)
 def reject(requestid: int, *, session: Optional[Session] = None) -> bool:
-    """delete outgoing request"""
+    """Reject request with id 'requestid'. If this request is not pending, does nothing and returns
+    False. If no such request exists, returns None."""
     assert session is not None
     request = _get(session, requestid)
     if request.status != db.RequestStatus.PENDING:
@@ -276,7 +279,7 @@ def modify(requestid: int,
            schedule: List[db.ScheduleStatus],
            *,
            session: Optional[Session] = None) -> bool:
-    """Modifies active (pending or matching) request."""
+    """Modifies active (pending or matching) request. Returns False if the new operation fails."""
     assert session is not None
     request = _get(session, requestid)
     return bool(new(request.srcnetid, request.destnetid, schedule, session=session, prev=request))
