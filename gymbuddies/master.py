@@ -219,7 +219,6 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             fill_schedule(context, response.schedule)
             context["query"] += f"Query for request {requestid} successful."
 
-    # TODO: compile necessary API for this section, and implement/revise API
     elif submit == "New":
         response = database.request.new(srcnetid, destnetid, profile["schedule"])
 
