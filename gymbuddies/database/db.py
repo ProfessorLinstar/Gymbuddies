@@ -158,6 +158,7 @@ class Gender(int, Enum):
         """Converts Gender to a human readable form."""
         return _GENDER_TO_READABLE_MAP[self]
 
+
 _GENDER_TO_READABLE_MAP = {
     Gender.MALE: "MALE",
     Gender.FEMALE: "FEMALE",
@@ -243,13 +244,24 @@ _LEVEL_TO_READABLE_MAP = {
     Level.INTERMEDIATE: "ROOKIE",
     Level.ADVANCED: "GYMSHARK",
 }
-print()
 
-# TODO: add gender preference object
 
-# TODO: add interests object
+# note: use this function to get interests dict when adding user to db for first time
+def getInterestDict(self, cardio=False, upper=False, lower=False, losing=False,
+    gaining=False) -> Dict[str, bool]:
+    """Returns an interests hash table. Set interested parameters as True"""
+    interests = {}
+    interests["cardio"] = cardio
+    interests["upper"] = upper
+    interests["lower"] = lower
+    interests["losing"] = losing
+    interests["gaining"] = gaining
+    return interests
 
-# TODO: add settings object
+
+# TODO: implement this function the same as above
+def getSettingsDict():
+    return None
 
 
 class User(BASE):
@@ -260,15 +272,16 @@ class User(BASE):
     name = Column(String)  # alias displayed in system, e.g. mrpieguy
     contact = Column(String)  # Contact information
     level = Column(Integer)  # level of experience (e.g. beginner, intermediate, expert)
-    levelpreference = Column(Integer)  #
+    levelpreference = Column(Integer)  # preferred level match of user
     bio = Column(String)  # short bio for user
     addinfo = Column(String)  # additional info in user profile
     interests = Column(PickleType)  # Dictionary indicating interests
     schedule = Column(MutableList.as_mutable(PickleType))  # int[2016] with status for each block
     open = Column(Boolean)  # open for matching
-    gender = Column(Integer)
-    okmale = Column(Boolean)
-    okfemale = Column()
+    gender = Column(Integer)  # gender of user
+    okmale = Column(Boolean)  # is user ok being matched with male users
+    okfemale = Column(Boolean)  # is user ok being matched with female users
+    okbinary = Column(Boolean)  # is user ok being matched with nonbinary users
 
     settings = Column(PickleType)  # Notification and account settings
 
