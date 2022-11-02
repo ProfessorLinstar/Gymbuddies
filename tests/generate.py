@@ -5,6 +5,8 @@ from typing import Dict, Any, Tuple, List
 from gymbuddies.database import db
 from gymbuddies import database
 
+STR_LENGTH = 20
+UNI_CHARS = "".join([chr(i) for i in range(10000)])
 
 def schedule_from_dayhours(*day_hours: Tuple[int, int]):
     """Given arguments of the form (day, hour), returns a schedule with UNAVAILABLE in every block
@@ -83,6 +85,29 @@ def schedule():
         db.ScheduleStatus.AVAILABLE if random.random() < .5 else db.ScheduleStatus.UNAVAILABLE
         for _ in range(db.NUM_WEEK_BLOCKS)
     ]
+
+
+def profile(netid):
+    return {
+        "netid": netid,
+        "name": unistr(),
+        "contact": unistr(),
+        "level": db.Level(random.randint(0, 2)),
+        "levelpreference": random.randint(0, 2),
+        "bio": unistr(),
+        "addinfo": unistr(),
+        "interests": {},
+        "open": bool(random.randint(0,1)),
+        "schedule": schedule(),
+        "settings": {}
+    }
+
+
+def unistr(str_length: int = 0, source: str = UNI_CHARS) -> str:
+    """generates a random string with the given properties"""
+    if str_length == 0:
+        str_length = random.randint(1, STR_LENGTH)
+    return ''.join((random.choice(source) for _ in range(str_length)))
 
 
 def main():

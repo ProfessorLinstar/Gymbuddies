@@ -11,7 +11,8 @@ disable=multiple-statements,
         too-many-statements,
         too-many-branches,
         singleton-comparison,
-        too-many-locals
+        too-many-locals,
+        redundant-keyword-arg
 
 [FORMAT]
 max-line-length=100
