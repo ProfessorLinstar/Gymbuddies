@@ -143,11 +143,52 @@ _SCHEDULE_STATUS_FROM_STR_MAP = {
 }
 
 
+class Gender(int, Enum):
+    """Integer derivative representing user gender. Provides conversion function to human
+    readable forms. Integers map to the following genders
+        0: Male
+        1: Female
+        2: Nonbinary
+    """
+    MALE = 0
+    FEMALE = 1
+    NONBINARY = 2
+
+    def to_readable(self) -> str:
+        """Converts Gender to a human readable form."""
+        return _GENDER_TO_READABLE_MAP[self]
+
+_GENDER_TO_READABLE_MAP = {
+    Gender.MALE: "MALE",
+    Gender.FEMALE: "FEMALE",
+    Gender.NONBINARY: "NONBINARY",
+}
+
+
 class LevelPreference(int, Enum):
-    """User level preference enumeration"""
+    """Integer derivative representing level preference. Provides conversion function to human
+    readable forms. Integers map to the following levels preferences.
+        0 : Equal
+        1 : Lessequal
+        2 : GreaterEqual
+        3 : All
+    """
     EQUAL = 0
     LESSEQUAL = 1
     GREATEREQUAL = 2
+    ALL = 3
+
+    def to_readable(self) -> str:
+        """Converts a Level to a human readable form."""
+        return _LEVEL_PREFERENCE_TO_READABLE_MAP[self]
+
+
+_LEVEL_PREFERENCE_TO_READABLE_MAP = {
+    LevelPreference.EQUAL: "EQUAL",
+    LevelPreference.LESSEQUAL: "LESSEQUAL",
+    LevelPreference.GREATEREQUAL: "GREATEREQUAL",
+    LevelPreference.ALL: "ALL"
+}
 
 
 class TimeBlock(int):
@@ -202,8 +243,13 @@ _LEVEL_TO_READABLE_MAP = {
     Level.INTERMEDIATE: "ROOKIE",
     Level.ADVANCED: "GYMSHARK",
 }
+print()
 
-# TODO: interests and settings objects
+# TODO: add gender preference object
+
+# TODO: add interests object
+
+# TODO: add settings object
 
 
 class User(BASE):
@@ -220,6 +266,9 @@ class User(BASE):
     interests = Column(PickleType)  # Dictionary indicating interests
     schedule = Column(MutableList.as_mutable(PickleType))  # int[2016] with status for each block
     open = Column(Boolean)  # open for matching
+    gender = Column(Integer)
+    okmale = Column(Boolean)
+    okfemale = Column()
 
     settings = Column(PickleType)  # Notification and account settings
 

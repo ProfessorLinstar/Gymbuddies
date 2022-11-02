@@ -213,6 +213,38 @@ def get_open(netid: str, *, session: Optional[Session] = None) -> Optional[bool]
 
 
 @db.session_decorator(commit=False)
+def get_gender(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
+    """Attempts to return whether or not a user with netid 'netid' is open for matching. Raises an
+    error if the user does not exist."""
+    assert session is not None
+    return _get_column(session, netid, db.User.gender)
+
+
+@db.session_decorator(commit=False)
+def get_okmale(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+    """Attempts to return whether or not a user with netid 'netid' is ok matching male. Raises an
+    error if the user does not exist."""
+    assert session is not None
+    return _get_column(session, netid, db.User.okmale)
+
+
+@db.session_decorator(commit=False)
+def get_okfemale(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+    """Attempts to return whether or not a user with netid 'netid' is ok matching female. Raises an
+    error if the user does not exist."""
+    assert session is not None
+    return _get_column(session, netid, db.User.okfemale)
+
+
+@db.session_decorator(commit=False)
+def get_okbinary(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+    """Attempts to return whether or not a user with netid 'netid' is ok matching nonbinary.
+    Raises an error if the user does not exist."""
+    assert session is not None
+    return _get_column(session, netid, db.User.okbinary)
+
+
+@db.session_decorator(commit=False)
 def get_settings(netid: str, *, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
     """Attempts to return the settings of a user with netid 'netid'. Raises an error if the user
     does not exist."""
