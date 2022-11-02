@@ -188,10 +188,9 @@ class Level(int, Enum):
         2 : Advanced
     """
 
-    # TODO: -> beginner, intermediate, advanced
-    NEWBIE = 0
-    ROOKIE = 1
-    GYMSHARK = 2
+    BEGINNER = 0
+    INTERMEDIATE = 1
+    ADVANCED = 2
 
     def to_readable(self) -> str:
         """Converts a Level to a human readable form."""
@@ -199,9 +198,9 @@ class Level(int, Enum):
 
 
 _LEVEL_TO_READABLE_MAP = {
-    Level.NEWBIE: "NEWBIE",
-    Level.ROOKIE: "ROOKIE",
-    Level.GYMSHARK: "GYMSHARK",
+    Level.BEGINNER: "NEWBIE",
+    Level.INTERMEDIATE: "ROOKIE",
+    Level.ADVANCED: "GYMSHARK",
 }
 
 # TODO: interests and settings objects
