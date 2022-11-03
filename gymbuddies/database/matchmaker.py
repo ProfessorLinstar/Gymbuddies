@@ -3,9 +3,9 @@ Core matchmaking algorithm. Provided a userid, the algorithm will find the top c
 who have the greatest similarities for weighted user interests and schedule availability.
 """
 from typing import List, Dict
-import database.user
-import database.schedule
-import database.db
+from . import user as db_user
+from . import schedule as db_schedule
+from . import db
 
 # TODO: IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
 NUMBER_INTERESTS: int = 10 # TODO: find a way for this value not to be hardcoded
@@ -19,7 +19,7 @@ SCHEDULE_WEIGHT: float = 1 # weight of schedule intersection to compatability sc
 def find_matches(netid: str) -> List[str]:
     """run algorithm to find top matches for user <netid>"""
     # get a random sample of users to select from
-    randusers = database.user.get_rand_users(RANDOM_NUMBER, netid)
+    randusers = db_user.get_rand_users(RANDOM_NUMBER, netid)
     assert randusers != None
     matches: List[str] = []
     # if there are not enough users in the database, return whoever is available
@@ -29,38 +29,38 @@ def find_matches(netid: str) -> List[str]:
         return matches
 
     # do a hard filter on users that are not compatible with gender preferences
-    main_gender = database.user.get_gender(netid)
-    main_okmale = database.user.get_okmale(netid)
-    main_okfemale = database.user.get_okfemale(netid)
-    main_oknonbinary = database.user.get_okbinary(netid)
+    main_gender = db_user.get_gender(netid)
+    main_okmale = db_user.get_okmale(netid)
+    main_okfemale = db_user.get_okfemale(netid)
+    main_oknonbinary = db_user.get_okbinary(netid)
     for user in randusers:
-        gender = database.user.get_gender(user.netid)
-        okmale = database.user.get_okmale(user.netid)
-        okfemale = database.user.get_okfemale(user.netid)
-        oknonbinary = database.user.get_okbinary(user.netid)
+        gender = db_user.get_gender(user.netid)
+        okmale = db_user.get_okmale(user.netid)
+        okfemale = db_user.get_okfemale(user.netid)
+        oknonbinary = db_user.get_okbinary(user.netid)
         # check if user is compatible with mainuser's preferences
-        if gender == database.db.Gender.MALE:
+        if gender == db.Gender.MALE:
             if not main_okmale:
                 randusers.remove(user)
                 continue
-        elif gender == database.db.Gender.FEMALE:
+        elif gender == db.Gender.FEMALE:
             if not main_okfemale:
                 randusers.remove(user)
                 continue
-        elif gender == database.db.Gender.NONBINARY:
+        elif gender == db.Gender.NONBINARY:
             if not main_oknonbinary:
                 randusers.remove(user)
                 continue;
         # check is mainuser is compatible with user's preferences
-        if main_gender == database.db.Gender.MALE:
+        if main_gender == db.Gender.MALE:
             if not okmale:
                 randusers.remove(user)
                 continue
-        elif main_gender == database.db.Gender.FEMALE:
+        elif main_gender == db.Gender.FEMALE:
             if not okfemale:
                 randusers.remove(user)
                 continue
-        elif main_gender == database.db.Gender.NONBINARY:
+        elif main_gender == db.Gender.NONBINARY:
             if not oknonbinary:
                 randusers.remove(user)
                 continue
@@ -68,37 +68,37 @@ def find_matches(netid: str) -> List[str]:
 
     # record user compatability scores based on user levels and level preferences
     user_compatabilities: Dict[str, float] = {}
-    main_user_level = database.user.get_level(netid)
+    main_user_level = db_user.get_level(netid)
     assert main_user_level is not None
-    main_user_level_preference = database.user.get_levelpreference(netid)
+    main_user_level_preference = db_user.get_levelpreference(netid)
     for user in randusers:
-        user_level = database.user.get_level(user.netid)
+        user_level = db_user.get_level(user.netid)
         assert user_level is not None
 
         # record whether user is compatable with the level preference of the main user
-        if main_user_level_preference == database.db.LevelPreference.ALL:
+        if main_user_level_preference == db.LevelPreference.ALL:
             user_compatabilities[user.netid] += 1
-        elif main_user_level_preference == database.db.LevelPreference.EQUAL:
+        elif main_user_level_preference == db.LevelPreference.EQUAL:
             if main_user_level == user_level:
                 user_compatabilities[user.netid] += 1
-        elif main_user_level_preference == database.db.LevelPreference.LESSEQUAL:
+        elif main_user_level_preference == db.LevelPreference.LESSEQUAL:
             if main_user_level >= user_level:
                 user_compatabilities[user.netid] += 1
-        elif main_user_level_preference == database.db.LevelPreference.GREATEREQUAL:
+        elif main_user_level_preference == db.LevelPreference.GREATEREQUAL:
             if main_user_level <= user_level:
                 user_compatabilities[user.netid] += 1
 
         # record whether the main user is compatable with the level preference of user
-        user_level_preference = database.user.get_levelpreference(netid)
-        if user_level_preference == database.db.LevelPreference.ALL:
+        user_level_preference = db_user.get_levelpreference(netid)
+        if user_level_preference == db.LevelPreference.ALL:
             user_compatabilities[user.netid] += 1
-        if user_level_preference == database.db.LevelPreference.EQUAL:
+        if user_level_preference == db.LevelPreference.EQUAL:
             if user_level == main_user_level:
                 user_compatabilities[user.netid] += 1
-        elif user_level_preference == database.db.LevelPreference.LESSEQUAL:
+        elif user_level_preference == db.LevelPreference.LESSEQUAL:
             if user_level >= main_user_level:
                 user_compatabilities[user.netid] += 1
-        elif user_level_preference == database.db.LevelPreference.GREATEREQUAL:
+        elif user_level_preference == db.LevelPreference.GREATEREQUAL:
             if user_level <= main_user_level:
                 user_compatabilities[user.netid] += 1
 
@@ -107,11 +107,11 @@ def find_matches(netid: str) -> List[str]:
 
 
     # update user compatability scores based on user interests
-    main_user_interests = database.user.get_interests(netid)
+    main_user_interests = db_user.get_interests(netid)
     assert main_user_interests is not None
     interests_score: float = 0
     for user in randusers:
-        user_interests = database.user.get_interests(user.netid)
+        user_interests = db_user.get_interests(user.netid)
         assert user_interests is not None
         for interest in user_interests:
             if user_interests[interest] == main_user_interests[interest]:
@@ -120,15 +120,15 @@ def find_matches(netid: str) -> List[str]:
 
 
     # update user compatability scores based on schedule intersection
-    main_user_schedule: List[int] | None = database.schedule.get_schedule(netid)
+    main_user_schedule: List[int] | None = db_schedule.get_schedule(netid)
     assert main_user_schedule is not None
     schedule_score: float = 0
     for user in randusers:
-        user_schedule: List[int] | None = database.schedule.get_schedule(user.netid)
+        user_schedule: List[int] | None = db_schedule.get_schedule(user.netid)
         assert user_schedule is not None
         for i in range(len(user_schedule)):
-            if main_user_schedule[i] & database.db.ScheduleStatus.AVAILABLE == 1\
-            and user_schedule[i] & database.db.ScheduleStatus.AVAILABLE == 1:
+            if main_user_schedule[i] & db.ScheduleStatus.AVAILABLE == 1\
+            and user_schedule[i] & db.ScheduleStatus.AVAILABLE == 1:
                 schedule_score += 1
             user_compatabilities[user.netid] += (
                 schedule_score / NUMBER_SCHEDULE_BLOCKS) * SCHEDULE_WEIGHT

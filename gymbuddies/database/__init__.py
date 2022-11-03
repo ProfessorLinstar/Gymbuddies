@@ -1,2 +1,2 @@
 """Database module"""
-from . import user, schedule, request, debug
+from . import user, schedule, request, debug, matchmaker
