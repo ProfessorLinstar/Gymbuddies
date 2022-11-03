@@ -21,17 +21,27 @@ def search():
         return redirect(url_for("auth.login"))
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    # g.requests = database.request.get_active_incoming(netid)
     return render_template("search.html", netid=netid)
 
 @bp.route("/pending")
 def pending():
-    """Page for finding matches."""
+    """Page for pending matches."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
 
-    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    return render_template("pending.html", netid=netid)
+    # g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    g.requests = database.request.get_active_incoming(netid)
+    # print("netid", netid)
+    # print("request incoming", database.request.get_active_incoming(netid))
+    # print("request outgoing", database.request.get_active_outgoing(netid))
+    requestUsers = []
+    for request in g.requests:
+        print("request", request)
+        requestUsers.append(database.user.get_user(request.destnetid))
+    print("requestUsers", requestUsers)
+    return render_template("pending.html", netid=netid, requestUsers=requestUsers)
 
 @bp.route("/matched")
 def matched():

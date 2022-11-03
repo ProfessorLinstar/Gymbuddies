@@ -11,6 +11,11 @@
 {% block pagename_large %}Dashboard{% endblock %}
 {% block content %}
       <!-- End Navbar -->
+      <head>
+        <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
+        <script src="https://uicdn.toast.com/calendar /latest/toastui-calendar.min.js"></script>
+      </head>
+      <body>
         <div class="row">
           <div class="col-12">
             <div class="card">
@@ -124,7 +129,8 @@
                 </p> -->
               </div>
               <div class="card-body p-3">
-                <img src = "{{ url_for('static', filename='matchcalendar.png') }}" width="100%">
+                <main id="calendar"></main>
+                <!-- <img src = "{{ url_for('static', filename='matchcalendar.png') }}" width="100%"> -->
                 <!--<div class="chart">
                   <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
                 </div>-->
@@ -427,5 +433,39 @@
             </div>
           </div>
         </div>-->
+        <script src="https://uicdn.toast.com/calendar/latest/toastui-calendar.ie11.min.js"></script>
+        <script>
+          // const Calendar = tui.Calendar;
+          const container = document.getElementById('calendar');
+          const options = {
+                    defaultView: 'week',
+                    timezone: {
+                      zones: [
+                        {
+                          timezoneName: 'Asia/Seoul',
+                          displayLabel: 'Seoul',
+                        },
+                        {
+                          timezoneName: 'Europe/London',
+                          displayLabel: 'London',
+                        },
+                      ],
+                    },
+                    calendars: [
+                      {
+                        id: 'cal1',
+                        name: 'Personal',
+                        backgroundColor: '#03bd9e',
+                      },
+                      {
+                        id: 'cal2',
+                        name: 'Work',
+                        backgroundColor: '#00a9ff',
+                      },
+                    ],
+                  };
+                  const calendar = tui.Calendar(container, options);
+        </script>
+      </body>
         
 {% endblock %}

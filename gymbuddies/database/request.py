@@ -1,5 +1,4 @@
 """Database API"""
-import time
 from typing import List, Optional, Dict, Tuple, Any
 from datetime import datetime
 from sqlalchemy import Column
@@ -133,7 +132,7 @@ def get_request_status(requestid: int, *, session: Optional[Session] = None) -> 
     row = session.query(db.Request.status).filter(db.Request.requestid == requestid).scalar()
     if row is None:
         raise RequestNotFound(requestid)
-    return row[0]
+    return row
 
 
 @db.session_decorator(commit=False)
@@ -189,10 +188,11 @@ def _get(session: Session, requestid: int, entities: Tuple[Column, ...] = (db.Re
 
 def _get_column(session: Session, requestid: int, column: Column) -> Any:
     """Like '_get', but returns a single column only."""
-    return _get(session, requestid, (column,))[0]
+    return _get(session, requestid, (column,))
 
 
 # TODO: add timestamps
+# TODO: make schedule database conssitent!
 @db.session_decorator(commit=True)
 def new(srcnetid: str,
         destnetid: str,
@@ -231,7 +231,6 @@ def new(srcnetid: str,
                          prevrequestid=prevrequestid)
     session.add(request)
 
-    time.sleep(5)
     return True
 
 

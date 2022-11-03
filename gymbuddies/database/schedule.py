@@ -99,6 +99,7 @@ def get_available_schedule(netid: str, *, session: Optional[Session] = None) -> 
     return _get_blocks(session, netid, db.Schedule.available)
 
 
+# TODO: get available users matching a given schedule
 @db.session_decorator(commit=False)
 def get_available_users(timeblock: int, *, session: Optional[Session] = None) -> List[str]:
     """Return list of users showing available users at a certain timeframe"""

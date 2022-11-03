@@ -19,42 +19,24 @@
         </div>
         <div class="card-body pt-4 p-3">
           <ul class="list-group">
-            <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
-              <div class="d-flex flex-column">
-                <h6 class="mb-3 text-sm">Oliver Liam</h6>
-                <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">interested in finding someone who I can consistently do arm day with</span></span>
-                <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Arms, Legs</span></span>
-                <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold">Beginner</span></span>
-              </div>
-              <div class="ms-auto text-end">
-                <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-              </div>
-            </li>
-            <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
-              <div class="d-flex flex-column">
-                <h6 class="mb-3 text-sm">Lucas Harper</h6>
-                <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">been going to the gym for a while and want to meet someone who will challenge me : )</span></span>
-                <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Cardio, Lifting</span></span>
-                <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold"> Intermediate</span></span>
-              </div>
-              <div class="ms-auto text-end">
-                <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-              </div>
-            </li>
-            <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
-              <div class="d-flex flex-column">
-                <h6 class="mb-3 text-sm">Ethan James</h6>
-                <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">really trying to focus on upper body this semester & looking for a partner who is experienced!</span></span>
-                <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Chest, Arms</span></span>
-                <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold">Intermediate</span></span>
-              </div>
-              <div class="ms-auto text-end">
-                <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-              </div>
-            </li>
+            {% if requestUsers|length != 0: %}
+              {% for requestUser in requestUsers: %}
+                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                  <div class="d-flex flex-column">
+                    <h6 class="mb-3 text-sm">{{ requestUser.name }}</h6>
+                    <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">{{ requestUser.bio }}</span></span>
+                    <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">{{ requestUser.interests }}</span></span>
+                    <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold">{{ requestUser.level }}</span></span>
+                  </div>
+                  <div class="ms-auto text-end">
+                    <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
+                    <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
+                  </div>
+                </li>
+              {% endfor %}
+              {% else %}
+                <div>None</div>
+            {% endif %}
           </ul>
         </div>
       </div>

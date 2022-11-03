@@ -45,7 +45,7 @@ def sprint_requests(requests: Dict[int, db.RequestStatus]) -> str:
             requestid: {
                 "id": requestid,
                 "users": db_request.get_request_users(requestid),
-                "status": status.to_readable()
+                "status": status.to_readable(),
             } for requestid, status in requests.items()
         },
         sort_keys=True,

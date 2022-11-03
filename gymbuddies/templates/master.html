@@ -37,7 +37,6 @@ block links %}
             <td><label for="bio">bio</label></td>
             <td><input name="bio" id="bio" value="{{ bio }}" /></td>
           </tr>
-
           <tr>
             <td><label for="addinfo">addinfo</label></td>
             <td><input name="addinfo" id="addinfo" value="{{ addinfo }}" /></td>
@@ -46,7 +45,15 @@ block links %}
           <tr>
             <td><label for="level">level</label></td>
             <td>
-              <input type="radio" id="level0" name="level" value="0" {{level0}}/>
+              <input
+                type="radio"
+                id="level0"
+                name="level"
+                value="0"
+                {{
+                level0
+                }}
+              />
               <label for="level0">Beginner</label>
               <input
                 type="radio"
@@ -75,6 +82,17 @@ block links %}
             <td><label for="open">open</label></td>
             <td>
               <input type="checkbox" id="open" name="open" value="{{ open }}" />
+            </td>
+          </tr>
+
+          <tr>
+            <td><label for="okmale">okmale</label></td>
+            <td>
+              <input type="checkbox" id="okmale" name="okmale" value="{{ okmale }}" />
+              <label for="okfemale">okfemale</label>
+              <input type="checkbox" id="okfemale" name="okfemale" value="{{ okfemale }}" />
+              <label for="okbinary">okbinary</label>
+              <input type="checkbox" id="okbinary" name="okbinary" value="{{ okbinary }}" />
             </td>
           </tr>
 
@@ -441,6 +459,10 @@ block links %}
     <input type="submit" name="submit-request" value="Query">
     <br />
     <table>
+      <tr>
+        <td> <label for="srcnetid">srcnetid</label> </td>
+        <td> <input name="srcnetid" id="srcnetid" value="{{ srcnetid }}" /> </td>
+      </tr>
       <tr>
         <td> <label for="destnetid">destnetid</label> </td>
         <td> <input name="destnetid" id="destnetid" value="{{ destnetid }}" /> </td>

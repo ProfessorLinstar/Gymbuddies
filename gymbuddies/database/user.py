@@ -14,6 +14,7 @@ class UserAlreadyExists(Exception):
     def __init__(self, netid: str):
         super().__init__(f"User with netid '{netid}' already exists.")
 
+
 class UserNotFound(Exception):
     """Exception raised in API call if user required but not found in database."""
 
@@ -43,6 +44,7 @@ def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
+    assert "netid" not in kwargs
     _update_user(session, get_user(netid, session=session), **kwargs)
     return True
 
@@ -55,6 +57,8 @@ def _default_profile() -> Dict[str, Any]:
         "name": "",
         "contact": "",
         "level": "0",
+        "levelpreference": 0,
+        "bio": "",
         "addinfo": "",
         "interests": {},
         "schedule": [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
@@ -130,7 +134,7 @@ def _get(session: Session, netid: str, entities: Tuple[Column, ...] = (db.User,)
 
 
 def _get_column(session: Session, netid: str, column: Column) -> Any:
-    return _get(session, netid, (column,))[0]
+    return _get(session, netid, (column,))
 
 
 @db.session_decorator(commit=False)
