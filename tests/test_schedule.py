@@ -1,6 +1,5 @@
 """Tests users table API functions."""
 import unittest
-import string
 from gymbuddies import database
 from gymbuddies.database import db
 from . import generate

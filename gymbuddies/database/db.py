@@ -278,6 +278,7 @@ class User(BASE):
     interests = Column(PickleType)  # Dictionary indicating interests
     schedule = Column(MutableList.as_mutable(PickleType))  # int[2016] with status for each block
     open = Column(Boolean)  # open for matching
+
     gender = Column(Integer)  # gender of user
     okmale = Column(Boolean)  # is user ok being matched with male users
     okfemale = Column(Boolean)  # is user ok being matched with female users

@@ -1,5 +1,4 @@
 """Database API"""
-import time
 from typing import List, Optional, Dict, Tuple, Any
 from datetime import datetime
 from sqlalchemy import Column
@@ -232,7 +231,6 @@ def new(srcnetid: str,
                          prevrequestid=prevrequestid)
     session.add(request)
 
-    time.sleep(5)
     return True
 
 

@@ -50,7 +50,8 @@ def show():
 
     print("Made context of this form:")
     print(context["query"])
-    return render_template("master.html", **context)
+
+    return render_template("master.html", netid=profile["netid"], **context)
 
 
 def form_to_profile() -> Dict[str, Any]:
@@ -58,7 +59,8 @@ def form_to_profile() -> Dict[str, Any]:
     profile: Dict[str,
                   Any] = {k: v for k, v in request.form.items() if k in db.User.__table__.columns}
     profile["interests"] = {v: True for v in request.form.getlist("interests")}
-    profile["open"] = "open" in profile
+    for bool_key in ("open", "okmale", "okfemale", "okbinary"):
+        profile[bool_key] = bool_key in profile
 
     schedule: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
     profile["schedule"] = schedule
@@ -134,7 +136,11 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             context["bio"] = user.bio
             context["addinfo"] = user.addinfo
             context[f"level{user.level}"] = "checked"
+            context["gender"] = db.Gender(user.gender).to_readable()
             context["open"] = "on" if user.open else ""
+            context["okmale"] = "on" if user.okmale else ""
+            context["okfemale"] = "on" if user.okfemale else ""
+            context["okbinary"] = "on" if user.okbinary else ""
 
             # interests
             context["buildingmass"] = "checked" if user.interests.get("Building Mass") else ""
@@ -217,7 +223,10 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             context["query"] += f"Query for request {requestid} failed."
         else:
             fill_schedule(context, response.schedule)
-            context["query"] += f"Query for request {requestid} successful."
+            context["srcnetid"] = response.srcnetid
+            context["destnetid"] = response.destnetid
+            context["query"] += f"Query for request {requestid} successful.\n" + \
+                f"Request {requestid} is: {db.RequestStatus(response.status).to_readable()}"
 
     elif submit == "New":
         response = database.request.new(srcnetid, destnetid, profile["schedule"])
@@ -238,7 +247,6 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             context["query"] += f"Finalization of request {requestid} failed."
         else:
             context["query"] += f"Request {requestid} is not pending. Unable to finalize."
-
 
     elif submit == "Modify":
         response = database.request.modify(requestid, profile["schedule"])

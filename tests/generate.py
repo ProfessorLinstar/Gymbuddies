@@ -6,7 +6,8 @@ from gymbuddies.database import db
 from gymbuddies import database
 
 STR_LENGTH = 20
-UNI_CHARS = "".join([chr(i) for i in range(10000)])
+UNI_CHARS = "".join([chr(i) for i in range(1, 10000)])
+
 
 def schedule_from_dayhours(*day_hours: Tuple[int, int]):
     """Given arguments of the form (day, hour), returns a schedule with UNAVAILABLE in every block
@@ -23,12 +24,13 @@ def schedule_from_dayhours(*day_hours: Tuple[int, int]):
 
 def users():
     """Initializes a group of users in the database."""
-    data: Dict[str, Any] = {
+    users = {
         "andywang": {
             "netid": "andywang",
             "name": "Andy Wang",
             "contact": "919-265-8342",
-            "level": "0",
+            "level": 0,
+            "levelpreference": 0,
             "bio": "I go to Princeton!",
             "addinfo": "):<",
             "interests": {
@@ -36,48 +38,96 @@ def users():
                 "Legs": True,
             },
             # "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
-            "schedule": [db.ScheduleStatus.AVAILABLE] * db.NUM_WEEK_BLOCKS
+            "schedule": [db.ScheduleStatus.AVAILABLE] * db.NUM_WEEK_BLOCKS,
+            "open": True,
+            "gender": db.Gender.MALE,
+            "okmale": True,
+            "okfemale": False,
+            "okbinary": True,
+            "settings": {},
         },
         "ejcho": {
             "netid": "ejcho",
             "name": "Joy Cho",
             "contact": "ejcho@princeton.edu",
-            "level": "0",
+            "level": 0,
+            "levelpreference": 0,
             "bio": "I go to Princeton!",
             "addinfo": "):<",
             "interests": {},
-            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9)),
+            "open": True,
+            "gender": db.Gender.FEMALE,
+            "okmale": True,
+            "okfemale": False,
+            "okbinary": True,
+            "settings": {},
         },
         "jasono": {
             "netid": "jasono",
             "name": "Jason Oh",
             "contact": "jasono@princeton.edu",
             "level": "2",
+            "levelpreference": 0,
             "addinfo": "):<",
             "bio": "I go to Princeton!",
             "interests": {},
-            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9)),
+            "open": True,
+            "gender": db.Gender.MALE,
+            "okmale": False,
+            "okfemale": True,
+            "okbinary": True,
+            "settings": {},
         },
         "eyc2": {
             "netid": "eyc2",
             "name": "Genie Choi",
             "contact": "eyc2@princeton.edu",
-            "level": "0",
+            "level": 0,
+            "levelpreference": 0,
             "bio": "I go to Princeton!",
             "addinfo": "):<",
             "interests": {},
-            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
+            "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9)),
+            "open": True,
+            "gender": db.Gender.FEMALE,
+            "okmale": False,
+            "okfemale": True,
+            "okbinary": True,
+            "settings": {},
         },
     }
+    for profile in users.values():
+        a = sorted(profile.keys())
+        b = sorted(db.User.__table__.columns.keys())
+        assert a == b, f"Missing columns: {a} vs {b}"
 
-    for user in data.values():
+    for user in users.values():
         print(json.dumps({k: str(v) for k, v in user.items()}, sort_keys=True, indent=4))
 
-    for user in data.values():
+    for user in users.values():
         if database.user.exists(user["netid"]):
             database.user.update(**user)
         else:
             database.user.create(**user)
+
+
+def requests():
+    requests = [
+        {
+            "srcnetid": "andywang",
+            "destnetid": "jasono",
+            "schedule": schedule_from_dayhours((1, 7)),
+        },
+        {
+            "srcnetid": "ejcho",
+            "destnetid": "andywang",
+            "schedule": schedule_from_dayhours((1, 8)),
+        },
+    ]
+    for request in requests:
+        database.request.new(request["srcnetid"], request["destnetid"], request["schedule"])
 
 
 def schedule():
@@ -97,7 +147,10 @@ def profile(netid):
         "bio": unistr(),
         "addinfo": unistr(),
         "interests": {},
-        "open": bool(random.randint(0,1)),
+        "open": bool(random.randint(0, 1)),
+        "okmale": bool(random.randint(0, 1)),
+        "okfemale": bool(random.randint(0, 1)),
+        "okbinary": bool(random.randint(0, 1)),
         "schedule": schedule(),
         "settings": {}
     }
@@ -113,6 +166,7 @@ def unistr(str_length: int = 0, source: str = UNI_CHARS) -> str:
 def main():
     """Calls database initialization functions."""
     users()
+    requests()
 
 
 if __name__ == "__main__":
