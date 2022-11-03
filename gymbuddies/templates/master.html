@@ -86,7 +86,7 @@ block links %}
           </tr>
 
           <tr>
-            <td><label for="gender">gender</label></td>
+            <td><label>preference</label></td>
             <td>
               <label for="okmale">okmale</label>
               <input type="checkbox" id="okmale" name="okmale" {{ okmale }} />
@@ -98,13 +98,50 @@ block links %}
           </tr>
 
           <tr>
+            <td><label for="gender">gender</label></td>
+            <td>
+              <input
+                type="radio"
+                id="male"
+                name="gender"
+                value="0"
+                {{
+                male
+                }}
+              />
+              <label for="male">Male</label>
+              <input
+                type="radio"
+                id="female"
+                name="level"
+                value="1"
+                {{
+                female
+                }}
+              />
+              <label for="female">Female</label>
+              <input
+                type="radio"
+                id="nonbinary"
+                name="level"
+                value="2"
+                {{
+                nonbinary
+                }}
+              />
+              <label for="nonbinary">Nonbinary</label>
+            </td>
+          </tr>
+
+
+          <tr>
             <td><label for="interests">interests</label></td>
             <td>
               <input
                 type="checkbox"
                 id="Cardiovascular Fitness"
                 name="interests"
-                value="Cardiovascular Fitness"
+                value="cardio"
                 {{
                 cardio
                 }}
