@@ -5,3 +5,5 @@ __pycache__
 gymbuddies.egg-info
 gymbuddies.sublime-project
 gymbuddies.sublime-workspace
+.DS_STORE
+gymbuddies/.DS_STORE
