@@ -189,25 +189,25 @@
             <div class="card-body pt-2">
               <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{ netid }}</span>
               <a href="javascript:;" class="card-title h5 d-block text-darker">
-                Hello, {{ database.user.get_user(netid).name }}
+                Hello, {{ user.name }}
               </a>
               <p class="card-description mb-4">
-                Bio: {{ database.user.get_bio(netid) }}
+                Gender: {{ gender }} 
               </p>
               <p class="card-description mb-4">
-                Contact: {{ database.user.get_contact(netid) }} 
+                Bio: {{ user.bio }}
               </p>
               <p class="card-description mb-4">
-                Level: {{ database.user.get_level_str(netid) }}
+                Contact: {{ user.contact }} 
               </p>
               <p class="card-description mb-4">
-                Interests: Pecs <!-- {{ database.user.get_interests(netid) }} -->
+                Level: {{ level }}
               </p>
               <p class="card-description mb-4">
-                Additional Information: {{ database.user.get_addinfo(netid) }} 
+                Interests: {{ interests }}
               </p>
               <p class="card-description mb-4">
-                Open: {{ database.user.get_open(netid) }} 
+                Additional Information: {{ user.addinfo }} 
               </p>
               <!--
               <div class="author align-items-center">

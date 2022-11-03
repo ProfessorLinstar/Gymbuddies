@@ -25,7 +25,10 @@ def home():
         return redirect(url_for("auth.login"))
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    return render_template("home.html", netid=netid)
+    interests = database.user.get_interests_string(netid)
+    gender = db.Gender(g.user.gender).to_readable()
+    level = db.Level(g.user.level).to_readable()
+    return render_template("home.html", netid=netid, user=g.user, interests=interests, gender=gender, level=level)
 
 
 @bp.route("/profile", methods=["GET", "POST"])
