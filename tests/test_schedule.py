@@ -5,7 +5,8 @@ from gymbuddies.database import db
 from . import generate
 
 
-class TestUser(unittest.TestCase):
+class TestSchedule(unittest.TestCase):
+    """Tests API functions for the schedule database"""
 
     def test_basic(self):
         """Tests basic user functions."""

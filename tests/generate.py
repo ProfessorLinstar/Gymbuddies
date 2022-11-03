@@ -1,7 +1,7 @@
 """Collection of functions for generating sample data for the database."""
 import json
 import random
-from typing import Dict, Any, Tuple, List
+from typing import Tuple, List
 from gymbuddies.database import db
 from gymbuddies import database
 
