@@ -37,6 +37,7 @@ def pending():
     # print("request incoming", database.request.get_active_incoming(netid))
     # print("request outgoing", database.request.get_active_outgoing(netid))
     requestUsers = []
+    assert g.requests is not None
     for request in g.requests:
         print("request", request)
         requestUsers.append(database.user.get_user(request.srcnetid))
