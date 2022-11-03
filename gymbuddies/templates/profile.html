@@ -25,6 +25,7 @@
 
 {% block content %}
     <div class="container-fluid py-4">
+    <form action="{{ url_for('home.profile') }}" method="post">
       <div class="row">
         <div class="col-md-6">
           <div class="card">
@@ -40,19 +41,19 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="netid" class="form-control-label">Net Id</label>
-                    <input class="form-control" type="text" value="{{ netid }}">
+                    <input name = "netid" id="netid" class="form-control" type="text" value="{{ netid }}">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="email" class="form-control-label">Email</label>
-                    <input class="form-control" type="email" value="{{netid}}@princeton.edu">
+                    <label for="contact" class="form-control-label">Contact</label>
+                    <input class="form-control" type="text" value="{{user.contact}}">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="name" class="form-control-label">Name</label>
-                    <input class="form-control" type="text" value="{{ database.user.get_name(netid) }}">
+                    <input class="form-control" type="text" value="{{ user.name }}">
                   </div>
                 </div>
               </div>
@@ -61,8 +62,8 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label for="example-text-input" class="form-control-label">Bio</label>
-                    <input class="form-control" type="text" value="{{ database.user.get_bio(netid) }}">
+                    <label for="bio" class="form-control-label">Bio</label>
+                    <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}">
                   </div>
                 </div>
               </div>
@@ -97,11 +98,23 @@
                 </div>
                 -->
                 <div class = "col md-4">
-                  <label for = "level2">Level</label> 
-                  <select class="form-control" name="choices-button" id="choices-button" placeholder="Level">
-                    <option value="Choice 1" selected="">Newbie</option>
-                    <option value="Choice 2">Intermediate</option>
-                    <option value="Choice 3">Advanced</option>
+                  <label for = "level">Level</label> 
+                  <select class="form-control" name="level-dropdown" id="level-dropdown" placeholder="Level">
+                    {% if user.level == 0 %}
+                      <option id="level0" name="level" value="Choice 1" selected="">Beginner</option>
+                    {% else %}
+                    <option id="level0" name="level" value="Choice 1">Beginner</option>
+                    {% endif %}
+                    {% if user.level == 1 %}
+                      <option id="level1" name="level" value="Choice 2" selected="">Intermediate</option>
+                    {% else %}
+                    <option id="level1" name="level" value="Choice 2">Intermediate</option>
+                    {% endif %}
+                    {% if user.level == 2 %}
+                      <option id="level2" name="level" value="Choice 3" selected="">Advanced</option>
+                    {% else %}
+                    <option id="level2" name="level" value="Choice 3">Advanced</option>
+                    {% endif %}
                   </select>
                 </div>
               <!-- </div>
@@ -109,14 +122,18 @@
               <div class="row"> -->
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label for="example-text-input" class="form-control-label">Match Availability</label>
-                    <label class="custom-toggle">
+                    <label for="match-availability" class="form-control-label">Match Availability</label>
+                    <!-- <label class="custom-toggle">-->
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck1">
+                        {% if user.open %}
+                          <input type="checkbox" class="custom-control-input" id="customCheck1" checked>
+                        {% else %}
+                        <input type="checkbox" class="custom-control-input" name = "open" id="open">
+                        {%endif%}
                         <label class="custom-control-label" for="customCheck1">Open to Match</label>
                       </div>
                   </div>
-                </div>
+                </div> 
               
               </div>
               <div class="row">
@@ -140,6 +157,10 @@
                         <input type="checkbox" class="custom-control-input" id="customCheck5">
                         <label class="custom-control-label" for="customCheck5">Upper Body</label>
                       </div>
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck6">
+                        <label class="custom-control-label" for="customCheck6">Lower Body</label>
+                      </div>
                   </div>
                 </div>
               
@@ -151,12 +172,13 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label for="example-text-input" class="form-control-label">Additional Information</label>
-                    <input class="form-control" type="text" value="{{ database.user.get_addinfo(netid) }}">
+                    <input class="form-control" type="text" value="{{ user.addinfo }}">
                   </div>
                 </div>
               </div>
-              <!-- update button -->
-              <button class="btn btn-primary btn-sm ms-auto">Update</button>
+              <!-- update button 
+              <button class="btn btn-primary btn-sm ms-auto">Update</button>-->
+              <input type="submit" name="submit-user" value="Update" />
             </div>
           </div>
         </div>
@@ -230,5 +252,7 @@
             </div>
           </div>
         </div>
-      </div>
+    </form>
+    </div>
+
 {% endblock %}
