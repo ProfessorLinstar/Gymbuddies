@@ -28,6 +28,43 @@ def find_matches(netid: str) -> List[str]:
             matches.append(user.netid)
         return matches
 
+    # do a hard filter on users that are not compatible with gender preferences
+    main_gender = database.user.get_gender(netid)
+    main_okmale = database.user.get_okmale(netid)
+    main_okfemale = database.user.get_okfemale(netid)
+    main_oknonbinary = database.user.get_okbinary(netid)
+    for user in randusers:
+        gender = database.user.get_gender(user.netid)
+        okmale = database.user.get_okmale(user.netid)
+        okfemale = database.user.get_okfemale(user.netid)
+        oknonbinary = database.user.get_okbinary(user.netid)
+        # check if user is compatible with mainuser's preferences
+        if gender == database.db.Gender.MALE:
+            if not main_okmale:
+                randusers.remove(user)
+                continue
+        elif gender == database.db.Gender.FEMALE:
+            if not main_okfemale:
+                randusers.remove(user)
+                continue
+        elif gender == database.db.Gender.NONBINARY:
+            if not main_oknonbinary:
+                randusers.remove(user)
+                continue;
+        # check is mainuser is compatible with user's preferences
+        if main_gender == database.db.Gender.MALE:
+            if not okmale:
+                randusers.remove(user)
+                continue
+        elif main_gender == database.db.Gender.FEMALE:
+            if not okfemale:
+                randusers.remove(user)
+                continue
+        elif main_gender == database.db.Gender.NONBINARY:
+            if not oknonbinary:
+                randusers.remove(user)
+                continue
+
 
     # record user compatability scores based on user levels and level preferences
     user_compatabilities: Dict[str, float] = {}
