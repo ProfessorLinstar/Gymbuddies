@@ -48,6 +48,7 @@ def pending():
         user_level = db.Level(ruser.level)
         levels.append(user_level.to_readable())
         user_interests = database.user.get_interests(ruser.netid)
+        assert user_interests is not None
         interests_s = ", ".join((k for k, v in user_interests.items() if v))
     
             
