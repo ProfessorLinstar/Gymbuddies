@@ -199,6 +199,7 @@ def get_interests(netid: str, *, session: Optional[Session] = None) -> Optional[
     assert session is not None
     return _get_column(session, netid, db.User.interests)
 
+
 @db.session_decorator(commit=False)
 def get_interests_string(netid: str, *, session: Optional[Session] = None) -> str:
     """Attempts to return the interests of a user with netid 'netid' as comma separated string.

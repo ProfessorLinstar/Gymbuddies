@@ -160,9 +160,9 @@ class Gender(int, Enum):
 
 
 _GENDER_TO_READABLE_MAP = {
-    Gender.MALE: "MALE",
-    Gender.FEMALE: "FEMALE",
-    Gender.NONBINARY: "NONBINARY",
+    Gender.MALE: "Male",
+    Gender.FEMALE: "Female",
+    Gender.NONBINARY: "Nonbinary",
 }
 
 
