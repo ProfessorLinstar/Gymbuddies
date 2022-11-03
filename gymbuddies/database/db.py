@@ -240,9 +240,9 @@ class Level(int, Enum):
 
 
 _LEVEL_TO_READABLE_MAP = {
-    Level.BEGINNER: "BEGINNER",
-    Level.INTERMEDIATE: "INTERMEDIATE",
-    Level.ADVANCED: "ADVANCED",
+    Level.BEGINNER: "Beginner",
+    Level.INTERMEDIATE: "Intermediate",
+    Level.ADVANCED: "Advanced",
 }
 
 
