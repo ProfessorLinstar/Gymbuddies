@@ -76,25 +76,29 @@ def find_matches(netid: str) -> List[str]:
         assert user_level is not None
 
         # record whether user is compatable with the level preference of the main user
-        if main_user_level_preference is database.db.LevelPreference.EQUAL:
+        if main_user_level_preference == database.db.LevelPreference.ALL:
+            user_compatabilities[user.netid] += 1
+        elif main_user_level_preference == database.db.LevelPreference.EQUAL:
             if main_user_level == user_level:
                 user_compatabilities[user.netid] += 1
-        elif main_user_level_preference is database.db.LevelPreference.LESSEQUAL:
+        elif main_user_level_preference == database.db.LevelPreference.LESSEQUAL:
             if main_user_level >= user_level:
                 user_compatabilities[user.netid] += 1
-        elif main_user_level_preference is database.db.LevelPreference.GREATEREQUAL:
+        elif main_user_level_preference == database.db.LevelPreference.GREATEREQUAL:
             if main_user_level <= user_level:
                 user_compatabilities[user.netid] += 1
 
         # record whether the main user is compatable with the level preference of user
         user_level_preference = database.user.get_levelpreference(netid)
-        if user_level_preference is database.db.LevelPreference.EQUAL:
+        if user_level_preference == database.db.LevelPreference.ALL:
+            user_compatabilities[user.netid] += 1
+        if user_level_preference == database.db.LevelPreference.EQUAL:
             if user_level == main_user_level:
                 user_compatabilities[user.netid] += 1
-        elif user_level_preference is database.db.LevelPreference.LESSEQUAL:
+        elif user_level_preference == database.db.LevelPreference.LESSEQUAL:
             if user_level >= main_user_level:
                 user_compatabilities[user.netid] += 1
-        elif user_level_preference is database.db.LevelPreference.GREATEREQUAL:
+        elif user_level_preference == database.db.LevelPreference.GREATEREQUAL:
             if user_level <= main_user_level:
                 user_compatabilities[user.netid] += 1
 
