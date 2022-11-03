@@ -51,7 +51,8 @@ def show():
     print("Made context of this form:")
     print(context["query"])
 
-    return render_template("master.html", netid=profile["netid"], **context)
+    context["netid"] = profile["netid"]
+    return render_template("master.html", **context)
 
 
 def form_to_profile() -> Dict[str, Any]:
@@ -143,10 +144,11 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             context["okbinary"] = "on" if user.okbinary else ""
 
             # interests
-            context["buildingmass"] = "checked" if user.interests.get("Building Mass") else ""
-            context["losingweight"] = "checked" if user.interests.get("Losing Weight") else ""
-            context["pecs"] = "checked" if user.interests.get("Pecs") else ""
-            context["legs"] = "checked" if user.interests.get("Legs") else ""
+            context["cardio"] = "checked" if user.interests.get("cardio") else ""
+            context["upper"] = "checked" if user.interests.get("upper") else ""
+            context["lower"] = "checked" if user.interests.get("lower") else ""
+            context["losing"] = "checked" if user.interests.get("losing") else ""
+            context["gaining"] = "checked" if user.interests.get("gaining") else ""
 
             fill_schedule(context, user.schedule)
 
