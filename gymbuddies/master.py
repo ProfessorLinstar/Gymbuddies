@@ -138,10 +138,13 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             context["addinfo"] = user.addinfo
             context[f"level{user.level}"] = "checked"
             context["gender"] = db.Gender(user.gender).to_readable()
-            context["open"] = "on" if user.open else ""
-            context["okmale"] = "on" if user.okmale else ""
-            context["okfemale"] = "on" if user.okfemale else ""
-            context["okbinary"] = "on" if user.okbinary else ""
+
+            context["open"] = "checked" if user.open else ""
+            context["okmale"] = "checked" if user.okmale else ""
+            context["okfemale"] = "checked" if user.okfemale else ""
+            context["okbinary"] = "checked" if user.okbinary else ""
+
+            print(user.okmale, user.okfemale, user.okbinary)
 
             # interests
             context["cardio"] = "checked" if user.interests.get("cardio") else ""

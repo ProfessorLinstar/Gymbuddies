@@ -1,7 +1,7 @@
 {% extends 'layout.html' %} {% block title %}Master Debugger{% endblock %} {%
 block links %}
 <link rel="stylesheet" href="{{ url_for('static', filename='master.css') }}" />
-{% endblock %} 
+{% endblock %}
 {% block classdash %}<a class="nav-link" href="../home">{% endblock %}
   {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
   {% block classreq %}<a class="nav-link " href="{{ url_for('matching.pending') }}">{% endblock %}
@@ -81,18 +81,19 @@ block links %}
           <tr>
             <td><label for="open">open</label></td>
             <td>
-              <input type="checkbox" id="open" name="open" value="{{ open }}" />
+              <input type="checkbox" id="open" name="open" {{ open }} />
             </td>
           </tr>
 
           <tr>
-            <td><label for="okmale">okmale</label></td>
+            <td><label for="gender">gender</label></td>
             <td>
-              <input type="checkbox" id="okmale" name="okmale" value="{{ okmale }}" />
+              <label for="okmale">okmale</label>
+              <input type="checkbox" id="okmale" name="okmale" {{ okmale }} />
               <label for="okfemale">okfemale</label>
-              <input type="checkbox" id="okfemale" name="okfemale" value="{{ okfemale }}" />
+              <input type="checkbox" id="okfemale" name="okfemale" {{ okefemale }}/>
               <label for="okbinary">okbinary</label>
-              <input type="checkbox" id="okbinary" name="okbinary" value="{{ okbinary }}" />
+              <input type="checkbox" id="okbinary" name="okbinary" {{ okbinary }} />
             </td>
           </tr>
 
