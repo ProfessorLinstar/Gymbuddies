@@ -47,18 +47,18 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="contact" class="form-control-label">Contact</label>
-                    <input class="form-control" type="text" value="{{user.contact}}">
+                    <input name="contact" id="contact" class="form-control" type="text" value="{{user.contact}}">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="name" class="form-control-label">Name</label>
-                    <input class="form-control" type="text" value="{{ user.name }}">
+                    <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}">
                   </div>
                 </div>
               </div>
               <hr class="horizontal dark">
-              <p class="text-uppercase text-sm">Bio</p>
+              <p class="text-uppercase text-sm">Information</p>
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
@@ -67,8 +67,6 @@
                   </div>
                 </div>
               </div>
-              <hr class="horizontal dark">
-              <p class="text-uppercase text-sm">Preferences</p>
               <div class = "row">
                 <!--
                 <div class = "col md-4">
@@ -125,11 +123,7 @@
                     <label for="match-availability" class="form-control-label">Match Availability</label>
                     <!-- <label class="custom-toggle">-->
                       <div class="custom-control custom-checkbox">
-                        {% if user.open %}
-                          <input type="checkbox" class="custom-control-input" id="customCheck1" checked>
-                        {% else %}
-                        <input type="checkbox" class="custom-control-input" name = "open" id="open">
-                        {%endif%}
+                        <input type="checkbox" class="custom-control-input" name = "open" id="open" checked="False">
                         <label class="custom-control-label" for="customCheck1">Open to Match</label>
                       </div>
                   </div>
@@ -139,31 +133,113 @@
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label for="example-text-input" class="form-control-label">Interests</label>
-                    <label class="custom-toggle">
+                    <label for="interests" class="form-control-label">Interests</label>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck2">
-                        <label class="custom-control-label" for="customCheck2">Building Mass</label>
+                        <input type="checkbox" class="custom-control-input" id="gaining"
+                        name="interests"
+                        value="gaining">
+                        <label class="custom-control-label" for="Gaining Mass">Gaining Mass</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck3">
-                        <label class="custom-control-label" for="customCheck3">Losing Weight</label>
+                        <input type="checkbox" class="custom-control-input" id="losing"
+                        name="interests"
+                        value="losing">
+                        <label class="custom-control-label" for="Losing Weight">Losing Weight</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck4">
-                        <label class="custom-control-label" for="customCheck4" checked >Cardio</label>
+                        <input type="checkbox" class="custom-control-input" id="Cardiovascular Fitness"
+                        name="interests"
+                        value="Cardiovascular Fitness">
+                        <label class="custom-control-label" for="Cardiovascular Fitness" checked >Cardiovascular Fitness</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck5">
-                        <label class="custom-control-label" for="customCheck5">Upper Body</label>
+                        <input type="checkbox" class="custom-control-input" id="upper"
+                        name="interests"
+                        value="upper">
+                        <label class="custom-control-label" for="Upper Body">Upper Body</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck6">
-                        <label class="custom-control-label" for="customCheck6">Lower Body</label>
+                        <input type="checkbox" class="custom-control-input" id="lower"
+                        name="interests"
+                        value="lower">
+                        <label class="custom-control-label" for="Lower Body">Lower Body</label>
                       </div>
                   </div>
                 </div>
-              
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="example-text-input" class="form-control-label">Gender</label>
+                    <label class="custom-toggle">
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck2">
+                        <label class="custom-control-label" for="customCheck2">Non-Binary</label>
+                      </div>
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck3">
+                        <label class="custom-control-label" for="customCheck3">Male</label>
+                      </div>
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="customCheck4">
+                        <label class="custom-control-label" for="customCheck4">Female</label>
+                      </div>
+                  </div>
+                </div>
+              </div>
+              <hr class="horizontal dark">
+              <p class="text-uppercase text-sm">Match Preferences</p>
+              <div class = "row">
+                <!--
+                <div class = "col md-4">
+                <label for="level">Level</label>
+                <div class="dropdown">
+                  <a href="#" class="btn dropdown-toggle " data-bs-toggle="dropdown" id="navbarDropdownMenuLink2">
+                      Select Level
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
+                      <li>
+                          <a class="dropdown-item" href="#">
+                            Beginner
+                          </a>
+                      </li>
+                      <li>
+                          <a class="dropdown-item" href="#">
+                            Intermediate
+                          </a>
+                      </li>
+                      <li>
+                          <a class="dropdown-item" href="#">
+                            Advanced
+                          </a>
+                      </li>
+                  </ul>
+                </div>
+                </div>
+                -->
+                <div class = "col md-4">
+                  <label for = "level">Buddy's Level</label> 
+                  <select class="form-control" name="level-dropdown" id="level-dropdown" placeholder="Level">
+                    <option id="level0" name="level" value="Choice 1">Beginner</option>
+                      <option id="level1" name="level" value="Choice 2">Intermediate</option>
+                    <option id="level2" name="level" value="Choice 3">Advanced</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="gender" class="form-control-label">Gender Preference</label>
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" id ="okbinary" name="okbinary" class="custom-control-input">
+                        <label class="custom-control-label" for="okbinary">Non-Binary</label>
+                      </div>
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" id ="okmale" name="okmale" class="custom-control-input" >
+                        <label class="custom-control-label" for="okmale">Male</label>
+                      </div>
+                      <div class="custom-control custom-checkbox">
+                        <input type="checkbox" id ="okfemale" name="okfemale" class="custom-control-input" >
+                        <label class="custom-control-label" for="okfemale">Female</label>
+                      </div>
+                  </div>
+                </div>
               </div>
 
               <hr class="horizontal dark">
