@@ -47,6 +47,8 @@ def show():
         handle_schedule(context, profile)
     elif "submit-request" in request.form:
         handle_request(context, profile)
+    elif "submit-matching" in request.form:
+        handle_matching(context, profile)
 
     print("Made context of this form:")
     print(context["query"])
@@ -299,3 +301,17 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 
         context["query"] += f"Outgoing requests for user with netid '{srcnetid}':\n"
         context["query"] += database.debug.sprint_requests(out_requests) + "\n"
+
+def handle_matching(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
+    """Handles matching functions."""
+    netid: str = profile["netid"]
+
+    if not database.user.exists(netid):
+        context["query"] = f"User with netid '{netid}' not found in the database."
+        return
+
+    submit: str = request.form.get("submit-matching", "")
+    if submit == "Get":
+        matches = database.matchmaker.find_matches(netid)
+        context["query"] += "Found these matches:"
+        context["query"] += json.dumps(matches, indent=4, sort_keys=True)
