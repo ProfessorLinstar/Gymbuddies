@@ -199,6 +199,13 @@ def get_interests(netid: str, *, session: Optional[Session] = None) -> Optional[
     assert session is not None
     return _get_column(session, netid, db.User.interests)
 
+@db.session_decorator(commit=False)
+def get_interests_string(netid: str, *, session: Optional[Session] = None) -> str:
+    """Attempts to return the interests of a user with netid 'netid' as comma separated string.
+    Raises an error if the user does not exist """
+    assert session is not None
+    interests = _get_column(session, netid, db.User.interests)
+    return ", ".join((k for k, v in interests.items() if v))
 
 @db.session_decorator(commit=False)
 def get_schedule(netid: str, *, session: Optional[Session] = None) -> Optional[List[int]]:
