@@ -26,27 +26,27 @@ class RequestNotFound(Exception):
 
 
 @db.session_decorator(commit=False)
-def get_active_outgoing(destnetid: str,
+def get_active_outgoing(srcnetid: str,
                         *,
                         session: Optional[Session] = None) -> List[db.MappedRequest]:
     """Attempts to return a list of the active outgoing requests for a user with netid 'destnetid',
     sorted in order with respect to the request's make timestamp, newest first. If 'destnetid' does
     not exist in the database, returns an empty list."""
     assert session is not None
-    return session.query(db.Request).filter(db.Request.destnetid == destnetid,
+    return session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
                                             db.Request.status == db.RequestStatus.PENDING).order_by(
                                                 db.Request.maketimestamp).all()
 
 
 @db.session_decorator(commit=False)
-def get_active_incoming(srcnetid: str,
+def get_active_incoming(destnetid: str,
                         *,
                         session: Optional[Session] = None) -> List[db.MappedRequest]:
     """Attempts to return a list of the active incoming requests for a user with netid 'srcnetid',
     sorted in order with respect to the request's make timestamp, newest first. If 'srcnetid' does
     not exist in the database, returns an empty list."""
     assert session is not None
-    return session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
+    return session.query(db.Request).filter(db.Request.destnetid == destnetid,
                                             db.Request.status == db.RequestStatus.PENDING).order_by(
                                                 db.Request.maketimestamp).all()
 

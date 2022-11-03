@@ -247,7 +247,7 @@ _LEVEL_TO_READABLE_MAP = {
 
 
 # note: use this function to get interests dict when adding user to db for first time
-def getInterestDict(self, cardio=False, upper=False, lower=False, losing=False,
+def getInterestDict(cardio=False, upper=False, lower=False, losing=False,
     gaining=False) -> Dict[str, bool]:
     """Returns an interests hash table. Set interested parameters as True"""
     interests = {}

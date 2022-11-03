@@ -6,17 +6,14 @@ any important information must be backed up. """
 
 import sys
 import click
-
-from sqlalchemy import create_engine
 from . import db
 
 def reset_db():
     """Drops and creates database given by db DATABASE url, according to the metadata provided by
     db."""
 
-    engine = create_engine(db.DATABASE_URL, echo=True)
-    db.BASE.metadata.drop_all(engine)
-    db.BASE.metadata.create_all(engine)
+    db.BASE.metadata.drop_all(db.engine)
+    db.BASE.metadata.create_all(db.engine)
 
 
 @click.command("init-db")

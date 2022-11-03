@@ -7,6 +7,7 @@ from . import generate
 
 
 class TestUser(unittest.TestCase):
+    """Tests API functions for the user database"""
 
     def test_basic(self):
         """Tests basic user functions."""
@@ -42,7 +43,19 @@ class TestUser(unittest.TestCase):
 
     def test_stress(self):
         """Generates large amount of random user operations for testing."""
-        
+
+    def test_errors(self):
+        """Tests inputs that should result in errors in the database API call."""
+        netid = generate.unistr(source=string.ascii_lowercase)
+
+        database.user.create(netid)
+        self.assertIsNone(database.user.create(netid))
+
+        database.user.delete(netid)
+        self.assertIsNone(database.user.delete(netid))
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
