@@ -40,8 +40,22 @@ def pending():
     for request in g.requests:
         print("request", request)
         requestUsers.append(database.user.get_user(request.destnetid))
+    levels = []
+    
+    for ruser in requestUsers:
+        user_level = db.Level(ruser.level)
+        levels.append(user_level.to_readable())
+    
+    interests = [] # every element should be a string
+    for ruser in requestUsers:
+        user_interests = db.user.get_interests(ruser.netid)
+        interest_list = []
+        for intr in user_interests:
+            intr[]
+            
+
     print("requestUsers", requestUsers)
-    return render_template("pending.html", netid=netid, requestUsers=requestUsers)
+    return render_template("pending.html", netid=netid, requestUsers=requestUsers, levels = levels)
 
 @bp.route("/matched")
 def matched():
