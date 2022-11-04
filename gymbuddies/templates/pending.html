@@ -63,7 +63,7 @@ block classdash %}<a class="nav-link" href="../home"
                                     Level: {{ level }}
                                   </p>
                                   <p class="card-description mb-4">
-                                    Interests: Legs, building mass <!-- {{ database.user.get_interests("ejcho") }} -->
+                                    Interests: {{ g.user.interests }}
                                   </p>
                                   <p class="card-description mb-4">
                                     Additional Information: {{ g.user.addinfo }}
@@ -123,7 +123,6 @@ block classdash %}<a class="nav-link" href="../home"
                             <input type="hidden" name="requestid" value="{{ requests[i].requestid }}"/>
                             <button
                               class="btn btn-link text-danger text-gradient px-3 mb-0"
-                              href="javascript:;"
                               type="submit"
                               name="action"
                               value="reject"
@@ -131,7 +130,6 @@ block classdash %}<a class="nav-link" href="../home"
                             >
                             <button
                               class="btn btn-link text-dark px-3 mb-0"
-                              href="javascript:;"
                               type="submit"
                               name="action"
                               value="accept"
