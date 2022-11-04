@@ -286,7 +286,7 @@ def users():
             "settings": {},
         },
         "sstark": {
-            "netid": "ssstark",
+            "netid": "sstark",
             "name": "Sansa Stark",
             "contact": "sstark@princeton.edu",
             "level": db.Level.BEGINNER,
