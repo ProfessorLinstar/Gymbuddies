@@ -1,6 +1,5 @@
 """Database schema and data class enumerations."""
 
-import calendar
 import functools
 import os
 import sys
