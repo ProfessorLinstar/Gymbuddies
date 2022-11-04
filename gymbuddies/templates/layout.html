@@ -391,27 +391,9 @@
     <script src="../js/argon-dashboard.min.js?v=2.0.4"></script>   -->
 
 
-  <!-- Control Center for Argon Dashboard: parallax effects, scripts for the example pages etc 
-  <script src="../js/argon-dashboard.min.js"></script> -->
-  <!-- to change active state of navigation bar -->
-  <script>
-    $(document).ready(function() {
-        $( ".mr-auto .nav-item" ).bind( "click", function(event) {
-            event.preventDefault();
-            var clickedItem = $( this );
-            $( ".mr-auto .nav-item" ).each( function() {
-                $( this ).removeClass( "active" );
-            });
-            clickedItem.addClass( "active" );
-        });
-    });
-  </script>
-  <script type="text/javascript" src="js/bootstrap/bootstrap-dropdown.js"></script>
-  <script>
-       $(document).ready(function(){
-          $('.dropdown-toggle').dropdown()
-      });
-  </script>
+  <!-- Control Center for Argon Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="{{ url_for('static', filename='argon-dashboard.min.js') }}"></script> 
+  <script src="{{ url_for('static', filename='argon-dashboard.js') }}"></script> 
 </body>
 
 </html>

@@ -39,6 +39,9 @@ def profile():
         return redirect(url_for("auth.login"))
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    ints = database.user.get_interests(netid)
+    print(ints.get("upper"))
+    # {{ "checked" if user.interests.get["losing" ] else "" }}
 
     if request.method == "GET":
         return render_template("profile.html", netid=netid, user = g.user)
@@ -81,7 +84,7 @@ def handle_user(profile: Dict[str, Any]) -> None:
     """Handles POST requests for 'user' functions"""
     netid: str = profile["netid"]
     submit: str = request.form.get("submit-user", "")
-
+    #print("requests", request.post("submit-user", ""))
     if submit == "Update":
         database.user.update(**profile)
 
