@@ -39,22 +39,19 @@
               <form action="{{ url_for('home.profile') }}" method="post">
               <p class="text-uppercase text-sm">User Information</p>
               <div class="row">
+                <label for="name" class="form-control-label">Net Id: </label>  <p style="font-size:13 !important">{{netid}}</p> 
+              </div>
+              <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="netid" class="form-control-label">Net Id</label>
-                    <input name = "netid" id="netid" class="form-control" type="text" value="{{ netid }}" required >
+                    <label for="name" class="form-control-label">Name</label>
+                    <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  required >
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="contact" class="form-control-label">Contact</label>
                     <input name="contact" id="contact" class="form-control" type="text" value="{{user.contact}}"  required>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="name" class="form-control-label">Name</label>
-                    <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  required >
                   </div>
                 </div>
               </div>

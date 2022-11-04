@@ -3,7 +3,7 @@
   2. Pending matches
   3. Matches
 """
-
+from typing import Dict, Any, List
 from flask import Blueprint
 from flask import render_template, redirect, url_for, request
 from flask import session, g, request
@@ -12,6 +12,13 @@ from . import database
 from .database import db
 
 bp = Blueprint("matching", __name__, url_prefix="/matching")
+
+def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
+    """Checks the master schedule boxes according to the provided 'schedule'."""
+    for i, s in enumerate(schedule):
+        day, time = db.TimeBlock(i).day_time()
+        if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
+            context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
 
 @bp.route("/search")
@@ -42,7 +49,10 @@ def search():
     level = database.db.Level(g.user.level)
     level = level.to_readable()
     interests = database.user.get_interests_string(netid)
-    return render_template("search.html", netid=netid, level=level, interests=interests, user=g.user)
+    # grab schedule
+    context: Dict[str, Any] = {}
+    fill_schedule(context, g.user.schedule)
+    return render_template("search.html", netid=netid, level=level, interests=interests, user=g.user, **context)
 
 
 @bp.route("/pending", methods=("GET", "POST"))
