@@ -33,23 +33,23 @@
                 <div class="card-body pt-2">
                   <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
                   <a href="javascript:;" class="card-title h5 d-block text-darker">
-                    {{ database.user.get_user("ejcho").name }}
+                    {{ g.user.name }}
                   </a>
                   <p class="card-description mb-4">
                     <br>
-                    Bio: {{ database.user.get_bio("ejcho") }}
+                    Bio: {{ g.user.bio }}
                   </p>
                   <!--<p class="card-description mb-4">
                     Contact: {{ database.user.get_contact(testandie) }} 
                   </p>-->
                   <p class="card-description mb-4">
-                    Level: {{ database.user.get_level_str("ejcho") }}
+                    Level: {{ level }}
                   </p>
                   <p class="card-description mb-4">
                     Interests: Legs, building mass <!-- {{ database.user.get_interests("ejcho") }} -->
                   </p>
                   <p class="card-description mb-4">
-                    Additional Information: {{ database.user.get_addinfo("ejcho") }} 
+                    Additional Information: {{ g.user.addinfo }}
                   </p>
                 </div>
               </div>

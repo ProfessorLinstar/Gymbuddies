@@ -22,8 +22,12 @@ def search():
         return redirect(url_for("auth.login"))
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    assert g.user is not None
     # g.requests = database.request.get_active_incoming(netid)
-    return render_template("search.html", netid=netid)
+    level = database.db.Level(g.user.level)
+    level = level.to_readable()
+    interests = database.user.get_interests_string(netid)
+    return render_template("search.html", netid=netid, level=level, interests=interests)
 
 
 @bp.route("/pending", methods=("GET", "POST"))
