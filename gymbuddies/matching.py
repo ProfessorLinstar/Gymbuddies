@@ -26,8 +26,10 @@ def search():
     if request.method == "POST":
         destnetid = request.form["destnetid"]
         schedule = common.form_to_schedule()
-        print(f"Posting! {destnetid = }, {schedule = }")
-        assert database.request.new(netid, destnetid, schedule)
+
+        session["index"] += 1
+        database.request.new(netid, destnetid, schedule)
+        return redirect(url_for("matching.outgoing"))
 
     # implement the roundtable format of getting matches
     sess_index = request.args.get("index")

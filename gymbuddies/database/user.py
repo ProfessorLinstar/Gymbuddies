@@ -56,11 +56,18 @@ def _default_profile() -> Dict[str, Any]:
         "netid": "",
         "name": "",
         "contact": "",
-        "level": "0",
-        "levelpreference": 0,
+        "level": db.Level.BEGINNER,
+        "levelpreference": db.LevelPreference.ALL,
         "bio": "",
         "addinfo": "",
-        "interests": {},
+        "interests":
+            db.get_interests_dict(
+                cardio=True,
+                upper=True,
+                lower=True,
+                losing=True,
+                gaining=True,
+            ),
         "schedule": [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
         "open": False,
         "gender": db.Gender.NONBINARY,
@@ -211,6 +218,7 @@ def get_interests_string(netid: str, *, session: Optional[Session] = None) -> st
     assert session is not None
     interests = _get_column(session, netid, db.User.interests)
     return ", ".join((k for k, v in interests.items() if v))
+
 
 @db.session_decorator(commit=False)
 def get_schedule(netid: str, *, session: Optional[Session] = None) -> Optional[List[int]]:
