@@ -52,10 +52,6 @@ def profile():
     if not netid:
         return redirect(url_for("auth.login"))
 
-    ints = database.user.get_interests(netid)
-    assert ints is not None
-    print(ints.get("upper"))
-
     user = database.user.get_user(netid)  # can access this in jinja template with {{ user }}
 
     if request.method == "POST" and "update" in request.form:

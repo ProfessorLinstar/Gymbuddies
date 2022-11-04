@@ -6,7 +6,7 @@ any important information must be backed up. """
 
 import sys
 import click
-import db
+from . import db
 
 def reset_db():
     """Drops and creates database given by db DATABASE url, according to the metadata provided by

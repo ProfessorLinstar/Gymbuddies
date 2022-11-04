@@ -45,8 +45,8 @@ def search():
         matches = session.get("matches", None)
         index = session.get("index", None)
 
-    g.user = database.user.get_user(
-        matches[index])  # can access this in jinja template with {{ g.user }}
+    # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
+    g.user = database.user.get_user(matches[index])  # can access this in jinja template with {{ g.user }}
     assert g.user is not None
     # g.requests = database.request.get_active_incoming(netid)
     level = database.db.Level(g.user.level)
