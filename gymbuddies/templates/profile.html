@@ -200,7 +200,7 @@
                   </div>
                 </div>
               </div>
-            <button class="btn btn-primary btn-sm ms-auto" type="submit" name="submit-user" value="Update">Update</button>
+            <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button>
             </form>
             </div>
           </div>
@@ -265,19 +265,21 @@
             </div>
           -->
             </div>
-            <div class="card-body p-3">
-              <main id="calendar" style="display: flex;
-              justify-content:center;
-              align-items: center;">
-                {% include 'calendar.html' %}
-              </main>
-              
-          <!--<div class="chart">
-            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
-          </div>-->
-            <br>
-              <button class="btn btn-primary btn-sm ms-auto">Update</button>
-            </div>
+            <form action="{{ url_for('home.profile') }}" method="post">
+              <div class="card-body p-3">
+                <main id="calendar" style="display: flex;
+                justify-content:center;
+                align-items: center;">
+                  {% include 'calendar.html' %}
+                </main>
+                
+            <!--<div class="chart">
+              <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
+            </div>-->
+              <br>
+                <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="schedule">Update</button>
+              </div>
+            </form>
           </div>
         </div>
     </form>

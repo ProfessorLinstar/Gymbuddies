@@ -2,14 +2,20 @@
 
 from typing import Dict, Any, List
 from flask import Blueprint
-from flask import session, g
+from flask import session
 from flask import request
 from flask import render_template, redirect, url_for
-from . import common
 from . import database
 from .database import db
 
 bp = Blueprint("home", __name__, url_prefix="")
+
+def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
+    """Checks the master schedule boxes according to the provided 'schedule'."""
+    for i, s in enumerate(schedule):
+        day, time = db.TimeBlock(i).day_time()
+        if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
+            context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
 
 @bp.route("/")
@@ -32,7 +38,7 @@ def home():
     level = db.Level(user.level).to_readable()
 
     context: Dict[str, Any] = {}
-    common.fill_schedule(context, user.schedule)
+    fill_schedule(context, user.schedule)
 
     return render_template("home.html",
                            netid=netid,
@@ -56,18 +62,20 @@ def profile():
 
     user = database.user.get_user(netid)  # can access this in jinja template with {{ user }}
 
-    if request.method == "GET":
-        return render_template("profile.html", netid=netid, user=user)
-
-    prof: Dict[str, Any] = form_to_profile()
-    if "submit-user" in request.form:
-        handle_user(prof)
+    if request.method == "POST" and "submit-user" in request.form:
+        prof: Dict[str, Any] = form_to_profile()
+        submit: str = request.form.get("update", "")
+        if submit == "information":
+            prof.pop("schedule")
+        elif submit == "schedule":
+            prof = {"schedule": prof["schedule"]}
+        database.user.update(**prof)
 
     user = database.user.get_user(netid)
     assert user is not None
 
     context: Dict[str, Any] = {}
-    common.fill_schedule(context, user.schedule)
+    fill_schedule(context, user.schedule)
 
     return render_template("profile.html", netid=netid, user=user, **context)
 
@@ -78,6 +86,7 @@ def form_to_profile() -> Dict[str, Any]:
     prof["interests"] = {v: True for v in request.form.getlist("interests")}
     for bool_key in ("open", "okmale", "okfemale", "okbinary"):
         prof[bool_key] = bool_key in prof
+    print("got this profile:", prof)
 
     schedule: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
     prof["schedule"] = schedule
@@ -96,13 +105,3 @@ def form_to_profile() -> Dict[str, Any]:
             schedule[i] = db.ScheduleStatus.AVAILABLE
 
     return prof
-
-
-def handle_user(prof: Dict[str, Any]) -> None:
-    """Handles POST requests for 'user' functions"""
-    submit: str = request.form.get("submit-user", "")
-    #print("requests", request.post("submit-user", ""))
-    if submit == "Update":
-        database.user.update(**prof)
-
-
