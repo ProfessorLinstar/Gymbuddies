@@ -2,9 +2,22 @@
 from flask import Blueprint
 from flask import session, request, g
 from flask import render_template, redirect, url_for
+from . import database
 from .database import user
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+@bp.route("/signup", methods=("GET", "POST"))
+def signup():
+    """Shows signup page."""
+    if request.method == "GET":
+        return render_template("signup.html")
+    netid = request.form["netid"]
+    if database.user.exists(netid):
+        return redirect(url_for("home.home"))
+    database.user.create(netid)
+    session["netid"] = netid
+    return redirect(url_for("home.profile"))
 
 @bp.route("/login", methods=("GET", "POST"))
 def login():

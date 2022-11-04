@@ -1,0 +1,9 @@
+{% block content %}
+  <h2>Signup</h2>
+  <form action="{{ url_for('auth.signup') }}" method="post">
+    <label for="netid">netid</label> <input name="netid" id="netid">
+    <input type="submit" name="submit-login" value="signup">
+  </form>
+  <h2>Response</h2>
+  <pre>{{ response }}</pre>
+{% endblock %}
