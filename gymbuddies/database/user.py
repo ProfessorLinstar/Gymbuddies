@@ -63,6 +63,10 @@ def _default_profile() -> Dict[str, Any]:
         "interests": {},
         "schedule": [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
         "open": False,
+        "gender": db.Gender.NONBINARY,
+        "okmale": True,
+        "okfemale": True,
+        "okbinary": True,
         "settings": {},
     }
 
