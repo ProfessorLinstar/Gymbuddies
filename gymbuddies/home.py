@@ -62,7 +62,7 @@ def profile():
 
     user = database.user.get_user(netid)  # can access this in jinja template with {{ user }}
 
-    if request.method == "POST" and "submit-user" in request.form:
+    if request.method == "POST" and "update" in request.form:
         prof: Dict[str, Any] = form_to_profile()
         submit: str = request.form.get("update", "")
         if submit == "information":
