@@ -1,5 +1,4 @@
 """Gymbuddies Flask web application."""
-
 import os
 from flask import Flask
 from . import home, master, auth, matching

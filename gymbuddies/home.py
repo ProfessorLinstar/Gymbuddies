@@ -1,5 +1,4 @@
 """Home page blueprint."""
-
 from typing import Dict, Any, List
 from flask import Blueprint
 from flask import session
