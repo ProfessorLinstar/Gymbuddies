@@ -118,12 +118,16 @@
                       -->
                       
                         <div class="ms-auto text-end">
-                          <input type="hidden"/>
-                          <button
-                            class="btn btn-link text-danger text-gradient px-3 mb-0"
-                            type="submit"
-                            ><i class="far fa-trash-alt me-2"></i>Delete</button
-                          >
+                          <form action="{{ url_for('matching.outgoing') }}" method="post">
+                            <input type="hidden" name="requestid" value="{{ match.requestid }}"/>
+                            <button
+                              class="btn btn-link text-danger text-gradient px-3 mb-0"
+                              type="submit"
+                              name="action"
+                              value="reject"
+                              ><i class="far fa-trash-alt me-2"></i>Delete</button
+                            >
+                          </form>
                       </div>
                       </div>
                       
