@@ -5,23 +5,39 @@
 """
 
 from flask import Blueprint
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, request
 from flask import session, g, request
 from typing import List
 from . import database
 from .database import db
+from .database import matchmaker
 
 bp = Blueprint("matching", __name__, url_prefix="/matching")
 
 
 @bp.route("/search")
 def search():
-    """Page for finding matches."""
+    # get the current user in the session
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
 
-    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    # implement the roundtable format of getting matches
+    sess_index = request.args.get("index")
+    if sess_index is not None:
+        sess_index = int(sess_index)
+        session["index"] += 1
+
+    # get the users and index of current user that you have been matched with
+    matches: List[str] = session.get("matches", None)
+    index: int = session.get("index", None)
+    if not matches or index >= len(matches):
+        session["matches"] = database.matchmaker.find_matches(netid)
+        session["index"] = 0
+        matches = session.get("matches", None)
+        index = session.get("index", None)
+
+    g.user = database.user.get_user(matches[index])  # can access this in jinja template with {{ g.user }}
     assert g.user is not None
     # g.requests = database.request.get_active_incoming(netid)
     level = database.db.Level(g.user.level)

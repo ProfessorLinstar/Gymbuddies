@@ -25,7 +25,7 @@
 
 {% block content %}
     <div class="container-fluid py-4">
-    <form action="{{ url_for('home.profile') }}" method="post">
+    
       <div class="row">
         <div class="col-md-6">
           <div class="card">
@@ -36,24 +36,25 @@
               </div>
             </div>
             <div class="card-body">
+              <form action="{{ url_for('home.profile') }}" method="post">
               <p class="text-uppercase text-sm">User Information</p>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="netid" class="form-control-label">Net Id</label>
-                    <input name = "netid" id="netid" class="form-control" type="text" value="{{ netid }}">
+                    <input name = "netid" id="netid" class="form-control" type="text" value="{{ netid }}" required ">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="contact" class="form-control-label">Contact</label>
-                    <input name="contact" id="contact" class="form-control" type="text" value="{{user.contact}}">
+                    <input name="contact" id="contact" class="form-control" type="text" value="{{user.contact}}"  required>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="name" class="form-control-label">Name</label>
-                    <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}">
+                    <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  required >
                   </div>
                 </div>
               </div>
@@ -63,44 +64,25 @@
                 <div class="col-md-12">
                   <div class="form-group">
                     <label for="bio" class="form-control-label">Bio</label>
-                    <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}">
+                    <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}"  required>
                   </div>
                 </div>
               </div>
               <div class = "row">
-                <!--
                 <div class = "col md-4">
-                <label for="level">Level</label>
-                <div class="dropdown">
-                  <a href="#" class="btn dropdown-toggle " data-bs-toggle="dropdown" id="navbarDropdownMenuLink2">
-                      Select Level
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
-                      <li>
-                          <a class="dropdown-item" href="#">
-                            Beginner
-                          </a>
-                      </li>
-                      <li>
-                          <a class="dropdown-item" href="#">
-                            Intermediate
-                          </a>
-                      </li>
-                      <li>
-                          <a class="dropdown-item" href="#">
-                            Advanced
-                          </a>
-                      </li>
-                  </ul>
-                </div>
-                </div>
-                -->
-                <div class = "col md-4">
+                  <!--
                   <label for = "level">Level</label> 
+          
                   <select class="form-control" name="level-dropdown" id="level-dropdown" placeholder="Level">
-                    <option id="level0" name="level" value="0" {{ "selected" if (user.level == 0 ) else "" }}> Beginner</option>
-                    <option id="level1" name="level" value="1" {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
-                    <option id="level2" name="level" value="2" {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>
+                    <option id="level0" name="level" value=0 {{ "selected" if (user.level == 0 ) else "" }}> Beginner</option>
+                    <option id="level1" name="level" value=1 {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
+                    <option id="level2" name="level" value=2 {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>
+                  </select>-->
+                  <label for="level">Level</label>
+                  <select name="level" id="cars" class="form-control" placeholder="Level">
+                    <option id="level0" value="0" {{ "selected" if (user.level == 0 ) else "" }}>Beginner</option>
+                    <option id="level1" value="1" {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
+                    <option id="level2" value="2" {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>      
                   </select>
                 </div>
               <!-- </div>
@@ -110,7 +92,7 @@
                   <div class="form-group">
                     <label for="match-availability" class="form-control-label">Match Availability</label>
                       <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name = "open" id="open" {{ "checked" if user.open else "" }}>
+                        <input class="form-check-input" type="checkbox" name = "open" id="open" {{ "checked" if user.open else "" }}  required>
                         <label class="form-check-label" for="open">Open</label>
                       </div>
                   </div>
@@ -122,33 +104,33 @@
                   <div class="form-group">
                     <label for="interests" class="form-control-label">Interests</label>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="gaining"
+                        <input type="checkbox" class="custom-control-input" id="Gaining Mass"
                         name="interests"
-                        value="gaining" {{ "checked" if user.interests.get("gaining" ) else "" }}>
+                        value="Gaining Mass" {{ "checked" if user.interests.get("Gaining Mass" ) else "" }}>
                         <label class="custom-control-label" for="Gaining Mass" >Gaining Mass</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="losing"
+                        <input type="checkbox" class="custom-control-input" id="Losing Weight"
                         name="interests"
-                        value="losing"{{ "checked" if user.interests.get("losing" ) else "" }} >
+                        value="Losing Weight"{{ "checked" if user.interests.get("Losing Weight" ) else "" }} >
                         <label class="custom-control-label" for="Losing Weight" >Losing Weight</label>
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="Cardiovascular Fitness"
                         name="interests"
-                        value="cardio" {{ "checked" if user.interests.get("cardio" ) else "" }}>
+                        value="Cardiovascular Fitness" {{ "checked" if user.interests.get("Cardiovascular Fitness" ) else "" }}>
                         <label class="custom-control-label" for="Cardiovascular Fitness" >Cardiovascular Fitness</label>
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="upper"
                         name="interests"
-                        value="upper"{{ "checked" if user.interests.get("upper" ) else "" }}>
+                        value="Upper Body"{{ "checked" if user.interests.get("Upper Body" ) else "" }}>
                         <label class="custom-control-label" for="Upper Body" >Upper Body</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="lower"
+                        <input type="checkbox" class="custom-control-input" id="Lower Body"
                         name="interests"
-                        value="lower" {{ "checked" if user.interests.get("lower" ) else "" }}>
+                        value="Lower Body" {{ "checked" if user.interests.get("Lower Body" ) else "" }}>
                         <label class="custom-control-label" for="Lower Body" >Lower Body</label>
                       </div>
                   </div>
@@ -157,21 +139,21 @@
                   <div class="form-group">
                     <label for="gender" class="form-control-label">Gender</label>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="nonbinary"
+                        <input type="radio" class="custom-control-input" id="nonbinary"
                         name="gender"
-                        value="2">
+                        value="2" {{ "checked" if (user.gender == 2 ) else "" }}>
                         <label class="custom-control-label" for="customCheck2">Non-Binary</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="male"
+                        <input type="radio" class="custom-control-input" id="male"
                         name="gender"
-                        value="0">
+                        value="0" {{ "checked" if (user.gender == 0 ) else "" }}>
                         <label class="custom-control-label" for="male">Male</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="female"
+                        <input type="radio" class="custom-control-input" id="female"
                         name="gender"
-                        value="1">
+                        value="1" {{ "checked" if (user.gender == 1 ) else "" }}>
                         <label class="custom-control-label" for="female">Female</label>
                       </div>
                   </div>
@@ -180,54 +162,28 @@
               <hr class="horizontal dark">
               <p class="text-uppercase text-sm">Match Preferences</p>
               <div class = "row">
-                <!--
                 <div class = "col md-4">
-                <label for="level">Level</label>
-                <div class="dropdown">
-                  <a href="#" class="btn dropdown-toggle " data-bs-toggle="dropdown" id="navbarDropdownMenuLink2">
-                      Select Level
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink2">
-                      <li>
-                          <a class="dropdown-item" href="#">
-                            Beginner
-                          </a>
-                      </li>
-                      <li>
-                          <a class="dropdown-item" href="#">
-                            Intermediate
-                          </a>
-                      </li>
-                      <li>
-                          <a class="dropdown-item" href="#">
-                            Advanced
-                          </a>
-                      </li>
-                  </ul>
-                </div>
-                </div>
-                -->
-                <div class = "col md-4">
-                  <label for = "level">Buddy's Level</label> 
-                  <select class="form-control" name="level-dropdown" id="level-dropdown" placeholder="Level">
-                    <option id="level0" name="level" value="Choice 1">Beginner</option>
-                      <option id="level1" name="level" value="Choice 2">Intermediate</option>
-                    <option id="level2" name="level" value="Choice 3">Advanced</option>
+                  <label for = "levelpreference">Buddy's Level</label> 
+                  <select required class="form-control" placeholder="Level" name="levelpreference">
+                    <option id="level0" value="0" {{ "selected" if (user.levelpreference == 0 ) else "" }}> Equal </option>
+                    <option id="level1" value="1" {{ "selected" if (user.levelpreference ==1 ) else "" }}>Less than or Equal to</option>
+                    <option id="level2"  value="2" {{ "selected" if (user.levelpreference ==2 ) else "" }}>Greater than or Equal to</option>
+                    <option id="level3"  value="3" {{ "selected" if (user.levelpreference ==3 ) else "" }}>All</option>
                   </select>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
                     <label for="gender" class="form-control-label">Gender Preference</label>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id ="okbinary" name="okbinary" class="custom-control-input">
+                        <input type="checkbox" id ="okbinary" name="okbinary" class="custom-control-input" {{ "checked" if user.okbinary else "" }}>
                         <label class="custom-control-label" for="okbinary">Non-Binary</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id ="okmale" name="okmale" class="custom-control-input" >
+                        <input type="checkbox" id ="okmale" name="okmale" class="custom-control-input" {{ "checked" if user.okmale else "" }}>
                         <label class="custom-control-label" for="okmale">Male</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" id ="okfemale" name="okfemale" class="custom-control-input" >
+                        <input type="checkbox" id ="okfemale" name="okfemale" class="custom-control-input" {{ "checked" if user.okfemale else "" }}>
                         <label class="custom-control-label" for="okfemale">Female</label>
                       </div>
                   </div>
@@ -244,7 +200,8 @@
                   </div>
                 </div>
               </div>
-              <button class="btn btn-primary btn-sm ms-auto" type="submit" name="submit-user" value="Update">Update</button>
+            <button class="btn btn-primary btn-sm ms-auto" type="submit" name="submit-user" value="Update">Update</button>
+            </form>
             </div>
           </div>
         </div>
