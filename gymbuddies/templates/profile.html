@@ -98,21 +98,9 @@
                 <div class = "col md-4">
                   <label for = "level">Level</label> 
                   <select class="form-control" name="level-dropdown" id="level-dropdown" placeholder="Level">
-                    {% if user.level == 0 %}
-                      <option id="level0" name="level" value="Choice 1" selected="">Beginner</option>
-                    {% else %}
-                    <option id="level0" name="level" value="Choice 1">Beginner</option>
-                    {% endif %}
-                    {% if user.level == 1 %}
-                      <option id="level1" name="level" value="Choice 2" selected="">Intermediate</option>
-                    {% else %}
-                    <option id="level1" name="level" value="Choice 2">Intermediate</option>
-                    {% endif %}
-                    {% if user.level == 2 %}
-                      <option id="level2" name="level" value="Choice 3" selected="">Advanced</option>
-                    {% else %}
-                    <option id="level2" name="level" value="Choice 3">Advanced</option>
-                    {% endif %}
+                    <option id="level0" name="level" value="0" {{ "selected" if (user.level == 0 ) else "" }}> Beginner</option>
+                    <option id="level1" name="level" value="1" {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
+                    <option id="level2" name="level" value="2" {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>
                   </select>
                 </div>
               <!-- </div>
@@ -121,10 +109,9 @@
                 <div class="col-md-4">
                   <div class="form-group">
                     <label for="match-availability" class="form-control-label">Match Availability</label>
-                    <!-- <label class="custom-toggle">-->
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" name = "open" id="open" checked="False">
-                        <label class="custom-control-label" for="customCheck1">Open to Match</label>
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name = "open" id="open" {{ "checked" if user.open else "" }}>
+                        <label class="form-check-label" for="open">Open</label>
                       </div>
                   </div>
                 </div> 
@@ -137,50 +124,55 @@
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="gaining"
                         name="interests"
-                        value="gaining">
-                        <label class="custom-control-label" for="Gaining Mass">Gaining Mass</label>
+                        value="gaining" {{ "checked" if user.interests.get("gaining" ) else "" }}>
+                        <label class="custom-control-label" for="Gaining Mass" >Gaining Mass</label>
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="losing"
                         name="interests"
-                        value="losing">
-                        <label class="custom-control-label" for="Losing Weight">Losing Weight</label>
+                        value="losing"{{ "checked" if user.interests.get("losing" ) else "" }} >
+                        <label class="custom-control-label" for="Losing Weight" >Losing Weight</label>
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="Cardiovascular Fitness"
                         name="interests"
-                        value="Cardiovascular Fitness">
-                        <label class="custom-control-label" for="Cardiovascular Fitness" checked >Cardiovascular Fitness</label>
+                        value="cardio" {{ "checked" if user.interests.get("cardio" ) else "" }}>
+                        <label class="custom-control-label" for="Cardiovascular Fitness" >Cardiovascular Fitness</label>
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="upper"
                         name="interests"
-                        value="upper">
-                        <label class="custom-control-label" for="Upper Body">Upper Body</label>
+                        value="upper"{{ "checked" if user.interests.get("upper" ) else "" }}>
+                        <label class="custom-control-label" for="Upper Body" >Upper Body</label>
                       </div>
                       <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="lower"
                         name="interests"
-                        value="lower">
-                        <label class="custom-control-label" for="Lower Body">Lower Body</label>
+                        value="lower" {{ "checked" if user.interests.get("lower" ) else "" }}>
+                        <label class="custom-control-label" for="Lower Body" >Lower Body</label>
                       </div>
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label for="example-text-input" class="form-control-label">Gender</label>
-                    <label class="custom-toggle">
+                    <label for="gender" class="form-control-label">Gender</label>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck2">
+                        <input type="checkbox" class="custom-control-input" id="nonbinary"
+                        name="gender"
+                        value="2">
                         <label class="custom-control-label" for="customCheck2">Non-Binary</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck3">
-                        <label class="custom-control-label" for="customCheck3">Male</label>
+                        <input type="checkbox" class="custom-control-input" id="male"
+                        name="gender"
+                        value="0">
+                        <label class="custom-control-label" for="male">Male</label>
                       </div>
                       <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="customCheck4">
-                        <label class="custom-control-label" for="customCheck4">Female</label>
+                        <input type="checkbox" class="custom-control-input" id="female"
+                        name="gender"
+                        value="1">
+                        <label class="custom-control-label" for="female">Female</label>
                       </div>
                   </div>
                 </div>
@@ -252,9 +244,7 @@
                   </div>
                 </div>
               </div>
-              <!-- update button 
-              <button class="btn btn-primary btn-sm ms-auto">Update</button>-->
-              <input type="submit" name="submit-user" value="Update" />
+              <button class="btn btn-primary btn-sm ms-auto" type="submit" name="submit-user" value="Update">Update</button>
             </div>
           </div>
         </div>
