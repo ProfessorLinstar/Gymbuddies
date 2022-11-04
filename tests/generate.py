@@ -13,29 +13,29 @@ def schedule_from_dayhours(*day_hours: Tuple[int, int]):
     """Given arguments of the form (day, hour), returns a schedule with UNAVAILABLE in every block
     except for the specified times."""
 
-    schedule: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
+    data: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
     for day, hour in day_hours:
         start: db.TimeBlock = db.TimeBlock.from_daytime(day, hour * db.NUM_HOUR_BLOCKS)
         for i in range(start, start + db.NUM_HOUR_BLOCKS):
-            schedule[i] = db.ScheduleStatus.AVAILABLE
+            data[i] = db.ScheduleStatus.AVAILABLE
 
-    return schedule
+    return data
 
 
 def users():
     """Initializes a group of users in the database."""
-    users = {
+    data = {
         "andywang": {
             "netid": "andywang",
             "name": "Andy Wang",
             "contact": "919-265-8342",
             "level": 0,
-            "levelpreference": 0,
+            "levelpreference": 1,
             "bio": "I go to Princeton!",
             "addinfo": "):<",
             "interests": {
-                "Pecs": True,
-                "Legs": True,
+                "Cardiovascular Fitness": True,
+                "Building Mass": True,
             },
             # "schedule": schedule_from_dayhours((1, 7), (1, 8), (1, 9))
             "schedule": [db.ScheduleStatus.AVAILABLE] * db.NUM_WEEK_BLOCKS,
@@ -98,15 +98,15 @@ def users():
             "settings": {},
         },
     }
-    for profile in users.values():
-        a = sorted(profile.keys())
+    for datum in data.values():
+        a = sorted(datum.keys())
         b = sorted(db.User.__table__.columns.keys())
         assert a == b, f"Missing columns: {a} vs {b}"
 
-    for user in users.values():
+    for user in data.values():
         print(json.dumps({k: str(v) for k, v in user.items()}, sort_keys=True, indent=4))
 
-    for user in users.values():
+    for user in data.values():
         if database.user.exists(user["netid"]):
             database.user.update(**user)
         else:
@@ -114,7 +114,8 @@ def users():
 
 
 def requests():
-    requests = [
+    """Generates sample requests."""
+    data = [
         {
             "srcnetid": "andywang",
             "destnetid": "jasono",
@@ -126,11 +127,12 @@ def requests():
             "schedule": schedule_from_dayhours((1, 8)),
         },
     ]
-    for request in requests:
+    for request in data:
         database.request.new(request["srcnetid"], request["destnetid"], request["schedule"])
 
 
 def schedule():
+    """Returns a randomly generate calendar."""
     return [
         db.ScheduleStatus.AVAILABLE if random.random() < .5 else db.ScheduleStatus.UNAVAILABLE
         for _ in range(db.NUM_WEEK_BLOCKS)
@@ -138,6 +140,7 @@ def schedule():
 
 
 def profile(netid):
+    """Returns a randomly generated profile with a given netid."""
     return {
         "netid": netid,
         "name": unistr(),
