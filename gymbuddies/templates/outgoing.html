@@ -102,6 +102,7 @@
                       <span class="text-xs font-weight-bold">{{ db.RequestStatus(match.status).to_readable() }}</span>
                     </td>
                     <td class="align-middle">
+                      <!--
                       <div class="dropdown">
                       <button class="dropbtn btn-link text-secondary mb-0">
                         <i class="fa fa-ellipsis-v text-xs"></i>
@@ -111,6 +112,15 @@
                         <a href="#">Link 2</a>
                         <a href="#">Link 3</a>
                       </div>
+                      </div>
+                      -->
+                      <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="box-shadow:0">
+                          <i class="fa fa-ellipsis-v text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <a class="dropdown-item" href="#">Unmatch</a>
+                        </div>
                       </div>
                     </td>
                   
