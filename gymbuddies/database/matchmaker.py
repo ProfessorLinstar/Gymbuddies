@@ -6,6 +6,7 @@ from typing import List, Dict
 from . import user as db_user
 from . import schedule as db_schedule
 from . import db
+from . import request
 
 # TODO: IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
 NUMBER_INTERESTS: int = 10 # TODO: find a way for this value not to be hardcoded
@@ -27,6 +28,17 @@ def find_matches(netid: str) -> List[str]:
         for user in randusers:
             matches.append(user.netid)
         return matches
+
+    # do a hard filter on users that you are already matched with
+    completed_matches = request.get_matches(netid)
+    assert completed_matches is not None
+    for completed_match in completed_matches:
+        src_user = completed_match.srcnetid
+        dest_user = completed_match.destnetid
+        if src_user in randusers:
+            randusers.remove(src_user)
+        elif dest_user in randusers:
+            randusers.remove(dest_user)
 
     # do a hard filter on users that are not compatible with gender preferences
     main_gender = db_user.get_gender(netid)
