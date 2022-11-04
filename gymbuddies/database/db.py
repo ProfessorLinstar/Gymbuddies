@@ -251,11 +251,11 @@ def getInterestDict(cardio=False, upper=False, lower=False, losing=False,
     gaining=False) -> Dict[str, bool]:
     """Returns an interests hash table. Set interested parameters as True"""
     interests = {}
-    interests["cardio"] = cardio
-    interests["upper"] = upper
-    interests["lower"] = lower
-    interests["losing"] = losing
-    interests["gaining"] = gaining
+    interests["Cardiovascular Fitness"] = cardio
+    interests["Upper Body"] = upper
+    interests["Lower Body"] = lower
+    interests["Losing Weight"] = losing
+    interests["Gaining Mass"] = gaining
     return interests
 
 
