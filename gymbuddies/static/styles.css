@@ -101,3 +101,12 @@ body {
 #navbar {
   background-color: #4666CE !important;
 }
+
+.hide {
+  display: none;
+}
+
+.myDIV:hover + .hide {
+  display: flex;
+  color: black;
+}
