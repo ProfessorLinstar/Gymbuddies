@@ -17,7 +17,7 @@ def index():
     if session.get("netid"):
         return redirect(url_for("home.home"))
     return render_template("index.html")
-    
+
 
 
 @bp.route("/home")
