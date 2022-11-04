@@ -146,8 +146,8 @@ def matched():
         requestid = int(request.form.get("requestid", "0"))
         action = request.form.get("action")
 
-        if action == "reject":
-            database.request.reject(requestid)
+        if action == "terminate":
+            database.request.terminate(requestid)
         else:
             print(f"Action not found! {action = }")
 
