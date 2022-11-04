@@ -75,9 +75,9 @@ def pending():
         action = request.form.get("action")
 
         if action == "reject":
-            database.request.finalize(requestid)
-        elif action == "accept":
             database.request.reject(requestid)
+        elif action == "accept":
+            database.request.finalize(requestid)
         else:
             print(f"Action not found! {action = }")
 
@@ -108,6 +108,21 @@ def pending():
                            levels=levels,
                            interests=interests)
 
+@bp.route("/outgoing", methods=("GET", "POST"))
+def outgoing():
+    """Page for viewing outgoing requests."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    matches = database.request.get_matches(netid)
+    assert matches is not None
+
+    users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
+    users = [database.user.get_user(u) for u in users]
+
+    return render_template("outgoing.html", netid=netid, matchusers=zip(matches, users))
 
 @bp.route("/matched", methods=("GET", "POST"))
 def matched():
