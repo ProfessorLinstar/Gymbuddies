@@ -63,7 +63,7 @@ def profile():
         elif submit == "schedule":
             prof = {"schedule": prof["schedule"]}
         prof.update(netid=netid)
-        database.user.update(**prof)
+        assert database.user.update(**prof)
 
     user = database.user.get_user(netid)
     assert user is not None

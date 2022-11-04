@@ -19,7 +19,7 @@ def form_to_profile() -> Dict[str, Any]:
     for bool_key in ("open", "okmale", "okfemale", "okbinary"):
         prof[bool_key] = bool_key in prof
 
-    prof["schedule"] = form_to_schedule
+    prof["schedule"] = form_to_schedule()
 
     return prof
 
