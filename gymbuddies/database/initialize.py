@@ -6,7 +6,7 @@ any important information must be backed up. """
 
 import sys
 import click
-from . import db
+import db
 
 def reset_db():
     """Drops and creates database given by db DATABASE url, according to the metadata provided by
@@ -31,7 +31,6 @@ def main():
     if len(sys.argv) != 1:
         print("usage: python initialize.py", file=sys.stderr)
         sys.exit(1)
-
     try:
         reset_db()
     except Exception as ex:
