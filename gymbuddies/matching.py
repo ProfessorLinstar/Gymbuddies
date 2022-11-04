@@ -3,30 +3,32 @@
   2. Pending matches
   3. Matches
 """
+
 from typing import Dict, Any, List
 from flask import Blueprint
 from flask import render_template, redirect, url_for, request
 from flask import session, g, request
 from typing import List
+from . import common
 from . import database
 from .database import db
 
 bp = Blueprint("matching", __name__, url_prefix="/matching")
 
-def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
-    """Checks the master schedule boxes according to the provided 'schedule'."""
-    for i, s in enumerate(schedule):
-        day, time = db.TimeBlock(i).day_time()
-        if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
-            context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
-
-@bp.route("/search")
+@bp.route("/search", methods=("GET", "POST"))
 def search():
     # get the current user in the session
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
+
+    print("wtf")
+    if request.method == "POST":
+        destnetid = request.form["destnetid"]
+        schedule = common.form_to_schedule()
+        assert database.request.new(netid, destnetid, schedule)
+        print(f"Posting! {destnetid = }, {schedule = }")
 
     # implement the roundtable format of getting matches
     sess_index = request.args.get("index")
@@ -43,7 +45,8 @@ def search():
         matches = session.get("matches", None)
         index = session.get("index", None)
 
-    g.user = database.user.get_user(matches[index])  # can access this in jinja template with {{ g.user }}
+    g.user = database.user.get_user(
+        matches[index])  # can access this in jinja template with {{ g.user }}
     assert g.user is not None
     # g.requests = database.request.get_active_incoming(netid)
     level = database.db.Level(g.user.level)
@@ -51,8 +54,13 @@ def search():
     interests = database.user.get_interests_string(netid)
     # grab schedule
     context: Dict[str, Any] = {}
-    fill_schedule(context, g.user.schedule)
-    return render_template("search.html", netid=netid, level=level, interests=interests, user=g.user, **context)
+    common.fill_schedule(context, g.user.schedule)
+    return render_template("search.html",
+                           netid=netid,
+                           level=level,
+                           interests=interests,
+                           user=g.user,
+                           **context)
 
 
 @bp.route("/pending", methods=("GET", "POST"))
@@ -77,27 +85,27 @@ def pending():
     requests = database.request.get_active_incoming(netid)
     assert requests is not None
 
-    requestUsers: List[db.MappedUser] = []
+    request_users: List[db.MappedUser] = []
     for req in requests:
-        requestUsers.append(database.user.get_user(req.srcnetid))
+        request_users.append(database.user.get_user(req.srcnetid))
 
     levels = []
     interests = []
-    for ruser in requestUsers:
+    for ruser in request_users:
         levels.append(db.Level(ruser.level).to_readable())
         interests.append(db.interests_to_readable(ruser.interests))
 
     print("interests", interests)
-    print("requestUsers", requestUsers)
+    print("requestUsers", request_users)
     return render_template("pending.html",
                            netid=netid,
                            requests=requests,
-                           requestUsers=requestUsers,
+                           requestUsers=request_users,
                            levels=levels,
                            interests=interests)
 
 
-@bp.route("/matched")
+@bp.route("/matched", methods=("GET", "POST"))
 def matched():
     """Page for finding matched."""
     netid: str = session.get("netid", "")

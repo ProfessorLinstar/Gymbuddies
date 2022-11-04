@@ -17,7 +17,7 @@
         <div class="card-header pb-0 pt-3 bg-transparent">
           <h6 class="text-capitalize">Find a Buddy</h6>
         </div>
-        <form action="{{url_for('matching.matched')}}" method="get">
+        <form action="{{url_for('matching.search')}}" method="post">
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
@@ -41,7 +41,7 @@
                     Bio: {{ g.user.bio }}
                   </p>
                   <!--<p class="card-description mb-4">
-                    Contact: {{ database.user.get_contact(testandie) }} 
+                    Contact: 
                   </p>-->
                   <p class="card-description mb-4">
                     Level: {{ level }}
@@ -59,13 +59,13 @@
           <br>
           <div class="row mt-4">
             <div class="col-md-6 text-sm-right">
-                <!-- Match button -->
                   <button class="btn btn-primary btn-sm" >Match</button>
-                  <input type="hidden" name="index" value="{{ session.get('index') }}"></input>
+                  <input type="hidden" name="destnetid" value="{{ user.netid }}"></input>
         </form>
             </div>
             <div class="col-md-6 text-sm-left">
                 <form action="{{url_for('matching.search')}}" method="get">
+                  <!-- Pass button -->
                   <button class="btn btn-primary btn-sm" >Pass</button>
                   <input type="hidden" name="index" value="{{ session.get('index') }}"></input>
                 </form>
