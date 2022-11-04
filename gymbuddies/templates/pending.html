@@ -58,7 +58,7 @@ block classdash %}<a class="nav-link" href="../home"
                                     Bio: {{ g.user.bio }}
                                   </p>
                                   <!--<p class="card-description mb-4">
-                                    Contact: {{ database.user.get_contact(testandie) }} 
+                                    Contact:
                                   </p>-->
                                   <p class="card-description mb-4">
                                     Level: {{ level }}
@@ -154,7 +154,9 @@ block classdash %}<a class="nav-link" href="../home"
                             <div class="col-md-6">
                               <!-- Person's Schedule -->
                               <div class="p-3">
-                                {% include 'calendar.html' %}
+                                {% with calendar=calendars[i] %}
+                                  {% include 'calendarlist.html' %}
+                                {% endwith %}
                               </div>
                             </div>
                           </div>

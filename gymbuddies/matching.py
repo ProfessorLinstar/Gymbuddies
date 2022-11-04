@@ -85,9 +85,12 @@ def pending():
     requests = database.request.get_active_incoming(netid)
     assert requests is not None
 
-    request_users: List[db.MappedUser] = []
+    request_users = []
+    calendars = []
     for req in requests:
         request_users.append(database.user.get_user(req.srcnetid))
+        calendars.append(common.schedule_to_calendar(req.schedule))
+
 
     levels = []
     interests = []
@@ -100,6 +103,7 @@ def pending():
     return render_template("pending.html",
                            netid=netid,
                            requests=requests,
+                           calendars=calendars,
                            requestUsers=request_users,
                            levels=levels,
                            interests=interests)

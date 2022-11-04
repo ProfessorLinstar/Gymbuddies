@@ -11,6 +11,20 @@ def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
         if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
             context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
 
+
+def schedule_to_calendar(schedule: List[int]) -> List[List[str]]:
+    """Makes a calendar list from a schedule, to be inserted into 'calendar.html'. boxes according
+    to the provided 'schedule'."""
+    calendar = [[""] * (db.NUM_DAY_BLOCKS // db.NUM_HOUR_BLOCKS) for _ in range(len(db.DAY_NAMES))]
+
+    for i, s in enumerate(schedule):
+        day, time = db.TimeBlock(i).day_time()
+        if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
+            calendar[day][time // db.NUM_HOUR_BLOCKS] = "checked"
+
+    return calendar
+
+
 def form_to_profile() -> Dict[str, Any]:
     """Converts request.form to a user profile dictionary. Ignores extraneous keys."""
     prof: Dict[str, Any] = {k: v for k, v in request.form.items() if k in db.User.__table__.columns}
@@ -22,6 +36,7 @@ def form_to_profile() -> Dict[str, Any]:
     prof["schedule"] = form_to_schedule()
 
     return prof
+
 
 def form_to_schedule() -> List[db.ScheduleStatus]:
     """Populates 'schedule' with the user provided information in request.form."""
