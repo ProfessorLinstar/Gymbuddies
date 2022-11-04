@@ -4,6 +4,7 @@ import os
 from flask import Flask
 from . import home, master, auth, matching
 from . import database
+from .database import db
 
 
 def create_app():
@@ -17,7 +18,7 @@ def create_app():
     app.register_blueprint(auth.bp)
     app.register_blueprint(matching.bp)
 
-    app.jinja_env.globals.update(database=database)
+    app.jinja_env.globals.update(database=database, db=db)
 
     print("Started a flask application!")
 

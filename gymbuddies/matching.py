@@ -6,12 +6,13 @@
 
 from flask import Blueprint
 from flask import render_template, redirect, url_for
-from flask import session, g
+from flask import session, g, request
+from typing import List
 from . import database
 from .database import db
 
-
 bp = Blueprint("matching", __name__, url_prefix="/matching")
+
 
 @bp.route("/search")
 def search():
@@ -24,37 +25,48 @@ def search():
     # g.requests = database.request.get_active_incoming(netid)
     return render_template("search.html", netid=netid)
 
-@bp.route("/pending")
+
+@bp.route("/pending", methods=("GET", "POST"))
 def pending():
     """Page for pending matches."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
 
-    # g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    g.requests = database.request.get_active_incoming(netid)
-    # print("netid", netid)
-    # print("request incoming", database.request.get_active_incoming(netid))
-    # print("request outgoing", database.request.get_active_outgoing(netid))
-    requestUsers = []
-    assert g.requests is not None
-    for request in g.requests:
-        print("request", request)
-        requestUsers.append(database.user.get_user(request.srcnetid))
+    if request.method == "POST":
+        requestid = int(request.form.get("requestid", "0"))
+        action = request.form.get("action")
+
+        if action == "reject":
+            database.request.finalize(requestid)
+        elif action == "accept":
+            database.request.reject(requestid)
+        else:
+            print(f"Action not found! {action = }")
+
+    # TODO: handle errors when database is not available
+    requests = database.request.get_active_incoming(netid)
+    assert requests is not None
+
+    requestUsers: List[db.MappedUser] = []
+    for req in requests:
+        requestUsers.append(database.user.get_user(req.srcnetid))
+
     levels = []
-    interests_s = "lmao"
+    interests = []
     for ruser in requestUsers:
-        print("inside loop")
-        user_level = db.Level(ruser.level)
-        levels.append(user_level.to_readable())
-        user_interests = database.user.get_interests(ruser.netid)
-        assert user_interests is not None
-        interests_s = ", ".join((k for k, v in user_interests.items() if v))
-    
-            
-    print("interests", interests_s)
+        levels.append(db.Level(ruser.level).to_readable())
+        interests.append(db.interests_to_readable(ruser.interests))
+
+    print("interests", interests)
     print("requestUsers", requestUsers)
-    return render_template("pending.html", netid=netid, requestUsers=requestUsers, levels = levels, interests=interests_s )
+    return render_template("pending.html",
+                           netid=netid,
+                           requests=requests,
+                           requestUsers=requestUsers,
+                           levels=levels,
+                           interests=interests)
+
 
 @bp.route("/matched")
 def matched():
