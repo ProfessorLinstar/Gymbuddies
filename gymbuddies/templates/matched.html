@@ -95,7 +95,9 @@
                       <p class="text-sm font-weight-bold mb-0">{{ user.contact }}</p>
                     </td>
                     <td>
-                      <p class="text-sm font-weight-bold mb-0">{{ db.schedule_to_readable(match.schedule) }}</p>
+                      {% for time in range(db.schedule_to_readable(match.schedule)|length) %}
+                        <p class="text-sm font-weight-bold mb-0">{{ db.schedule_to_readable(match.schedule)[time] }}</p>
+                        {% endfor %}
                     </td>
                     <td>
                       <span class="text-xs font-weight-bold">{{ db.RequestStatus(match.status).to_readable() }}</span>
