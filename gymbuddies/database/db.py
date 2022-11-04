@@ -247,7 +247,7 @@ _LEVEL_TO_READABLE_MAP = {
 
 
 # note: use this function to get interests dict when adding user to db for first time
-def getInterestDict(cardio=False, upper=False, lower=False, losing=False,
+def get_interests_dict(cardio=False, upper=False, lower=False, losing=False,
     gaining=False) -> Dict[str, bool]:
     """Returns an interests hash table. Set interested parameters as True"""
     interests = {}
@@ -260,9 +260,12 @@ def getInterestDict(cardio=False, upper=False, lower=False, losing=False,
 
 
 # TODO: implement this function the same as above
-def getSettingsDict():
+def get_settings_dict():
     return None
 
+def interests_to_readable(interests: Dict[str, bool]):
+    """Converts an interests dictionary to a readable format."""
+    return ", ".join(k for k, v in interests.items() if v)
 
 class User(BASE):
     """Users database. Maps each netid to their Gymbuddies profile information."""

@@ -152,7 +152,7 @@ def incoming_requests(destnetid: str,
                       session: Optional[Session] = None) -> Dict[int, db.RequestStatus]:
     """get a list of incoming matches associatec with a user"""
     assert session is not None
-    rows: List[db.MappedRequest] = session.query(
+    rows = session.query(
         db.Request).filter(db.Request.destnetid == destnetid).order_by(db.Request.srcnetid).all()
     incoming_request_statuses: Dict[int, db.RequestStatus] = {}
     for row in rows:
@@ -281,4 +281,4 @@ def modify(requestid: int,
     """Modifies active (pending or matching) request. Returns False if the new operation fails."""
     assert session is not None
     request = _get(session, requestid)
-    return bool(new(request.srcnetid, request.destnetid, schedule, session=session, prev=request))
+    return bool(new(request.destnetid, request.srcnetid, schedule, session=session, prev=request))
