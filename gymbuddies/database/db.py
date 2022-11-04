@@ -29,8 +29,10 @@ BLOCK_LENGTH = 5  # minutes
 NUM_HOUR_BLOCKS = 60 // BLOCK_LENGTH
 NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
 NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
+DAY_NAMES = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
 
 engine = create_engine(DATABASE_URL)
+
 
 
 # TODO: return exception to client
@@ -206,14 +208,15 @@ class TimeBlock(int):
         00:00-00:05, ..., 23:55-24:00."""
         return cls(day * NUM_DAY_BLOCKS + time)
 
-    def to_readable(self) -> str:
-        """Converts a TimeBlock to the human readable format 'Day, HH:MM'."""
+    def to_readable(self, time_only: bool = False) -> str:
+        """Converts a TimeBlock to the human readable format 'Day, HH:MM XM'. If 'end' is True,
+        then returns the end time; otherwise, returns the start time of this block."""
 
         day, time = self.day_time()
         d = datetime.strptime(
             f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}", "%H:%M")
 
-        return f"{calendar.day_name[day]}, {d.strftime('%I:%M %p')}"
+        return ("" if time_only else f"{DAY_NAMES[day]} ") + d.strftime('%-I:%M%p')
 
     def day_time(self) -> Tuple[int, int]:
         """Converts a TimeBlock to a (day, time) tuple. 'day' is an integer from 0-6, corresponding
@@ -247,8 +250,11 @@ _LEVEL_TO_READABLE_MAP = {
 
 
 # note: use this function to get interests dict when adding user to db for first time
-def get_interests_dict(cardio=False, upper=False, lower=False, losing=False,
-    gaining=False) -> Dict[str, bool]:
+def get_interests_dict(cardio=False,
+                       upper=False,
+                       lower=False,
+                       losing=False,
+                       gaining=False) -> Dict[str, bool]:
     """Returns an interests hash table. Set interested parameters as True"""
     interests = {}
     interests["Cardiovascular Fitness"] = cardio
@@ -261,11 +267,43 @@ def get_interests_dict(cardio=False, upper=False, lower=False, losing=False,
 
 # TODO: implement this function the same as above
 def get_settings_dict():
+    """Returns a settings hash table."""
     return None
+
 
 def interests_to_readable(interests: Dict[str, bool]):
     """Converts an interests dictionary to a readable format."""
     return ", ".join(k for k, v in interests.items() if v)
+
+
+def schedule_to_readable(schedule: List[int]):
+    """Converts a schedule into a string representation as a comma separated list of times."""
+    assert len(schedule) == NUM_WEEK_BLOCKS
+
+    blocks: List[List[TimeBlock]] = [[]]
+    for t, status in enumerate(schedule):
+        if status != ScheduleStatus.AVAILABLE and blocks[-1]:
+            blocks[-1].append(TimeBlock(t - 1))
+            blocks.append([])
+        if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
+            blocks[-1].append(TimeBlock(t))
+
+    if blocks[-1]:
+        blocks[-1].append(TimeBlock(len(schedule) - 1))
+    else:
+        blocks.pop()
+
+    block_strs = []
+    for start, end in blocks:
+        end = TimeBlock((end + 1) % NUM_WEEK_BLOCKS)
+
+        if start.day_time()[0] == end.day_time()[0]:
+            block_strs.append(f"{start.to_readable()} - {end.to_readable()}")
+        else:
+            block_strs.append(f"{start.to_readable()}-{end.to_readable(time_only=True)}")
+    
+    return ", ".join(block_strs)
+
 
 class User(BASE):
     """Users database. Maps each netid to their Gymbuddies profile information."""
