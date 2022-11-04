@@ -149,11 +149,11 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             print(user.okmale, user.okfemale, user.okbinary)
 
             # interests
-            context["cardio"] = "checked" if user.interests.get("cardio") else ""
-            context["upper"] = "checked" if user.interests.get("upper") else ""
-            context["lower"] = "checked" if user.interests.get("lower") else ""
-            context["losing"] = "checked" if user.interests.get("losing") else ""
-            context["gaining"] = "checked" if user.interests.get("gaining") else ""
+            context["cardio"] = "checked" if user.interests.get("Cardiovascular Fitness") else ""
+            context["upper"] = "checked" if user.interests.get("Upper Body") else ""
+            context["lower"] = "checked" if user.interests.get("Lower Body") else ""
+            context["losing"] = "checked" if user.interests.get("Losing Weight") else ""
+            context["gaining"] = "checked" if user.interests.get("Gaining Mass") else ""
 
             fill_schedule(context, user.schedule)
 
