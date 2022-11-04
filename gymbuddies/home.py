@@ -69,6 +69,7 @@ def profile():
             prof.pop("schedule")
         elif submit == "schedule":
             prof = {"schedule": prof["schedule"]}
+        prof.update(netid=netid)
         database.user.update(**prof)
 
     user = database.user.get_user(netid)
@@ -86,7 +87,6 @@ def form_to_profile() -> Dict[str, Any]:
     prof["interests"] = {v: True for v in request.form.getlist("interests")}
     for bool_key in ("open", "okmale", "okfemale", "okbinary"):
         prof[bool_key] = bool_key in prof
-    print("got this profile:", prof)
 
     schedule: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
     prof["schedule"] = schedule
@@ -100,7 +100,6 @@ def form_to_profile() -> Dict[str, Any]:
             continue
 
         start: db.TimeBlock = db.TimeBlock.from_daytime(day, time * db.NUM_HOUR_BLOCKS)
-        print(f"{(day, time) = } to {start = }")
         for i in range(start, start + db.NUM_HOUR_BLOCKS):
             schedule[i] = db.ScheduleStatus.AVAILABLE
 
