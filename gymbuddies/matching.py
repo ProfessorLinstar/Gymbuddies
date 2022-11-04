@@ -10,7 +10,6 @@ from flask import session, g, request
 from typing import List
 from . import database
 from .database import db
-from .database import matchmaker
 
 bp = Blueprint("matching", __name__, url_prefix="/matching")
 
@@ -96,4 +95,10 @@ def matched():
         return redirect(url_for("auth.login"))
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    return render_template("matched.html", netid=netid)
+    matches = database.request.get_matches(netid)
+    assert matches is not None
+
+    users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
+    users = [database.user.get_user(u) for u in users]
+
+    return render_template("matched.html", netid=netid, matchusers=zip(matches, users))
