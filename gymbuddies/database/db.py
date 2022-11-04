@@ -297,7 +297,7 @@ def schedule_to_readable(schedule: List[int]):
     for start, end in blocks:
         end = TimeBlock((end + 1) % NUM_WEEK_BLOCKS)
 
-        if start.day_time()[0] == end.day_time()[0]:
+        if start.day_time()[0] != end.day_time()[0]:
             block_strs.append(f"{start.to_readable()} - {end.to_readable()}")
         else:
             block_strs.append(f"{start.to_readable()}-{end.to_readable(time_only=True)}")

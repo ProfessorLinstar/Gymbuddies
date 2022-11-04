@@ -97,14 +97,12 @@ def get_destnetid(requestid: int, *, session: Optional[Session] = None) -> str:
 
 
 @db.session_decorator(commit=False)
-def get_matches(netid: str, *, session: Optional[Session] = None) -> List[int]:
+def get_matches(netid: str, *, session: Optional[Session] = None) -> List[db.MappedRequest]:
     """ get a list of matches associated with a user"""
     assert session is not None
-    requestids = session.query(db.Request.requestid).filter(
+    return session.query(db.Request).filter(
         (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
         db.Request.status == db.RequestStatus.FINALIZED).all()
-
-    return [row[0] for row in requestids]
 
 
 @db.session_decorator(commit=False)
@@ -152,8 +150,8 @@ def incoming_requests(destnetid: str,
                       session: Optional[Session] = None) -> Dict[int, db.RequestStatus]:
     """get a list of incoming matches associatec with a user"""
     assert session is not None
-    rows = session.query(
-        db.Request).filter(db.Request.destnetid == destnetid).order_by(db.Request.srcnetid).all()
+    rows = session.query(db.Request).filter(db.Request.destnetid == destnetid).order_by(
+        db.Request.srcnetid).all()
     incoming_request_statuses: Dict[int, db.RequestStatus] = {}
     for row in rows:
         incoming_request_statuses[row.requestid] = db.RequestStatus(row.status)
