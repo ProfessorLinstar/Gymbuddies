@@ -42,7 +42,7 @@ def search():
     level = database.db.Level(g.user.level)
     level = level.to_readable()
     interests = database.user.get_interests_string(netid)
-    return render_template("search.html", netid=netid, level=level, interests=interests)
+    return render_template("search.html", netid=netid, level=level, interests=interests, user=g.user)
 
 
 @bp.route("/pending", methods=("GET", "POST"))
