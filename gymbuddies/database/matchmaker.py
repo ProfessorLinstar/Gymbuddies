@@ -76,6 +76,7 @@ def find_matches(netid: str) -> List[str]:
         assert user_level is not None
 
         # record whether user is compatable with the level preference of the main user
+        user_compatabilities[user.netid] = 0
         if main_user_level_preference == db.LevelPreference.ALL:
             user_compatabilities[user.netid] += 1
         elif main_user_level_preference == db.LevelPreference.EQUAL:
@@ -114,8 +115,9 @@ def find_matches(netid: str) -> List[str]:
         user_interests = db_user.get_interests(user.netid)
         assert user_interests is not None
         for interest in user_interests:
-            if user_interests[interest] == main_user_interests[interest]:
-                interests_score += 1
+            if interest in main_user_interests:
+                if user_interests[interest] == main_user_interests[interest]:
+                    interests_score += 1
         user_compatabilities[user.netid] += interests_score * INTERESTS_WEIGHT
 
 
