@@ -116,7 +116,7 @@ def outgoing():
         return redirect(url_for("auth.login"))
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    matches = database.request.get_matches(netid)
+    matches = database.request.get_active_outgoing(netid)
     assert matches is not None
 
     users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
