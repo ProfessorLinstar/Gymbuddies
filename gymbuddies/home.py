@@ -14,7 +14,10 @@ bp = Blueprint("home", __name__, url_prefix="")
 @bp.route("/")
 def index():
     """Default page for the Gymbuddies web application. Redirects to user home page if logged in."""
+    if session.get("netid"):
+        return redirect(url_for("home.home"))
     return render_template("index.html")
+    
 
 
 @bp.route("/home")

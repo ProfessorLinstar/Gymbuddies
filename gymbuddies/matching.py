@@ -27,7 +27,7 @@ def search():
     if request.method == "POST":
         destnetid = request.form["destnetid"]
         schedule = common.form_to_schedule()
-        assert database.request.new(netid, destnetid, schedule)
+        database.request.new(netid, destnetid, schedule)
         print(f"Posting! {destnetid = }, {schedule = }")
 
     # implement the roundtable format of getting matches
