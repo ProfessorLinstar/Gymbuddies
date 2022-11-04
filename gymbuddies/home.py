@@ -6,7 +6,6 @@ from flask import request
 from flask import render_template, redirect, url_for
 from .database import db
 from . import database
-from . import common
 
 bp = Blueprint("home", __name__, url_prefix="")
 
