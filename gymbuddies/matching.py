@@ -21,11 +21,13 @@ def search():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
+
     # implement the roundtable format of getting matches
     sess_index = request.args.get("index")
     if sess_index is not None:
         sess_index = int(sess_index)
         session["index"] += 1
+
     # get the users and index of current user that you have been matched with
     matches: List[str] = session.get("matches", None)
     index: int = session.get("index", None)
@@ -34,7 +36,6 @@ def search():
         session["index"] = 0
         matches = session.get("matches", None)
         index = session.get("index", None)
-
 
     g.user = database.user.get_user(matches[index])  # can access this in jinja template with {{ g.user }}
     assert g.user is not None
