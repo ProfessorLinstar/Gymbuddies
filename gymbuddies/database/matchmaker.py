@@ -28,18 +28,25 @@ def find_matches(netid: str) -> List[str]:
 
     # do a hard filter on users that you are already matched with
     completed_matches = request.get_matches(netid)
+    rand_netids = [user.netid for user in randusers]
+    banned_netids = []
     assert completed_matches is not None
     for completed_match in completed_matches:
         src_user = completed_match.srcnetid
         dest_user = completed_match.destnetid
-        if src_user in randusers:
-            randusers.remove(src_user)
-        elif dest_user in randusers:
-            randusers.remove(dest_user)
+        print(src_user, dest_user)
+        if src_user in rand_netids:
+            banned_netids.append(src_user)
+        if dest_user in rand_netids:
+            banned_netids.append(dest_user)
 
     temprandusers = randusers.copy()
     for user in temprandusers:
         # do a hard filter on users that are not open
+        if user.netid in banned_netids:
+            randusers.remove(user)
+            continue
+
         if not user.open:
             randusers.remove(user)
             continue
