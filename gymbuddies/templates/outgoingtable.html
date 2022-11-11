@@ -34,11 +34,8 @@
         </td>
         <td class="align-middle">
           <div class="ms-auto text-end">
-          <!--<form action="{{ url_for('matching.outgoingtable') }}" method="post">-->
-              <input id="deleteInput" type="hidden" name="requestid" value="{{ match.requestid }}"/>
-              <button id="deleteButton" class="btn btn-link text-danger text-gradient px-3 mb-0" type="button" name="action" value="reject" onClick="getOutgoing()"><i class="far fa-trash-alt me-2"></i>Delete</button>
-            <!--</form>-->
-            </div>                     
+            <button class="btn btn-link text-danger text-gradient px-3 mb-0" type="button" onclick="reject({{ match.requestid }})" aria-hidden="true"><i class="far fa-trash-alt me-2" aria-hidden="true"></i>Delete</button>
+          </div>                     
         </td>
       </tr>
     {% endfor %}

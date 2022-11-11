@@ -34,41 +34,40 @@
       }
       let request = null;
 
-      function getOutgoing()
+
+      function reject(requestid)
       {
-        //let sessionindex = $('#indexInput').val();
-        let requestid = $('#deleteInput').val();
-        let action = $('#deleteButton').val()
         console.log(requestid)
-        console.log(action)
         
         if (request != null)
           request.abort();
         request =$.ajax(
           {
             type: 'POST',
-            data: {"requestid": requestid, "action": action},
+            data: {"requestid": requestid, "action": "reject"},
             url: '/matching/outgoingtable',
             success: listOutgoing
           }
         );
       }
+
       function refreshOutgoing()
       {
         if (request != null)
           request.abort();
         request =$.ajax(
           {
-            type: 'POST',
+            type: 'GET',
             //data: {"requestid": requestid, "action": action},
             url: '/matching/outgoingtable',
             success: listOutgoing
           }
         );
       }
+
       function setup()
       {
-        getOutgoing();
+        refreshOutgoing();
         //$('#deleteButton').on('click', getMatches);
         window.setInterval(refreshOutgoing, 1000);
       }

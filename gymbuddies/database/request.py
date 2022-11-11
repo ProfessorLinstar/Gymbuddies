@@ -6,6 +6,7 @@ from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import Session
 from . import db
 from . import user as db_user
+from . import schedule as db_schedule
 
 
 class MultipleActiveRequests(Exception):
@@ -243,6 +244,9 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> bool:
     request.finalizedtimestamp = datetime.now()  # TODO: specify timezone
     request.status = db.RequestStatus.FINALIZED
 
+    for netid in (request.srcnetid, request.destnetid):
+        db_schedule.add_schedule_status(netid, request.schedule, db.ScheduleStatus.MATCHED)
+
     return True
 
 
@@ -266,6 +270,9 @@ def terminate(requestid: int, *, session: Optional[Session] = None) -> bool:
     request = _get(session, requestid)
     if request.status != db.RequestStatus.FINALIZED:
         return False
+
+    for netid in (request.srcnetid, request.destnetid):
+        db_schedule.remove_schedule_status(netid, request.schedule, db.ScheduleStatus.MATCHED)
 
     request.status = db.RequestStatus.TERMINATED
     return True

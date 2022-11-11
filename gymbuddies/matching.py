@@ -184,8 +184,6 @@ def pendingtable():
         levels.append(db.Level(ruser.level).to_readable())
         interests.append(db.interests_to_readable(ruser.interests))
 
-    print("interests", interests)
-    print("requestUsers", request_users)
     return render_template("pendingtable.html",
                            netid=netid,
                            requests=requests,
@@ -204,7 +202,7 @@ def outgoing():
     return render_template("outgoing.html", netid=netid)
 
 
-@bp.route("/outgoingtable", methods=["POST"])
+@bp.route("/outgoingtable", methods=["POST", "GET"])
 def outgoingtable():
     """Page for viewing outgoing requests."""
     netid: str = session.get("netid", "")
@@ -216,10 +214,11 @@ def outgoingtable():
     requestid = int(request.form.get("requestid", "0"))
     action = request.form.get("action")
 
-    if action == "reject":
-        database.request.reject(requestid)  # TODO: change to 'cancel'?
-    else:
-        print(f"Action not found! {action = }")
+    if request.method == "POST":
+        if action == "reject":
+            database.request.reject(requestid)  # TODO: change to 'cancel'?
+        else:
+            print(f"Action not found! {action = }")
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     matches = database.request.get_active_outgoing(netid)

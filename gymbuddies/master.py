@@ -203,7 +203,7 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 
     elif submit == "Update":
         status: db.ScheduleStatus = db.ScheduleStatus.from_str(which_schedule)
-        if database.schedule.update_schedule_status(netid, profile["schedule"], status):
+        if database.schedule.add_schedule_status(netid, profile["schedule"], status):
             context["query"] += f"Update {which_schedule} schedule for user '{netid}' "
             context["query"] += "successful."
         else:

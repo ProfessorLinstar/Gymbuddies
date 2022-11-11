@@ -93,41 +93,40 @@
       }
       let request = null;
 
-      function getRequests()
+      function reject(requestid)
       {
         //let sessionindex = $('#indexInput').val();
-        let requestid = $('#requestInput').val();
-        let action = $('#acceptButton').val()
         console.log(requestid)
-        console.log(action)
         
         if (request != null)
           request.abort();
         request =$.ajax(
           {
             type: 'POST',
-            data: {"requestid": requestid, "action": action},
+            data: {"requestid": requestid, "action": "reject"},
             url: '/matching/pendingtable',
             success: listRequests
           }
         );
       }
+
       function refreshRequests()
       {
         if (request != null)
           request.abort();
         request =$.ajax(
           {
-            type: 'POST',
+            type: 'GET',
             //data: {"requestid": requestid, "action": action},
             url: '/matching/pendingtable',
             success: listRequests
           }
         );
       }
+
       function setup()
       {
-        getRequests();
+        refreshRequests()
         //$('#deleteButton').on('click', getMatches);
         window.setInterval(refreshRequests, 1000);
       }
