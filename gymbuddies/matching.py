@@ -229,8 +229,35 @@ def outgoingtable():
     return render_template("outgoingtable.html", netid=netid, matchusers=zip(matches, users))
 
 
-@bp.route("/matched", methods=("GET", "POST"))
+@bp.route("/matched", methods=["GET"])
 def matched():
+    """Page for finding matched."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    # if request.method == "POST":
+    #     requestid = int(request.form.get("requestid", "0"))
+    #     action = request.form.get("action")
+
+    #     if action == "terminate":
+    #         database.request.terminate(requestid)
+    #     else:
+    #         print(f"Action not found! {action = }")
+
+
+    # g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    # matches = database.request.get_matches(netid)
+    # assert matches is not None
+
+    # users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
+    # users = [database.user.get_user(u) for u in users]
+
+    return render_template("matched.html", netid=netid)
+    # matchusers=zip(matches, users))
+
+@bp.route("/matchedtable", methods=("GET", "POST"))
+def matchedtable():
     """Page for finding matched."""
     netid: str = session.get("netid", "")
     if not netid:
@@ -253,4 +280,4 @@ def matched():
     users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
     users = [database.user.get_user(u) for u in users]
 
-    return render_template("matched.html", netid=netid, matchusers=zip(matches, users))
+    return render_template("matchedtable.html", netid=netid, matchusers=zip(matches, users))

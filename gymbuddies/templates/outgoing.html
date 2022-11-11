@@ -28,13 +28,13 @@
 {% block scripts %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
-      function listMatches(response)
+      function listOutgoing(response)
       {
         $('#outgoingTable').html(response);
       }
       let request = null;
 
-      function getMatches()
+      function getOutgoing()
       {
         //let sessionindex = $('#indexInput').val();
         let requestid = $('#deleteInput').val();
@@ -49,7 +49,7 @@
             type: 'POST',
             data: {"requestid": requestid, "action": action},
             url: '/matching/outgoingtable',
-            success: listMatches
+            success: listOutgoing
           }
         );
       }
@@ -62,13 +62,13 @@
             type: 'POST',
             //data: {"requestid": requestid, "action": action},
             url: '/matching/outgoingtable',
-            success: listMatches
+            success: listOutgoing
           }
         );
       }
       function setup()
       {
-        getMatches();
+        getOutgoing();
         //$('#deleteButton').on('click', getMatches);
         window.setInterval(refreshOutgoing, 1000);
       }
