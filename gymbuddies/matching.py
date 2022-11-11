@@ -64,6 +64,7 @@ def search():
                            user=g.user,
                            **context)
 
+
 @bp.route("/buddies", methods=["GET"])
 def buddies():
     # get the current user in the session
@@ -141,13 +142,13 @@ def pending():
 
     # print("interests", interests)
     # print("requestUsers", request_users)
-    return render_template("pending.html",
-                           netid=netid)
-                        #    requests=requests,
-                        #    calendars=calendars,
-                        #    requestUsers=request_users,
-                        #    levels=levels,
-                        #    interests=interests)
+    return render_template("pending.html", netid=netid)
+    #    requests=requests,
+    #    calendars=calendars,
+    #    requestUsers=request_users,
+    #    levels=levels,
+    #    interests=interests)
+
 
 @bp.route("/pendingtable", methods=("GET", "POST"))
 def pendingtable():
@@ -202,7 +203,8 @@ def outgoing():
         return redirect(url_for("auth.login"))
     return render_template("outgoing.html", netid=netid)
 
-@bp.route("/outgoingtable", methods= ["POST"])
+
+@bp.route("/outgoingtable", methods=["POST"])
 def outgoingtable():
     """Page for viewing outgoing requests."""
     netid: str = session.get("netid", "")
@@ -245,7 +247,6 @@ def matched():
     #     else:
     #         print(f"Action not found! {action = }")
 
-
     # g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     # matches = database.request.get_matches(netid)
     # assert matches is not None
@@ -255,6 +256,7 @@ def matched():
 
     return render_template("matched.html", netid=netid)
     # matchusers=zip(matches, users))
+
 
 @bp.route("/matchedtable", methods=("GET", "POST"))
 def matchedtable():
@@ -271,7 +273,6 @@ def matchedtable():
             database.request.terminate(requestid)
         else:
             print(f"Action not found! {action = }")
-
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     matches = database.request.get_matches(netid)
