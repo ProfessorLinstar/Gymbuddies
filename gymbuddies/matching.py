@@ -64,6 +64,54 @@ def search():
                            user=g.user,
                            **context)
 
+@bp.route("/buddies", methods=("GET", "POST"))
+def buddies():
+    # get the current user in the session
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    # if request.method == "POST":
+    #     destnetid = request.form["destnetid"]
+    #     schedule = common.form_to_schedule()
+
+    #     session["index"] += 1
+    #     database.request.new(netid, destnetid, schedule)
+    #     return redirect(url_for("matching.outgoing"))
+
+    # implement the roundtable format of getting matches
+    sess_index = request.args.get("index")
+    if sess_index is not None:
+        sess_index = int(sess_index)
+        session["index"] += 1
+
+    # get the users and index of current user that you have been matched with
+    matches: List[str] = session.get("matches", None)
+    index: int = session.get("index", None)
+    if not matches or index >= len(matches):
+        session["matches"] = database.matchmaker.find_matches(netid)
+        session["index"] = 0
+        matches = session.get("matches", None)
+        index = session.get("index", None)
+
+    # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
+    g.user = database.user.get_user(
+        matches[index])  # can access this in jinja template with {{ g.user }}
+    assert g.user is not None
+    # g.requests = database.request.get_active_incoming(netid)
+    level = database.db.Level(g.user.level)
+    level = level.to_readable()
+    interests = database.user.get_interests_string(netid)
+    # grab schedule
+    context: Dict[str, Any] = {}
+    common.fill_schedule(context, g.user.schedule)
+    return render_template("buddies.html",
+                           netid=netid,
+                           level=level,
+                           interests=interests,
+                           user=g.user,
+                           **context)
+
 
 @bp.route("/pending", methods=("GET", "POST"))
 def pending():
@@ -135,6 +183,32 @@ def outgoing():
     users = [database.user.get_user(u) for u in users]
 
     return render_template("outgoing.html", netid=netid, matchusers=zip(matches, users))
+
+@bp.route("/outgoingtable", methods=("GET", "POST"))
+def outgoingtable():
+    """Page for viewing outgoing requests."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    # TODO: put reject handler into shared helper function
+    if request.method == "POST":
+        requestid = int(request.form.get("requestid", "0"))
+        action = request.form.get("action")
+
+        if action == "reject":
+            database.request.reject(requestid)  # TODO: change to 'cancel'?
+        else:
+            print(f"Action not found! {action = }")
+
+    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    matches = database.request.get_active_outgoing(netid)
+    assert matches is not None
+
+    users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
+    users = [database.user.get_user(u) for u in users]
+
+    return render_template("outgoingtable.html", netid=netid, matchusers=zip(matches, users))
 
 
 @bp.route("/matched", methods=("GET", "POST"))

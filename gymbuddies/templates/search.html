@@ -17,61 +17,22 @@
         <div class="card-header pb-0 pt-3 bg-transparent">
           <h6 class="text-capitalize">Find a Buddy</h6>
         </div>
-        <form action="{{url_for('matching.search')}}" method="post">
+        <!--<form action="{{url_for('matching.search')}}" method="post">-->
         <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <!-- Person's Schedule -->
-              <main id="calendar" style="display: flex;
-              justify-content:center;
-              align-items: center;">
-                {% include 'calendar.html' %}
-              </main>
-               
-            </div>
-            <div class="col-md-6">
-              <!-- Person's Profile Card -->
-              <div class="card z-index-2 h-90">
-                <div class="card-header pb-0 pt-3 bg-transparent">
-                    <h6 class="text-capitalize">Profile</h6>
-                <div class="card-body pt-2">
-                  <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
-                  <a href="javascript:;" class="card-title h5 d-block text-darker">
-                    {{ g.user.name }}
-                  </a>
-                  <p class="card-description mb-4">
-                    <br>
-                    Bio: {{ g.user.bio }}
-                  </p>
-                  <!--<p class="card-description mb-4">
-                    Contact: 
-                  </p>-->
-                  <p class="card-description mb-4">
-                    Level: {{ level }}
-                  </p>
-                  <p class="card-description mb-4">
-                    Interests: {{ interests }} <!-- {{ database.user.get_interests("ejcho") }} -->
-                  </p>
-                  <p class="card-description mb-4">
-                    Additional Information: {{ g.user.addinfo }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <span id="buddies"></span>
           <br>
           <div class="row mt-4">
             <div class="col-md-6 text-sm-right">
-                  <button class="btn btn-primary btn-sm" >Match</button>
-                  <input type="hidden" name="destnetid" value="{{ user.netid }}"></input>
-        </form>
+                  <button class="btn btn-primary btn-sm" onClick="matching()">Match</button>
+                  <!-- <input type="hidden" name="destnetid" value="{{ user.netid }}"></input> -->
+        <!--</form>-->
             </div>
             <div class="col-md-6 text-sm-left">
-                <form action="{{url_for('matching.search')}}" method="get">
+                <!--<form action="{{url_for('matching.search')}}" method="get">-->
                   <!-- Pass button -->
-                  <button class="btn btn-primary btn-sm" >Pass</button>
-                  <input type="hidden" name="index" value="{{ session.get('index') }}"></input>
-                </form>
+                  <button id="passButton" class="btn btn-primary btn-sm" type="button" onClick="getBuddies()">Pass</button>
+            
+                <!--</form>-->
                   </div>
                 </div>
               </div>
@@ -83,4 +44,57 @@
   </div>  
 </div>
 
+{% endblock %}
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+      'use strict';
+
+      function matching(){
+        let destnetid= $('#matchRequest').val();
+        console.log(destnetid)
+        if (request != null)
+          request.abort();
+        $.ajax(
+          {
+            type:'POST',
+            data: {"destnetid": destnetid},
+            url: '/matching/search'
+          }
+        );
+      }
+
+      function listBuddies(response)
+      {
+        $('#buddies').html(response);
+      }
+      let request = null;
+      function getBuddies()
+      {
+        //let sessionindex = $('#indexInput').val();
+        let sessionindex = $('#indexInput').val();
+        //sessionindex = count;
+        console.log(sessionindex)
+        if (request != null)
+          request.abort();
+        request =$.ajax(
+          {
+            type: 'GET',
+            data: {"index": sessionindex},
+            url: '/matching/buddies',
+            success: listBuddies
+          }
+        );
+      }
+      function setup()
+      {
+         // getAmPm();
+        // window.setInterval(getAmPm, 1000);
+        // getDateTime();
+        // window.setInterval(getDateTime, 1000);
+        // $('#authorInput').on('input', getResults);
+        getBuddies();
+        $('#passButton').on('click', getBuddies);
+      }
+</script>
 {% endblock %}
