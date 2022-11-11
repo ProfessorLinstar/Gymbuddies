@@ -83,32 +83,30 @@
       }
       let request = null;
 
-      function getMatches()
+      function terminate(requestid)
       {
         //let sessionindex = $('#indexInput').val();
-        let requestid = $('#unmatchInput').val();
-        let action = $('#unmatchButton').val()
         console.log(requestid)
-        console.log(action)
         
         if (request != null)
           request.abort();
         request =$.ajax(
           {
             type: 'POST',
-            data: {"requestid": requestid, "action": action},
+            data: {"requestid": requestid, "action": "terminate"},
             url: '/matching/matchedtable',
             success: listMatches
           }
         );
       }
+
       function refreshMatches()
       {
         if (request != null)
           request.abort();
         request =$.ajax(
           {
-            type: 'POST',
+            type: 'GET',
             //data: {"requestid": requestid, "action": action},
             url: '/matching/matchedtable',
             success: listMatches
@@ -117,7 +115,7 @@
       }
       function setup()
       {
-        getMatches();
+        refreshMatches();
         //$('#deleteButton').on('click', getMatches);
         window.setInterval(refreshMatches, 1000);
       }
