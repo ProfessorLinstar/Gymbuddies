@@ -164,7 +164,7 @@ def outgoing():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
-    return render_template("outgoing.html")
+    return render_template("outgoing.html", netid=netid)
 
 @bp.route("/outgoingtable", methods= ["POST"])
 def outgoingtable():
