@@ -64,20 +64,12 @@ def search():
                            user=g.user,
                            **context)
 
-@bp.route("/buddies", methods=("GET", "POST"))
+@bp.route("/buddies", methods=["GET"])
 def buddies():
     # get the current user in the session
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
-
-    # if request.method == "POST":
-    #     destnetid = request.form["destnetid"]
-    #     schedule = common.form_to_schedule()
-
-    #     session["index"] += 1
-    #     database.request.new(netid, destnetid, schedule)
-    #     return redirect(url_for("matching.outgoing"))
 
     # implement the roundtable format of getting matches
     sess_index = request.args.get("index")

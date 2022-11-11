@@ -17,15 +17,15 @@
         <div class="card-header pb-0 pt-3 bg-transparent">
           <h6 class="text-capitalize">Find a Buddy</h6>
         </div>
-        <!--<form action="{{url_for('matching.search')}}" method="post">-->
+        <form action="{{url_for('matching.search')}}" method="post">
         <div class="card-body">
           <span id="buddies"></span>
           <br>
           <div class="row mt-4">
             <div class="col-md-6 text-sm-right">
-                  <button class="btn btn-primary btn-sm" onClick="matching()">Match</button>
+                  <button class="btn btn-primary btn-sm">Match</button>
                   <!--<input type="hidden" name="destnetid" value="{{ user.netid }}"></input>-->
-        <!--</form>-->
+        </form>
             </div>
             <div class="col-md-6 text-sm-left">
                 <!--<form action="{{url_for('matching.search')}}" method="get">-->
@@ -50,22 +50,22 @@
   <script>
       'use strict';
 
-      function matching(){
-        let destnetid= $('#matchRequest').val();
-        console.log(destnetid)
-        if (request != null)
-          request.abort();
-        $.ajax(
-          {
-            type:'POST',
-            data: {"destnetid": destnetid},
-            url: '/matching/search',
-            success: function() {
-              window.location.href = "/matching/outgoing"
-            }
-          }
-        );
-      }
+      // function matching(){
+      //   let destnetid= $('#matchRequest').val();
+      //   console.log(destnetid)
+      //   if (request != null)
+      //     request.abort();
+      //   $.ajax(
+      //     {
+      //       type:'POST',
+      //       data: {"destnetid": destnetid},
+      //       url: '/matching/search',
+      //       success: function() {
+      //         window.location.href = "/matching/outgoing"
+      //       }
+      //     }
+      //   );
+      // }
 
       function listBuddies(response)
       {
