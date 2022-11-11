@@ -115,7 +115,7 @@ def get_rand_users(number: int,
     """Attempts to return a <number> random sample of users, from which <userid> is not a user"""
     assert session is not None
     rows = session.query(db.User).filter(db.User.netid != netid).order_by(func.random()).all()
-    if len(rows) <= 10:
+    if len(rows) <= number:
         return rows
     return rows[0:number]
 

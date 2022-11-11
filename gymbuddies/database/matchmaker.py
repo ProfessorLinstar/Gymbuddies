@@ -10,8 +10,7 @@ from . import request
 
 # TODO: IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
 NUMBER_INTERESTS: int = 10 # TODO: find a way for this value not to be hardcoded
-NUMBER_SCHEDULE_BLOCKS: int = 2016 # number of timeblocks contained in a user's schedule
-RANDOM_NUMBER: int = 10 # number of users queried in random selection
+RANDOM_NUMBER: int = 15 # number of users queried in random selection
 RETURN_NUMBER: int = 3 # number of users returned by find_matches
 LEVEL_WEIGHT: float = 0.5 # weight of level to compatability score
 INTERESTS_WEIGHT: float = 1 / NUMBER_INTERESTS # weight of interests to compatability score
@@ -19,15 +18,13 @@ SCHEDULE_WEIGHT: float = 1 # weight of schedule intersection to compatability sc
 
 def find_matches(netid: str) -> List[str]:
     """run algorithm to find top matches for user <netid>"""
+    # get the main user using their netid
+    main_user = db_user.get_user(netid)
+    assert main_user is not None
+
     # get a random sample of users to select from
     randusers = db_user.get_rand_users(RANDOM_NUMBER, netid)
-    assert randusers != None
-    matches: List[str] = []
-    # if there are not enough users in the database, return whoever is available
-    if len(randusers) <= RETURN_NUMBER:
-        for user in randusers:
-            matches.append(user.netid)
-        return matches
+    assert randusers is not None
 
     # do a hard filter on users that you are already matched with
     completed_matches = request.get_matches(netid)
@@ -40,55 +37,62 @@ def find_matches(netid: str) -> List[str]:
         elif dest_user in randusers:
             randusers.remove(dest_user)
 
-    # do a hard filter on users that are not compatible with gender preferences
-    main_gender = db_user.get_gender(netid)
-    main_okmale = db_user.get_okmale(netid)
-    main_okfemale = db_user.get_okfemale(netid)
-    main_oknonbinary = db_user.get_okbinary(netid)
-    for user in randusers:
-        gender = db_user.get_gender(user.netid)
-        okmale = db_user.get_okmale(user.netid)
-        okfemale = db_user.get_okfemale(user.netid)
-        oknonbinary = db_user.get_okbinary(user.netid)
-        # check if user is compatible with mainuser's preferences
-        if gender == db.Gender.MALE:
-            if not main_okmale:
+    temprandusers = randusers.copy()
+    for user in temprandusers:
+        # do a hard filter on users that are not open
+        if not user.open:
+            randusers.remove(user)
+            continue
+        # hard filter if user is not compatible with mainuser's preferences
+        if user.gender == db.Gender.MALE:
+            if not main_user.okmale:
                 randusers.remove(user)
                 continue
-        elif gender == db.Gender.FEMALE:
-            if not main_okfemale:
+        elif user.gender == db.Gender.FEMALE:
+            if not main_user.okfemale:
                 randusers.remove(user)
                 continue
-        elif gender == db.Gender.NONBINARY:
-            if not main_oknonbinary:
+        elif user.gender == db.Gender.NONBINARY:
+            if not main_user.oknonbinary:
                 randusers.remove(user)
                 continue;
-        # check is mainuser is compatible with user's preferences
-        if main_gender == db.Gender.MALE:
-            if not okmale:
+        # hard filter if mainuser is not compatible with user's preferences
+        if main_user.gender == db.Gender.MALE:
+            if not user.okmale:
                 randusers.remove(user)
                 continue
-        elif main_gender == db.Gender.FEMALE:
-            if not okfemale:
+        elif main_user.gender == db.Gender.FEMALE:
+            if not user.okfemale:
                 randusers.remove(user)
                 continue
-        elif main_gender == db.Gender.NONBINARY:
-            if not oknonbinary:
+        elif main_user.gender == db.Gender.NONBINARY:
+            if not user.oknonbinary:
                 randusers.remove(user)
                 continue
 
+    # if there are not enough users left after the hard filters, return whoever is available
+    if len(randusers) <= RETURN_NUMBER:
+        matches: List[str] = []
+        for user in randusers:
+            matches.append(user.netid)
+        return matches
 
     # record user compatability scores based on user levels and level preferences
     user_compatabilities: Dict[str, float] = {}
-    main_user_level = db_user.get_level(netid)
+    main_user_level = main_user.level
     assert main_user_level is not None
-    main_user_level_preference = db_user.get_levelpreference(netid)
+    main_user_level_preference = main_user.levelpreference
+    assert main_user_level_preference is not None
+    main_user_interests = main_user.interests
+    assert main_user_interests is not None
+    interests_score: float = 0
+
     for user in randusers:
-        user_level = db_user.get_level(user.netid)
+        user_level = user.level
         assert user_level is not None
 
-        # record whether user is compatable with the level preference of the main user
         user_compatabilities[user.netid] = 0
+        # record whether user is compatable with the level preference of the main user
         if main_user_level_preference == db.LevelPreference.ALL:
             user_compatabilities[user.netid] += 1
         elif main_user_level_preference == db.LevelPreference.EQUAL:
@@ -102,7 +106,7 @@ def find_matches(netid: str) -> List[str]:
                 user_compatabilities[user.netid] += 1
 
         # record whether the main user is compatable with the level preference of user
-        user_level_preference = db_user.get_levelpreference(netid)
+        user_level_preference = user.levelpreference
         if user_level_preference == db.LevelPreference.ALL:
             user_compatabilities[user.netid] += 1
         if user_level_preference == db.LevelPreference.EQUAL:
@@ -118,13 +122,8 @@ def find_matches(netid: str) -> List[str]:
         # adjust user compatability score with weight
         user_compatabilities[user.netid] *= LEVEL_WEIGHT
 
-
-    # update user compatability scores based on user interests
-    main_user_interests = db_user.get_interests(netid)
-    assert main_user_interests is not None
-    interests_score: float = 0
-    for user in randusers:
-        user_interests = db_user.get_interests(user.netid)
+        # update user compatability scores based on user interests
+        user_interests = user.interests
         assert user_interests is not None
         for interest in user_interests:
             if interest in main_user_interests:
@@ -141,15 +140,16 @@ def find_matches(netid: str) -> List[str]:
         user_schedule: List[int] | None = db_schedule.get_schedule(user.netid)
         assert user_schedule is not None
         for i in range(len(user_schedule)):
-            if main_user_schedule[i] & db.ScheduleStatus.AVAILABLE == 1\
+            if main_user_schedule[i] & db.ScheduleStatus.AVAILABLE == 1 \
             and user_schedule[i] & db.ScheduleStatus.AVAILABLE == 1:
                 schedule_score += 1
             user_compatabilities[user.netid] += (
-                schedule_score / NUMBER_SCHEDULE_BLOCKS) * SCHEDULE_WEIGHT
+                schedule_score / db.NUM_WEEK_BLOCKS) * SCHEDULE_WEIGHT
 
 
     # return users with the highest compatabilties to the main user
     compatabilities = sorted(user_compatabilities.items(), key = lambda x: x[1], reverse = True)
+    matches: List[str] = []
     for i in range(RETURN_NUMBER):
         matches.append(compatabilities[i][0])
     return matches
