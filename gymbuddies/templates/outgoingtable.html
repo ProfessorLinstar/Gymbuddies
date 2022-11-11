@@ -1,0 +1,49 @@
+<div class="table-responsive p-0">
+  <table class="table align-items-center justify-content-center mb-0">
+    <thead>
+      <tr>
+        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Netid</th>
+        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Contact</th>
+        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Time</th>
+        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for match, user in matchusers %}
+      <tr>
+        <td>
+          <div class="d-flex px-2 my-auto">
+            <h6 class="mb-0 text-sm">{{ user.name }}</h6>
+          </div>
+        </td>
+        <td>
+          <p class="text-sm font-weight-bold mb-0">{{ user.netid }}</p>
+        </td>
+        <td>
+          <p class="text-sm font-weight-bold mb-0">{{ user.contact }}</p>
+        </td>
+        <td>
+          {% for time in range(db.schedule_to_readable(match.schedule)|length) %}
+            <p class="text-sm font-weight-bold mb-0">{{ db.schedule_to_readable(match.schedule)[time] }}</p>
+          {% endfor %}
+        </td>
+        <td>
+        <span class="text-xs font-weight-bold">{{ db.RequestStatus(match.status).to_readable() }}</span>
+        </td>
+        <td class="align-middle">
+          <div class="ms-auto text-end">
+          <!--<form action="{{ url_for('matching.outgoingtable') }}" method="post">-->
+              <input id="deleteInput" type="hidden" name="requestid" value="{{ match.requestid }}"/>
+              <button id="deleteButton" class="btn btn-link text-danger text-gradient px-3 mb-0" type="button" name="action" value="reject" onClick="getMatches()"><i class="far fa-trash-alt me-2"></i>Delete</button>
+            <!--</form>-->
+            </div>                     
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+

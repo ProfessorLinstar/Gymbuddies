@@ -11,56 +11,6 @@
 {% block pagename_large %}Outgoing Requests{% endblock %}
 
 {% block content %}
-  <!-- <p>You have no matches at this time.</p> -->
-    <!--<div class="row">
-      <div class="col-12 mb-4">
-        <div class="card">
-          <div class="card-header pb-0 px-3">
-            <h6 class="mb-0">Pending</h6>
-          </div>
-          <div class="card-body pt-4 p-3">
-            <ul class="list-group">
-              <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
-                <div class="d-flex flex-column">
-                  <h6 class="mb-3 text-sm">Oliver Liam</h6>
-                  <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">interested in finding someone who I can consistently do arm day with</span></span>
-                  <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Arms, Legs</span></span>
-                  <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold">Beginner</span></span>
-                </div>
-                <div class="ms-auto text-end">
-                  <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                  <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-                </div>
-              </li>
-              <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
-                <div class="d-flex flex-column">
-                  <h6 class="mb-3 text-sm">Lucas Harper</h6>
-                  <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">been going to the gym for a while and want to meet someone who will challenge me : )</span></span>
-                  <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Cardio, Lifting</span></span>
-                  <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold"> Intermediate</span></span>
-                </div>
-                <div class="ms-auto text-end">
-                  <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                  <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-                </div>
-              </li>
-              <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
-                <div class="d-flex flex-column">
-                  <h6 class="mb-3 text-sm">Ethan James</h6>
-                  <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">really trying to focus on upper body this semester & looking for a partner who is experienced!</span></span>
-                  <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Chest, Arms</span></span>
-                  <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold">Intermediate</span></span>
-                </div>
-                <div class="ms-auto text-end">
-                  <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                  <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div> -->
     <div class="row">
       <div class="col-12 mb-4">
         <div class="card">
@@ -68,78 +18,46 @@
             <h6>Outgoing Requests</h6>
           </div>
           <div class="card-body px-0 pt-0 pb-2">
-            <div class="table-responsive p-0">
-              <table class="table align-items-center justify-content-center mb-0">
-                <thead>
-                  <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Netid</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Contact</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Time</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
-                    <!-- <th class="text-uppercase text-secondary text-xxs font-weight-bolder text-center opacity-7 ps-2">Completion</th> -->
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for match, user in matchusers %}
-                  <tr>
-                    <td>
-                      <div class="d-flex px-2 my-auto">
-                        <h6 class="mb-0 text-sm">{{ user.name }}</h6>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">{{ user.netid }}</p>
-                    </td>
-                    <td>
-                      <p class="text-sm font-weight-bold mb-0">{{ user.contact }}</p>
-                    </td>
-                    <td>
-                      {% for time in range(db.schedule_to_readable(match.schedule)|length) %}
-                        <p class="text-sm font-weight-bold mb-0">{{ db.schedule_to_readable(match.schedule)[time] }}</p>
-                        {% endfor %}
-                    </td>
-                    <td>
-                      <span class="text-xs font-weight-bold">{{ db.RequestStatus(match.status).to_readable() }}</span>
-                    </td>
-                    <td class="align-middle">
-                      <!--
-                      <div class="dropdown">
-                      <button class="dropbtn btn-link text-secondary mb-0">
-                        <i class="fa fa-ellipsis-v text-xs"></i>
-                      </button>
-                      <div class="dropdown-content">
-                        <a href="#">Link 1</a>
-                        <a href="#">Link 2</a>
-                        <a href="#">Link 3</a>
-                      </div>
-                      </div>
-                      -->
-                      
-                        <div class="ms-auto text-end">
-                          <form action="{{ url_for('matching.outgoing') }}" method="post">
-                            <input type="hidden" name="requestid" value="{{ match.requestid }}"/>
-                            <button
-                              class="btn btn-link text-danger text-gradient px-3 mb-0"
-                              type="submit"
-                              name="action"
-                              value="reject"
-                              ><i class="far fa-trash-alt me-2"></i>Delete</button
-                            >
-                          </form>
-                      </div>
-                      </div>
-                      
-                    </td>
-                  
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+            <span id="requestTable"></span>
           </div>
         </div>
       </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+      function listMatches(response)
+      {
+        $('#requestTable').html(response);
+      }
+      let request = null;
+
+      function getMatches()
+      {
+        //let sessionindex = $('#indexInput').val();
+        let requestid = $('#deleteInput').val();
+        let action = $('#deleteButton').val()
+        console.log(requestid)
+        console.log(action)
+        
+        if (request != null)
+          request.abort();
+        request =$.ajax(
+          {
+            type: 'POST',
+            data: {"requestid": requestid, "action": action},
+            url: '/matching/outgoingtable',
+            success: listMatches
+          }
+        );
+      }
+      function setup()
+      {
+        getMatches();
+        //$('#deleteButton').on('click', getMatches);
+      }
+      $('document').ready(setup);
+  </script>
 {% endblock %}

@@ -158,33 +158,15 @@ def pending():
                            interests=interests)
 
 
-@bp.route("/outgoing", methods=("GET", "POST"))
+@bp.route("/outgoing", methods=["GET"])
 def outgoing():
     """Page for viewing outgoing requests."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
+    return render_template("outgoing.html")
 
-    # TODO: put reject handler into shared helper function
-    if request.method == "POST":
-        requestid = int(request.form.get("requestid", "0"))
-        action = request.form.get("action")
-
-        if action == "reject":
-            database.request.reject(requestid)  # TODO: change to 'cancel'?
-        else:
-            print(f"Action not found! {action = }")
-
-    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    matches = database.request.get_active_outgoing(netid)
-    assert matches is not None
-
-    users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
-    users = [database.user.get_user(u) for u in users]
-
-    return render_template("outgoing.html", netid=netid, matchusers=zip(matches, users))
-
-@bp.route("/outgoingtable", methods=("GET", "POST"))
+@bp.route("/outgoingtable", methods= ["POST"])
 def outgoingtable():
     """Page for viewing outgoing requests."""
     netid: str = session.get("netid", "")
@@ -192,14 +174,14 @@ def outgoingtable():
         return redirect(url_for("auth.login"))
 
     # TODO: put reject handler into shared helper function
-    if request.method == "POST":
-        requestid = int(request.form.get("requestid", "0"))
-        action = request.form.get("action")
+    #if request.method == "POST":
+    requestid = int(request.form.get("requestid", "0"))
+    action = request.form.get("action")
 
-        if action == "reject":
-            database.request.reject(requestid)  # TODO: change to 'cancel'?
-        else:
-            print(f"Action not found! {action = }")
+    if action == "reject":
+        database.request.reject(requestid)  # TODO: change to 'cancel'?
+    else:
+        print(f"Action not found! {action = }")
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     matches = database.request.get_active_outgoing(netid)

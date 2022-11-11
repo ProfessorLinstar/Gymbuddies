@@ -30,7 +30,7 @@
             <div class="col-md-6 text-sm-left">
                 <!--<form action="{{url_for('matching.search')}}" method="get">-->
                   <!-- Pass button -->
-                  <button id="passButton" class="btn btn-primary btn-sm" type="button" onClick="getBuddies()">Pass</button>
+                  <button id="passButton" class="btn btn-primary btn-sm" type="button" >Pass</button>
             
                 <!--</form>-->
                   </div>
@@ -99,5 +99,6 @@
         getBuddies();
         $('#passButton').on('click', getBuddies);
       }
+      $('document').ready(setup);
 </script>
 {% endblock %}
