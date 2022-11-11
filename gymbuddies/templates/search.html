@@ -24,7 +24,7 @@
           <div class="row mt-4">
             <div class="col-md-6 text-sm-right">
                   <button class="btn btn-primary btn-sm" onClick="matching()">Match</button>
-                  <!-- <input type="hidden" name="destnetid" value="{{ user.netid }}"></input> -->
+                  <!--<input type="hidden" name="destnetid" value="{{ user.netid }}"></input>-->
         <!--</form>-->
             </div>
             <div class="col-md-6 text-sm-left">
@@ -59,7 +59,10 @@
           {
             type:'POST',
             data: {"destnetid": destnetid},
-            url: '/matching/search'
+            url: '/matching/search',
+            success: function() {
+              window.location.href = "/matching/outgoing"
+            }
           }
         );
       }
