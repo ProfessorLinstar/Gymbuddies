@@ -18,7 +18,7 @@
             <h6>Outgoing Requests</h6>
           </div>
           <div class="card-body px-0 pt-0 pb-2">
-            <span id="requestTable"></span>
+            <span id="outgoingTable"></span>
           </div>
         </div>
       </div>
@@ -30,7 +30,7 @@
   <script>
       function listMatches(response)
       {
-        $('#requestTable').html(response);
+        $('#outgoingTable').html(response);
       }
       let request = null;
 
@@ -53,10 +53,24 @@
           }
         );
       }
+      function refreshOutgoing()
+      {
+        if (request != null)
+          request.abort();
+        request =$.ajax(
+          {
+            type: 'POST',
+            //data: {"requestid": requestid, "action": action},
+            url: '/matching/outgoingtable',
+            success: listMatches
+          }
+        );
+      }
       function setup()
       {
         getMatches();
         //$('#deleteButton').on('click', getMatches);
+        window.setInterval(refreshOutgoing, 1000);
       }
       $('document').ready(setup);
   </script>

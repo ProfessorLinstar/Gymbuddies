@@ -115,6 +115,50 @@ def pending():
     if request.method == "POST":
         requestid = int(request.form.get("requestid", "0"))
         action = request.form.get("action")
+        # if action == "reject":
+        #     database.request.reject(requestid)
+        if action == "accept":
+            database.request.finalize(requestid)
+        else:
+            print(f"Action not found! {action = }")
+        return redirect(url_for("matching.matched"))
+
+    # # TODO: handle errors when database is not available
+    # requests = database.request.get_active_incoming(netid)
+    # assert requests is not None
+
+    # request_users = []
+    # calendars = []
+    # for req in requests:
+    #     request_users.append(database.user.get_user(req.srcnetid))
+    #     calendars.append(common.schedule_to_calendar(req.schedule))
+
+    # levels = []
+    # interests = []
+    # for ruser in request_users:
+    #     levels.append(db.Level(ruser.level).to_readable())
+    #     interests.append(db.interests_to_readable(ruser.interests))
+
+    # print("interests", interests)
+    # print("requestUsers", request_users)
+    return render_template("pending.html",
+                           netid=netid)
+                        #    requests=requests,
+                        #    calendars=calendars,
+                        #    requestUsers=request_users,
+                        #    levels=levels,
+                        #    interests=interests)
+
+@bp.route("/pendingtable", methods=("GET", "POST"))
+def pendingtable():
+    """Page for pending matches."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        requestid = int(request.form.get("requestid", "0"))
+        action = request.form.get("action")
 
         if action == "reject":
             database.request.reject(requestid)
@@ -141,7 +185,7 @@ def pending():
 
     print("interests", interests)
     print("requestUsers", request_users)
-    return render_template("pending.html",
+    return render_template("pendingtable.html",
                            netid=netid,
                            requests=requests,
                            calendars=calendars,

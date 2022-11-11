@@ -1,0 +1,111 @@
+<ul class="list-group">
+  {% if requestUsers|length != 0: %} {% for i in range(requestUsers|length): %}
+  <li
+    class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
+  >
+    
+    <div class="d-flex flex-column">
+      <div class="myDIV">  {{ requestUsers[i].name }} </div>
+      <div class="hide">
+      <!--
+      <div class="d-flex flex-column">
+      <span class="mb-2 text-xs"
+        >Bio:
+        <span class="text-dark font-weight-bold ms-sm-2"
+          >{{ requestUsers[i].bio }}</span
+        ></span
+      >
+      <span class="mb-2 text-xs"
+        >Interests:
+        <span class="text-dark ms-sm-2 font-weight-bold"
+          >{{ interests[i] }}</span
+        ></span
+      >
+      <span class="text-xs"
+        >Level:
+        <span class="text-dark ms-sm-2 font-weight-bold"
+          >{{ db.Level(requestUsers[i].level).to_readable() }}</span
+        ></span>
+      </div> -->
+      <div class="row">
+        <div class="col-md-6">
+          <!-- Person's Profile Card -->
+          <div class="card z-index-2 h-90">
+            <div class="card-header pb-0 pt-3 bg-transparent">
+                <h6 class="text-capitalize">Profile</h6>
+            <div class="card-body pt-2">
+              <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
+              <a href="javascript:;" class="card-title h5 d-block text-darker">
+                {{ requestUsers[i].name }}
+              </a>
+              <p class="card-description mb-4">
+                <br>
+                Bio: {{ requestUsers[i].bio }}
+              </p>
+              <!--<p class="card-description mb-4">
+                Contact: 
+              </p>-->
+              <p class="card-description mb-4">
+                Level: {{ db.Level(requestUsers[i].level).to_readable() }}
+              </p>
+              <p class="card-description mb-4">
+                Interests: {{ interests[i] }} <!-- {{ database.user.get_interests("ejcho") }} -->
+              </p>
+              <p class="card-description mb-4">
+                Additional Information: {{ requestUsers[i].addinto }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div class="col-md-6">
+          <!-- Person's Schedule -->
+          <div class="p-3">
+            {% with calendar=calendars[i] %}
+              {% include 'calendarlist.html' %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+      </div>
+      
+      </div>
+
+  
+  
+  
+
+    <div class="ms-auto text-end">
+        <button
+          id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
+          type="button"
+          name="action"
+          value="reject"
+          onClick="getRequests()"
+          ><i class="far fa-trash-alt me-2"></i>Delete</button
+        >
+        <form action="{{ url_for('matching.pending') }}" method="post">
+        <input id="requestInput" type="hidden" name="requestid" value="{{ requests[i].requestid }}"/>
+        <button
+          class="btn btn-link text-dark px-3 mb-0"
+          type="submit"
+          name="action"
+          value="accept"
+          ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
+        </form>
+      <!--
+      <button type="button" class="btn btn-block mb-3" data-toggle="modal" data-target="#exampleModal">
+        See Requested Times
+      </button>    
+               
+      <div class="myDIV">See Requested Times</div>
+      <div class="hide">I am shown when someone hovers over the div above.</div>     -->           
+      <!-- <button type="button" class="btn btn-block bg-gradient-primary mb-3" data-bs-toggle="modal" data-bs-target="#modal-default">Requested Times</button> -->
+      <!-- <div class="col-md-4"> -->
+      <!-- </div> -->
+    </div>
+  </li>
+  {% endfor %} {% else %}
+  <div>None</div>
+  {% endif %}
+</ul>

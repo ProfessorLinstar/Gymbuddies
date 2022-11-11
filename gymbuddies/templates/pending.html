@@ -1,29 +1,15 @@
-{% extends 'layout.html' %} {% block title %}Incoming Requests{% endblock %} {%
-block classdash %}<a class="nav-link" href="../home"
-  >{% endblock %} {% block classfind %}<a
-    class="nav-link"
-    href="{{ url_for('matching.search') }}"
-    >{% endblock %} {% block classreq %}<a
-      class="nav-link active"
-      href="{{ url_for('matching.pending') }}"
-      >{% endblock %} {% block classmat %}<a
-        class="nav-link"
-        href="{{ url_for('matching.matched') }}"
-        >{% endblock %} {% block classprof %}<a
-          class="nav-link"
-          href="{{ url_for('home.profile') }}"
-          >{% endblock %} {% block classmast %}<a
-            class="nav-link"
-            href="{{ url_for('master.show') }}"
-            >{% endblock %} {% block pagename %}
-            <li
-              class="breadcrumb-item text-sm text-white active"
-              aria-current="page"
-            >
-              Incoming Requests
-            </li>
-            {% endblock %} {% block pagename_large %}Incoming Requests{%
-            endblock %} {% block content %}
+{% extends 'layout.html' %} {% block title %}Incoming Requests{% endblock %} 
+{% block classdash %}<a class="nav-link" href="../home">{% endblock %} 
+  {% block classfind %}<a class="nav-link" href="{{ url_for('matching.search') }}">{% endblock %} 
+  {% block classreq %}<a class="nav-link active" href="{{ url_for('matching.pending') }}">{% endblock %} 
+  {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %} 
+  {% block classprof %}<a class="nav-link" href="{{ url_for('home.profile') }}">{% endblock %} 
+  {% block classmast %}<a class="nav-link" href="{{ url_for('master.show') }}">{% endblock %}
+  {% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Incoming Requests</li>
+{% endblock %} 
+{% block pagename_large %}Incoming Requests{%endblock %} 
+
+{% block content %}
             <!-- <p>You have no requests at this time.</p>-->
             <div class="modal fade bd-example-modal-lg" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
@@ -91,129 +77,62 @@ block classdash %}<a class="nav-link" href="../home"
                     <h6 class="mb-0">Pending</h6>
                   </div>
                   <div class="card-body pt-4 p-3">
-                    <ul class="list-group">
-                      {% if requestUsers|length != 0: %} {% for i in range(requestUsers|length): %}
-                      <li
-                        class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
-                      >
-                        
-                        <div class="d-flex flex-column">
-                          <div class="myDIV">  {{ requestUsers[i].name }} </div>
-                          <div class="hide">
-                          <!--
-                          <div class="d-flex flex-column">
-                          <span class="mb-2 text-xs"
-                            >Bio:
-                            <span class="text-dark font-weight-bold ms-sm-2"
-                              >{{ requestUsers[i].bio }}</span
-                            ></span
-                          >
-                          <span class="mb-2 text-xs"
-                            >Interests:
-                            <span class="text-dark ms-sm-2 font-weight-bold"
-                              >{{ interests[i] }}</span
-                            ></span
-                          >
-                          <span class="text-xs"
-                            >Level:
-                            <span class="text-dark ms-sm-2 font-weight-bold"
-                              >{{ db.Level(requestUsers[i].level).to_readable() }}</span
-                            ></span>
-                          </div> -->
-                          <div class="row">
-                            <div class="col-md-6">
-                              <!-- Person's Profile Card -->
-                              <div class="card z-index-2 h-90">
-                                <div class="card-header pb-0 pt-3 bg-transparent">
-                                    <h6 class="text-capitalize">Profile</h6>
-                                <div class="card-body pt-2">
-                                  <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
-                                  <a href="javascript:;" class="card-title h5 d-block text-darker">
-                                    {{ requestUsers[i].name }}
-                                  </a>
-                                  <p class="card-description mb-4">
-                                    <br>
-                                    Bio: {{ requestUsers[i].bio }}
-                                  </p>
-                                  <!--<p class="card-description mb-4">
-                                    Contact: 
-                                  </p>-->
-                                  <p class="card-description mb-4">
-                                    Level: {{ db.Level(requestUsers[i].level).to_readable() }}
-                                  </p>
-                                  <p class="card-description mb-4">
-                                    Interests: {{ interests[i] }} <!-- {{ database.user.get_interests("ejcho") }} -->
-                                  </p>
-                                  <p class="card-description mb-4">
-                                    Additional Information: {{ requestUsers[i].addinto }}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                            <div class="col-md-6">
-                              <!-- Person's Schedule -->
-                              <div class="p-3">
-                                {% with calendar=calendars[i] %}
-                                  {% include 'calendarlist.html' %}
-                                {% endwith %}
-                              </div>
-                            </div>
-                          </div>
-                          </div>
-                          
-                          </div>
-                    
-                      
-                      
-                      
-
-                        <div class="ms-auto text-end">
-                          <form action="{{ url_for('matching.pending') }}" method="post">
-                            <input type="hidden" name="requestid" value="{{ requests[i].requestid }}"/>
-                            <button
-                              class="btn btn-link text-danger text-gradient px-3 mb-0"
-                              type="submit"
-                              name="action"
-                              value="reject"
-                              ><i class="far fa-trash-alt me-2"></i>Delete</button
-                            >
-                            <button
-                              class="btn btn-link text-dark px-3 mb-0"
-                              type="submit"
-                              name="action"
-                              value="accept"
-                              ><i
-                                class="fas fa-check text-success me-2"
-                                aria-hidden="true"
-                              ></i
-                              >Accept</button
-                            >
-                          </form>
-                          <!--
-                          <button type="button" class="btn btn-block mb-3" data-toggle="modal" data-target="#exampleModal">
-                            See Requested Times
-                          </button>    
-                                   
-                          <div class="myDIV">See Requested Times</div>
-                          <div class="hide">I am shown when someone hovers over the div above.</div>     -->           
-                          <!-- <button type="button" class="btn btn-block bg-gradient-primary mb-3" data-bs-toggle="modal" data-bs-target="#modal-default">Requested Times</button> -->
-                          <!-- <div class="col-md-4"> -->
-                          <!-- </div> -->
-                        </div>
-                      </li>
-                      {% endfor %} {% else %}
-                      <div>None</div>
-                      {% endif %}
-                    </ul>
+                    <span id="requestTable"></span>
                   </div>
                 </div>
               </div>
             </div>
-            {% endblock %}
-          </a></a
-        ></a
-      ></a
-    ></a
-  ></a
->
+{% endblock %}
+
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+      function listRequests(response)
+      {
+        $('#requestTable').html(response);
+      }
+      let request = null;
+
+      function getRequests()
+      {
+        //let sessionindex = $('#indexInput').val();
+        let requestid = $('#requestInput').val();
+        let action = $('#acceptButton').val()
+        console.log(requestid)
+        console.log(action)
+        
+        if (request != null)
+          request.abort();
+        request =$.ajax(
+          {
+            type: 'POST',
+            data: {"requestid": requestid, "action": action},
+            url: '/matching/pendingtable',
+            success: listRequests
+          }
+        );
+      }
+      function refreshRequests()
+      {
+        if (request != null)
+          request.abort();
+        request =$.ajax(
+          {
+            type: 'POST',
+            //data: {"requestid": requestid, "action": action},
+            url: '/matching/pendingtable',
+            success: listRequests
+          }
+        );
+      }
+      function setup()
+      {
+        getRequests();
+        //$('#deleteButton').on('click', getMatches);
+        window.setInterval(refreshRequests, 1000);
+      }
+      $('document').ready(setup);
+  </script>
+{% endblock %}
+
+
