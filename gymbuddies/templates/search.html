@@ -50,33 +50,14 @@
   <script>
       'use strict';
 
-      // function matching(){
-      //   let destnetid= $('#matchRequest').val();
-      //   console.log(destnetid)
-      //   if (request != null)
-      //     request.abort();
-      //   $.ajax(
-      //     {
-      //       type:'POST',
-      //       data: {"destnetid": destnetid},
-      //       url: '/matching/search',
-      //       success: function() {
-      //         window.location.href = "/matching/outgoing"
-      //       }
-      //     }
-      //   );
-      // }
-
       function listBuddies(response)
       {
         $('#buddies').html(response);
       }
       let request = null;
       function getBuddies()
-      {
-        //let sessionindex = $('#indexInput').val();
+      {;
         let sessionindex = $('#indexInput').val();
-        //sessionindex = count;
         console.log(sessionindex)
         if (request != null)
           request.abort();
@@ -91,11 +72,6 @@
       }
       function setup()
       {
-         // getAmPm();
-        // window.setInterval(getAmPm, 1000);
-        // getDateTime();
-        // window.setInterval(getDateTime, 1000);
-        // $('#authorInput').on('input', getResults);
         getBuddies();
         $('#passButton').on('click', getBuddies);
       }
