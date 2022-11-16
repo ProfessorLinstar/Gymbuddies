@@ -38,6 +38,7 @@ def find_matches(netid: str) -> List[str]:
             banned_netids.append(src_user)
         if dest_user in rand_netids:
             banned_netids.append(dest_user)
+
     # do a hard filter on users that you already sent a request to
     outgoing_requests = request.get_active_outgoing(netid)
     assert outgoing_requests is not None
