@@ -10,8 +10,8 @@ from . import request
 
 # TODO: IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
 NUMBER_INTERESTS: int = 10 # TODO: find a way for this value not to be hardcoded
-RANDOM_NUMBER: int = 15 # number of users queried in random selection
-RETURN_NUMBER: int = 3 # number of users returned by find_matches
+RANDOM_NUMBER: int = 20 # number of users queried in random selection
+RETURN_NUMBER: int = 5 # number of users returned by find_matches
 LEVEL_WEIGHT: float = 0.5 # weight of level to compatability score
 INTERESTS_WEIGHT: float = 1 / NUMBER_INTERESTS # weight of interests to compatability score
 SCHEDULE_WEIGHT: float = 1 # weight of schedule intersection to compatability score
@@ -34,11 +34,25 @@ def find_matches(netid: str) -> List[str]:
     for completed_match in completed_matches:
         src_user = completed_match.srcnetid
         dest_user = completed_match.destnetid
-        print(src_user, dest_user)
         if src_user in rand_netids:
             banned_netids.append(src_user)
         if dest_user in rand_netids:
             banned_netids.append(dest_user)
+    # do a hard filter on users that you already sent a request to
+    outgoing_requests = request.get_active_outgoing(netid)
+    assert outgoing_requests is not None
+    for outgoing_request in outgoing_requests:
+        dest_user = outgoing_request.destnetid
+        if dest_user in rand_netids:
+            banned_netids.append(dest_user)
+
+    # do a hard filter on users that you have incoming requests for
+    incoming_requests = request.get_active_incoming(netid)
+    assert incoming_requests is not None
+    for incoming_request in incoming_requests:
+        src_user = incoming_request.srcnetid
+        if src_user in rand_netids:
+            banned_netids.append(src_user)
 
     temprandusers = randusers.copy()
     for user in temprandusers:
