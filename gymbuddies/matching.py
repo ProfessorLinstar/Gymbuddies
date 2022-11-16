@@ -192,6 +192,33 @@ def pendingtable():
                            levels=levels,
                            interests=interests)
 
+@bp.route("/pendingmodal", methods=["POST"])
+def pendingmodal():
+    """Page for pending matches."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    # TODO: handle errors when database is not available
+    # requests = database.request.get_active_incoming(netid)
+    # assert requests is not None
+    requestid = request.form.get("requestid")
+    req = database.request.get_request(requestid)
+    assert req is not None
+
+    user = database.user.get_user(req.srcnetid)
+    calendar = common.schedule_to_calendar(req.schedule)
+    level = db.Level(user.level).to_readable()
+    interests = db.interests_to_readable(user.interests)
+    
+    return render_template("pendingmodal.html",
+                           netid=netid,
+                           req=req,
+                           user = user,
+                           calendar=calendar,
+                           level=level,
+                           interests=interests)
+
 
 @bp.route("/outgoing", methods=["GET"])
 def outgoing():
