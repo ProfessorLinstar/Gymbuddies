@@ -1,6 +1,7 @@
 """Common methods for routing modules."""
 from typing import Dict, Any, List
 from flask import request
+from . import database
 from .database import db
 
 
@@ -55,3 +56,12 @@ def form_to_schedule() -> List[db.ScheduleStatus]:
             schedule[i] = db.ScheduleStatus.AVAILABLE
 
     return schedule
+
+def needs_refresh(lastrefreshed: int, netid: str) -> bool:
+    """Returns True if information regarding a user with netid 'netid' has changed since the
+    timestamp 'lastrefreshed'. The timestamp 'lastrefreshed' should be provided in terms of the
+    number of milliseconds since January 1st, 1970 00:00:00 UTC, as is done by javascript's
+    Date.now() function. Otherwise, returns False."""
+
+    lastupdated = database.user.get_lastupdated(netid)
+    return lastupdated is not None and lastupdated.timestamp() * 1000 <= lastrefreshed

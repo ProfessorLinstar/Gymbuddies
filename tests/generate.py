@@ -369,6 +369,7 @@ def users():
     for datum in data.values():
         a = sorted(datum.keys())
         b = sorted(db.User.__table__.columns.keys())
+        b.remove("lastupdated")
         assert a == b, f"Missing columns: {a} vs {b}"
 
     for user in data.values():

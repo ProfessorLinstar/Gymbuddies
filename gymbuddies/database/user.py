@@ -1,4 +1,5 @@
 """Database API"""
+from datetime import datetime, timezone
 from typing import Optional, Any, List, Dict, Tuple
 from sqlalchemy import Column
 from sqlalchemy.orm import Session
@@ -44,7 +45,6 @@ def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
-    assert "netid" not in kwargs
     _update_user(session, get_user(netid, session=session), **kwargs)
     return True
 
@@ -80,12 +80,16 @@ def _default_profile() -> Dict[str, Any]:
 
 def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
     """Updates the attributes of 'user' according to 'kwargs'. """
+    assert "netid" not in kwargs and "lastupdated" not in kwargs
 
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         setattr(user, k, v)
+    user.lastupdated = datetime.now(timezone.utc)
+    print(f"{user.lastupdated = } was updated!")
 
     if kwargs.get("schedule") is not None:
         db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
+
 
 
 # TODO: terminate/delete all requests related to netid
@@ -125,8 +129,7 @@ def get_user(netid: str, *, session: Optional[Session] = None) -> db.MappedUser:
     """Attempts to return a user object from the Users table given the netid of a user. If the user
     does not exist, raises an exception."""
     assert session is not None
-
-    return _get(session, netid)
+    return _get(session, netid, (db.User,))
 
 
 @db.session_decorator(commit=False)
@@ -137,7 +140,7 @@ def exists(netid: str, *, session: Optional[Session] = None) -> bool:
     return session.query(db.User.netid).filter(db.User.netid == netid).scalar() is not None
 
 
-def _get(session: Session, netid: str, entities: Tuple[Column, ...] = (db.User,)) -> Any:
+def _get(session: Session, netid: str, entities: Tuple[Column, ...]) -> Any:
     query = session.query(*entities).filter(db.User.netid == netid).scalar()
     if query is None:
         raise UserNotFound(netid)
@@ -274,3 +277,11 @@ def get_settings(netid: str, *, session: Optional[Session] = None) -> Optional[D
     does not exist."""
     assert session is not None
     return _get_column(session, netid, db.User.settings)
+
+
+@db.session_decorator(commit=False)
+def get_lastupdated(netid: str, *, session: Optional[Session] = None) -> Optional[datetime]:
+    """Attempts to return the lastupdated of a user with netid 'netid'. Raises an error if the user
+    does not exist."""
+    assert session is not None
+    return _get_column(session, netid, db.User.lastupdated)

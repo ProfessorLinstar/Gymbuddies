@@ -140,6 +140,7 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
             context["addinfo"] = user.addinfo
             context[f"level{user.level}"] = "checked"
             context[f"gender{user.gender}"] = "checked"
+            context["lastupdated"] = int(user.lastupdated.timestamp())
 
             context["open"] = "checked" if user.open else ""
             context["okmale"] = "checked" if user.okmale else ""

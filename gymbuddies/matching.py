@@ -168,6 +168,9 @@ def pendingtable():
         else:
             print(f"Action not found! {action = }")
 
+    elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
+
     # TODO: handle errors when database is not available
     requests = database.request.get_active_incoming(netid)
     assert requests is not None
@@ -237,15 +240,16 @@ def outgoingtable():
         return redirect(url_for("auth.login"))
 
     # TODO: put reject handler into shared helper function
-    #if request.method == "POST":
     requestid = int(request.form.get("requestid", "0"))
-    action = request.form.get("action")
+    action = request.form.get("action", "")
 
     if request.method == "POST":
         if action == "reject":
             database.request.reject(requestid)  # TODO: change to 'cancel'?
         else:
             print(f"Action not found! {action = }")
+    elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     matches = database.request.get_active_outgoing(netid)

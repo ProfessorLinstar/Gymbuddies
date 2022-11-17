@@ -1,6 +1,6 @@
 """Database API"""
 from typing import List, Optional, Dict, Tuple, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import Session
@@ -36,7 +36,7 @@ def get_active_outgoing(srcnetid: str,
     assert session is not None
     return session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
                                             db.Request.status == db.RequestStatus.PENDING).order_by(
-                                                db.Request.maketimestamp).all()
+                                                db.Request.maketimestamp.desc()).all()
 
 
 @db.session_decorator(commit=False)
@@ -49,7 +49,7 @@ def get_active_incoming(destnetid: str,
     assert session is not None
     return session.query(db.Request).filter(db.Request.destnetid == destnetid,
                                             db.Request.status == db.RequestStatus.PENDING).order_by(
-                                                db.Request.maketimestamp).all()
+                                                db.Request.maketimestamp.desc()).all()
 
 
 @db.session_decorator(commit=False)
@@ -224,11 +224,15 @@ def new(srcnetid: str,
 
     request = db.Request(srcnetid=srcnetid,
                          destnetid=destnetid,
-                         maketimestamp=datetime.now(),
+                         maketimestamp=datetime.now(timezone.utc),
                          status=db.RequestStatus.PENDING,
                          schedule=schedule,
                          prevrequestid=prevrequestid)
     session.add(request)
+
+    # Update user lastupdated timestamp by doing an empty update
+    db_user.update(srcnetid, session=session)
+    db_user.update(destnetid, session=session)
 
     return True
 
@@ -241,7 +245,7 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> bool:
     if request.status != db.RequestStatus.PENDING:
         return False
 
-    request.finalizedtimestamp = datetime.now()  # TODO: specify timezone
+    request.finalizedtimestamp = datetime.now(timezone.utc)
     request.status = db.RequestStatus.FINALIZED
 
     for netid in (request.srcnetid, request.destnetid):
@@ -260,6 +264,13 @@ def reject(requestid: int, *, session: Optional[Session] = None) -> bool:
         return False
 
     request.status = db.RequestStatus.REJECTED
+
+    # Update user lastupdated timestamp
+    db_user.update(request.srcnetid, session=session)
+    db_user.update(request.destnetid, session=session)
+
+    print("rejecting this!")
+
     return True
 
 

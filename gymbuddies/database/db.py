@@ -325,6 +325,7 @@ class User(BASE):
     okbinary = Column(Boolean)  # is user ok being matched with nonbinary users
 
     settings = Column(PickleType)  # Notification and account settings
+    lastupdated = Column(PickleType)  # timestamp for last related database update
 
 
 class MappedUser(User):
@@ -343,6 +344,7 @@ class MappedUser(User):
     open: bool
 
     settings: Dict[str, Any]
+    lastupdated: datetime
 
 
 class Request(BASE):
@@ -352,7 +354,7 @@ class Request(BASE):
 
     requestid = Column(Integer, primary_key=True)  # unique auto-incrementing request transaction id
     srcnetid = Column(String)  # user who makes the request
-    destnetid = Column(String)  # user who recieves the request
+    destnetid = Column(String)  # user who receives the request
     maketimestamp = Column(PickleType)  # timestamp when the request was made
     finalizedtimestamp = Column(PickleType)  # timestamp when the request was finalized
     deletetimestamp = Column(PickleType)  # timestamp when the request was deleted
