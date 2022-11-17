@@ -41,11 +41,18 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
 
 
 @db.session_decorator(commit=True)
-def update(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
+def update(netid: str,
+           *,
+           session: Optional[Session] = None,
+           update_schedule: bool = True,
+           **kwargs) -> bool:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
-    _update_user(session, get_user(netid, session=session), **kwargs)
+    _update_user(session,
+                 get_user(netid, session=session),
+                 update_schedule=update_schedule,
+                 **kwargs)
     return True
 
 
@@ -53,13 +60,20 @@ def _default_profile() -> Dict[str, Any]:
     """Returns a default user profile configuration. Keys are the attribute names of db.User, and
     values are the default values."""
     return {
-        "netid": "",
-        "name": "",
-        "contact": "",
-        "level": db.Level.BEGINNER,
-        "levelpreference": db.LevelPreference.ALL,
-        "bio": "",
-        "addinfo": "",
+        "netid":
+            "",
+        "name":
+            "",
+        "contact":
+            "",
+        "level":
+            db.Level.BEGINNER,
+        "levelpreference":
+            db.LevelPreference.ALL,
+        "bio":
+            "",
+        "addinfo":
+            "",
         "interests":
             db.get_interests_dict(
                 cardio=True,
@@ -69,27 +83,35 @@ def _default_profile() -> Dict[str, Any]:
                 gaining=True,
             ),
         "schedule": [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
-        "open": False,
-        "gender": db.Gender.NONBINARY,
-        "okmale": True,
-        "okfemale": True,
-        "okbinary": True,
+        "open":
+            False,
+        "gender":
+            db.Gender.NONBINARY,
+        "okmale":
+            True,
+        "okfemale":
+            True,
+        "okbinary":
+            True,
         "settings": {},
     }
 
 
-def _update_user(session: Session, user: db.MappedUser, /, **kwargs) -> None:
+def _update_user(session: Session,
+                 user: db.MappedUser,
+                 /,
+                 update_schedule: bool = True,
+                 **kwargs) -> None:
     """Updates the attributes of 'user' according to 'kwargs'. """
     assert "netid" not in kwargs and "lastupdated" not in kwargs
 
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         setattr(user, k, v)
     user.lastupdated = datetime.now(timezone.utc)
-    print(f"{user.lastupdated = } was updated!")
+    print(f"{user.lastupdated = } was updated! time was {user.lastupdated.strftime('%HH:%MM')}")
 
-    if kwargs.get("schedule") is not None:
+    if update_schedule and kwargs.get("schedule") is not None:
         db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
-
 
 
 # TODO: terminate/delete all requests related to netid

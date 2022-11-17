@@ -38,6 +38,9 @@
 {% block scripts %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
+      let lastrefreshed = 0;
+      let request = null;
+
       function fillCard(response){
         $('#userPopup').html(response);
       }
@@ -59,11 +62,14 @@
       }
       function listRequests(response)
       {
-        $('#requestTable').html(response);
+        if (response) {
+          lastrefreshed = Date.now();
+          $('#requestTable').html(response);
+          console.log("making an update now!", Date.now())
+        }
       }
-      let request = null;
 
-      function reject(requestid)
+      function act(requestid, action)
       {
         //let sessionindex = $('#indexInput').val();
         console.log(requestid)
@@ -73,7 +79,7 @@
         request =$.ajax(
           {
             type: 'POST',
-            data: {"requestid": requestid, "action": "reject"},
+            data: {"requestid": requestid, "action": action},
             url: '/matching/pendingtable',
             success: listRequests
           }
@@ -87,7 +93,7 @@
         request =$.ajax(
           {
             type: 'GET',
-            //data: {"requestid": requestid, "action": action},
+            data: {"lastrefreshed": lastrefreshed},
             url: '/matching/pendingtable',
             success: listRequests
           }
@@ -97,7 +103,6 @@
       function setup()
       {
         refreshRequests()
-        //$('#deleteButton').on('click', getMatches);
         window.setInterval(refreshRequests, 1000);
       }
       $('document').ready(setup);

@@ -77,17 +77,20 @@
 {% block scripts %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
+      let lastrefreshed = 0;
+      let request = null;
+
       function listMatches(response)
       {
-        $('#matchesTable').html(response);
+        if (response) {
+          lastrefreshed = Date.now();
+          $('#matchesTable').html(response);
+          console.log("making an update now!", Date.now())
+        }
       }
-      let request = null;
 
       function terminate(requestid)
       {
-        //let sessionindex = $('#indexInput').val();
-        console.log(requestid)
-        
         if (request != null)
           request.abort();
         request =$.ajax(
@@ -107,7 +110,7 @@
         request =$.ajax(
           {
             type: 'GET',
-            //data: {"requestid": requestid, "action": action},
+            data: {"lastrefreshed": lastrefreshed},
             url: '/matching/matchedtable',
             success: listMatches
           }
@@ -116,7 +119,6 @@
       function setup()
       {
         refreshMatches();
-        //$('#deleteButton').on('click', getMatches);
         window.setInterval(refreshMatches, 1000);
       }
       $('document').ready(setup);

@@ -40,8 +40,9 @@ def update_schedule(netid: str,
         session.add(block)
 
     # make change to the User table if necessary
+    print(f"update_schedule: trying to update user: {netid = }, {update_user = }")
     if update_user:
-        db_user.update(netid, session=session, schedule=schedule)
+        db_user.update(netid, session=session, schedule=schedule, update_schedule=False)
 
     return True
 

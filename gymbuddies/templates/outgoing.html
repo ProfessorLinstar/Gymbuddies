@@ -28,7 +28,8 @@
 {% block scripts %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
-      var lastrefreshed = 0;
+      let lastrefreshed = 0;
+      let request = null;
 
       function listOutgoing(response)
       {
@@ -38,7 +39,6 @@
           console.log("making an update now!", Date.now())
         }
       }
-      let request = null;
 
 
       function reject(requestid)

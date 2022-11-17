@@ -106,48 +106,14 @@ def buddies():
                            **context)
 
 
-@bp.route("/pending", methods=("GET", "POST"))
+@bp.route("/pending", methods=("GET",))
 def pending():
     """Page for pending matches."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
 
-    if request.method == "POST":
-        requestid = int(request.form.get("requestid", "0"))
-        action = request.form.get("action")
-        # if action == "reject":
-        #     database.request.reject(requestid)
-        if action == "accept":
-            database.request.finalize(requestid)
-        else:
-            print(f"Action not found! {action = }")
-        return redirect(url_for("matching.matched"))
-
-    # # TODO: handle errors when database is not available
-    # requests = database.request.get_active_incoming(netid)
-    # assert requests is not None
-
-    # request_users = []
-    # calendars = []
-    # for req in requests:
-    #     request_users.append(database.user.get_user(req.srcnetid))
-    #     calendars.append(common.schedule_to_calendar(req.schedule))
-
-    # levels = []
-    # interests = []
-    # for ruser in request_users:
-    #     levels.append(db.Level(ruser.level).to_readable())
-    #     interests.append(db.interests_to_readable(ruser.interests))
-
-    # print("interests", interests)
-    # print("requestUsers", request_users)
     return render_template("pending.html", netid=netid)
-    #    requests=requests,
-    #    calendars=calendars,
-    #    requestUsers=request_users,
-    #    levels=levels,
-    #    interests=interests)
 
 
 @bp.route("/pendingtable", methods=("GET", "POST"))
@@ -205,11 +171,12 @@ def pendingmodal():
     # TODO: handle errors when database is not available
     # requests = database.request.get_active_incoming(netid)
     # assert requests is not None
-    requestid = request.form.get("requestid")
-    req = database.request.get_request(requestid)
+    requestid = request.form.get("requestid", "0")
+    req = database.request.get_request(int(requestid))
     assert req is not None
 
     user = database.user.get_user(req.srcnetid)
+    assert user is not None
     calendar = common.schedule_to_calendar(req.schedule)
     level = db.Level(user.level).to_readable()
     interests = db.interests_to_readable(user.interests)
@@ -261,31 +228,14 @@ def outgoingtable():
     return render_template("outgoingtable.html", netid=netid, matchusers=zip(matches, users))
 
 
-@bp.route("/matched", methods=["GET"])
+@bp.route("/matched", methods=("GET",))
 def matched():
     """Page for finding matched."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
 
-    # if request.method == "POST":
-    #     requestid = int(request.form.get("requestid", "0"))
-    #     action = request.form.get("action")
-
-    #     if action == "terminate":
-    #         database.request.terminate(requestid)
-    #     else:
-    #         print(f"Action not found! {action = }")
-
-    # g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    # matches = database.request.get_matches(netid)
-    # assert matches is not None
-
-    # users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
-    # users = [database.user.get_user(u) for u in users]
-
     return render_template("matched.html", netid=netid)
-    # matchusers=zip(matches, users))
 
 
 @bp.route("/matchedtable", methods=("GET", "POST"))
@@ -303,6 +253,11 @@ def matchedtable():
             database.request.terminate(requestid)
         else:
             print(f"Action not found! {action = }")
+
+    elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
+
+    print("matchedtable refreshed!")
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     matches = database.request.get_matches(netid)

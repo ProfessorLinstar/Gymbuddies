@@ -76,21 +76,18 @@
   
 
     <div class="ms-auto text-end">
-        <button
-          id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
-          type="button"
-          onClick="reject({{ requests[i].requestid }})"
-          ><i class="far fa-trash-alt me-2"></i>Delete</button
-        >
-        <form action="{{ url_for('matching.pending') }}" method="post">
-          <input type="hidden" name="requestid" value="{{ requests[i].requestid }}"/>
-          <button
-            class="btn btn-link text-dark px-3 mb-0"
-            type="submit"
-            name="action"
-            value="accept"
-            ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
-        </form>
+      <button
+        id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
+        type="button"
+        onClick="act({{ requests[i].requestid }}, 'reject')"
+        ><i class="far fa-trash-alt me-2"></i>Delete</button
+      >
+      <input type="hidden" name="requestid" value="{{ requests[i].requestid }}"/>
+      <button
+        class="btn btn-link text-dark px-3 mb-0"
+        type="submit"
+        onClick="act({{ requests[i].requestid }}, 'accept')"
+        ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
       
       <button type="button" class="btn btn-block mb-3" data-toggle="modal" data-target="#Popup"
       onClick="getCard({{ requests[i].requestid }})">
