@@ -61,6 +61,9 @@ def profile():
             prof.pop("schedule")
         elif submit == "schedule":
             prof = {"schedule": prof["schedule"]}
+            # print("REQUEST", request.form)
+            jsdata = request.form['javascript_data']
+            print("JSDATA", jsdata)
         prof.update(netid=netid)
         assert database.user.update(**prof)
 

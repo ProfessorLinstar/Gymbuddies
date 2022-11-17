@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+    <head>
+        <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
+        <!-- <script src="https://uicdn.toast.com/calendar /latest/toastui-calendar.min.js"></script> -->
+        <link
+            rel="stylesheet"
+            href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.min.css"
+        />
+        <script src="https://uicdn.toast.com/calendar /latest/toastui-calendar.min.js"></script>
+    </head>
+    <body>
+        <div id="calendar" style="height: 600px;"></div>
+        <!-- with CDN and browser environment namespace -->
+        <!-- <script type="text/javascript" src="../dist/toastui-calendar.ie11.min.js"></script> -->
+        <script type="text/javascript" src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.min.js"></script>
+        <script type="text/javascript" src="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.min.js"></script>
+        <script type="text/javascript" src="https://uicdn.toast.com/calendar/latest/toastui-calendar.ie11.min.js"></script>
+        <script>
+            const Calendar = tui.Calendar;
+            const container = document.getElementById('calendar');
+            const options = {
+            defaultView: 'week',
+            timezone: {
+                // zones: [
+                // {
+                //     timezoneName: 'Asia/Seoul',
+                //     displayLabel: 'Seoul',
+                // },
+                // {
+                //     timezoneName: 'Europe/London',
+                //     displayLabel: 'London',
+                // },
+                // ],
+            },
+            calendars: [
+                {
+                id: 'cal1',
+                name: 'Personal',
+                backgroundColor: '#03bd9e',
+                },
+                // {
+                // id: 'cal2',
+                // name: 'Work',
+                // backgroundColor: '#00a9ff',
+                // },
+            ],
+            };
+
+            const calendar = new Calendar(container, options);
+
+            calendar.createEvents([
+            {
+                id: 'event1',
+                calendarId: 'cal1',
+                title: 'Genie',
+                start: '2022-11-15T09:00:00',
+                end: '2022-11-15T10:00:00',
+                recurrenceRule: "FREQ=WEEKLY"
+            },
+            {
+                id: 'event2',
+                calendarId: 'cal1',
+                title: 'Joy',
+                start: '2022-11-16T12:00:00',
+                end: '2022-11-16T13:00:00',
+                recurrenceRule: "FREQ=WEEKLY"
+            },
+            {
+                id: 'event3',
+                calendarId: 'cal1',
+                title: 'Jason',
+                start: '2022-11-17',
+                end: '2022-11-17',
+                isAllday: true,
+                category: 'allday',
+                recurrenceRule: "FREQ=WEEKLY"
+            },
+            ]);
+
+            calendar.setOptions({
+            useFormPopup: true,
+            useDetailPopup: false,
+            });
+
+            
+        </script>
+    </body>

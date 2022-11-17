@@ -1,0 +1,130 @@
+<!-- <!DOCTYPE html>  -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>TOAST UI Calendar Example - Weekly View</title>
+    <link
+    rel="stylesheet"
+    href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.min.css"
+  />
+    <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
+    <!-- <link rel="stylesheet" href="../dist/toastui-calendar.css" /> -->
+    <link href="{{ url_for('static', filename='../static/reset.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='../static/icons.css') }}" rel="stylesheet" />
+    <!-- <link rel="stylesheet" href="../static/reset.css" /> -->
+    <!-- <link rel="stylesheet" href="../static/app.css" /> -->
+    <!-- <link rel="stylesheet" href="../static/icons.css" /> -->
+    <style>
+      .navbar {
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container code-html">
+      <!-- <header class="header">
+        <nav class="navbar">
+          <button class="button is-rounded today">Today</button>
+          <button class="button is-rounded prev">
+            <img
+              alt="prev"
+              src="./images/ic-arrow-line-left.png"
+              srcset="./images/ic-arrow-line-left@2x.png 2x, ./images/ic-arrow-line-left@3x.png 3x"
+            />
+          </button>
+          <button class="button is-rounded next">
+            <img
+              alt="prev"
+              src="./images/ic-arrow-line-right.png"
+              srcset="
+                ./images/ic-arrow-line-right@2x.png 2x,
+                ./images/ic-arrow-line-right@3x.png 3x
+              "
+            />
+          </button>
+          <span class="navbar--range"></span>
+        </nav>
+      </header> -->
+      <main id="app" ></main>
+    </div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.3/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/chance/1.1.8/chance.min.js"></script>
+    <script type="text/javascript" src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.min.js"></script>
+    <script type="text/javascript" src="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.min.js"></script>
+    <!-- <script type="text/javascript" src="../dist/toastui-calendar.ie11.min.js"></script> -->
+    <!-- <script type="text/javascript" src="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.js"></script> -->
+    <script type="text/javascript" src="https://uicdn.toast.com/calendar/latest/toastui-calendar.ie11.min.js"></script>
+    <!-- The calendar script is in here! -->
+    <script type="text/javascript" src="../static/calendar.js"></script>
+    <script type="module" src="../static/mock-data.js"></script>
+    <script type="text/javascript" src="../static/util.js"></script>
+    <script type="module" src="../static/app.js"></script>
+    <!-- <script type="text/javascript" class="code-js">
+        const Calendar = tui.Calendar;
+        const events = Calendar.userEvents;
+        console.log("EVENTS", events)
+    </script> -->
+    <!-- <script type="text/javascript" class="code-js">
+      'use strict';
+      import MOCK_CALENDARS from "../static/mock-data.js"
+      const Calendar = tui.Calendar;
+      const container = document.getElementById('app');
+      const options = {
+        defaultView: 'week',
+        // timezone: {
+        //   zones: [
+        //     {
+        //       timezoneName: 'Asia/Seoul',
+        //       displayLabel: 'Seoul',
+        //     },
+        //     {
+        //       timezoneName: 'Europe/London',
+        //       displayLabel: 'London',
+        //     },
+        //   ],
+        // },
+        calendars: MOCK_CALENDARS,
+      };
+
+      const calendar = new Calendar(container, options);
+
+      calendar.createEvents([
+        {
+          id: 'event1',
+          calendarId: 'cal1',
+          title: 'Weekly meeting',
+          start: '2022-11-15T09:00:00',
+          end: '2022-11-15T10:00:00',
+        },
+        {
+          id: 'event2',
+          calendarId: 'cal1',
+          title: 'Lunch appointment',
+          start: '2022-11-16T12:00:00',
+          end: '2022-11-16T13:00:00',
+        },
+        {
+          id: 'event3',
+          calendarId: 'cal1',
+          title: 'Vacation',
+          start: '2022-11-13',
+          end: '2022-11-13',
+          isAllday: true,
+          category: 'allday',
+        },
+      ]);
+
+      
+    </script> -->
+  </body>
+</html>
