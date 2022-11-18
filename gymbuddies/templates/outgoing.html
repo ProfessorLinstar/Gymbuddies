@@ -30,21 +30,20 @@
   <script>
       let lastrefreshed = 0;
       let request = null;
+      let ongoing = false;
 
       function listOutgoing(response)
       {
+        ongoing = false;
         if (response) {
           lastrefreshed = Date.now();
           $('#outgoingTable').html(response);
-          console.log("making an update now!", Date.now())
         }
       }
 
 
       function reject(requestid)
       {
-        console.log(requestid)
-        
         if (request != null)
           request.abort();
         request =$.ajax(
@@ -59,14 +58,20 @@
 
       function refreshOutgoing()
       {
+        if (ongoing)
+          return
+
+        ongoing = true;
         if (request != null)
           request.abort();
+
         request =$.ajax(
           {
             type: 'GET',
             data: {"lastrefreshed": lastrefreshed},
             url: '/matching/outgoingtable',
-            success: listOutgoing
+            success: listOutgoing,
+            error: function() { ongoing = false; }
           }
         );
       }
@@ -74,7 +79,6 @@
       function setup()
       {
         refreshOutgoing();
-        lastrefreshed = Date.now();
         window.setInterval(refreshOutgoing, 1000);
       }
       $('document').ready(setup);
