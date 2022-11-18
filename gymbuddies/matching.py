@@ -29,7 +29,9 @@ def search():
 
         session["index"] += 1
         database.request.new(netid, destnetid, schedule)
-        return redirect(url_for("matching.outgoing"))
+        # return redirect(url_for("matching.outgoing"))
+        print("inside search POST")
+        return ""
 
     # implement the roundtable format of getting matches
     sess_index = request.args.get("index")
@@ -47,6 +49,8 @@ def search():
         index = session.get("index", None)
 
     # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
+    # TODO: when no more matches -- index out of bound error
+    # generate "no more matches message"
     g.user = database.user.get_user(
         matches[index])  # can access this in jinja template with {{ g.user }}
     assert g.user is not None
