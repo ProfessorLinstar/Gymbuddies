@@ -2,6 +2,21 @@
   <div class="row text-align:center">
     <h6 class="text-capitalize">No more matches :( </h6>
   </div>
+  <div class="row mt-4">
+    <div class="col-md-6 text-sm-right">
+      <form action="{{url_for('matching.search')}}" method="get"> 
+          <!-- <button class="btn btn-primary btn-sm">Match</button> -->
+          <button id="refreshButton" type="submit" class="btn btn-secondary btn-sm">Refresh Matches</button>   
+          
+      </form> 
+    </div>
+    <div class="col-md-6 text-sm-left">
+        <form action="{{url_for('home.profile')}}">
+          <!-- Pass button -->
+          <button id="editButton" class="btn btn-secondary btn-sm" type="submit" >Edit Matching Preferences</button>
+        </form>
+    </div>
+  </div>
 {% else %}
 <div class="row">
   <div class="col-md-6">
@@ -41,4 +56,21 @@
     </div>
   </div>
 </div>
+<br>
+          <div class="row mt-4">
+            <div class="col-md-6 text-sm-right">
+              <!-- <form action="{{url_for('matching.search')}}" method="post"> -->
+                  <!-- <button class="btn btn-primary btn-sm">Match</button> -->
+                  <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent">Match</button>   
+                  
+              <!-- </form> -->
+            </div>
+            <div class="col-md-6 text-sm-left">
+                <!--<form action="{{url_for('matching.search')}}" method="get">-->
+                  <!-- Pass button -->
+                  <button id="passButton" class="btn btn-primary btn-sm" type="button" >Pass</button>
+            
+                <!--</form>-->
+            </div>
+          </div>
 {% endif %}

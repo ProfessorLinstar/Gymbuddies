@@ -61,22 +61,7 @@
         </div>
         <div class="card-body">
           <span id="buddies"></span>
-          <br>
-          <div class="row mt-4">
-            <div class="col-md-6 text-sm-right">
-              <!-- <form action="{{url_for('matching.search')}}" method="post"> -->
-                  <!-- <button class="btn btn-primary btn-sm">Match</button> -->
-                  <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent">Match</button>   
-                  
-              </form>
-            </div>
-            <div class="col-md-6 text-sm-left">
-                <!--<form action="{{url_for('matching.search')}}" method="get">-->
-                  <!-- Pass button -->
-                  <button id="passButton" class="btn btn-primary btn-sm" type="button" >Pass</button>
-            
-                <!--</form>-->
-            </div>
+          
           </div>
         </div>
       </div>
@@ -96,7 +81,14 @@
       function goHome() {
         request = $.ajax(
           {
-            url: '/home'
+            url: '/home/'
+          }
+        );
+      }
+      function goProfile() {
+        request = $.ajax(
+          {
+            url: '/home/profile'
           }
         );
       }
@@ -141,6 +133,8 @@
         $('#passButton').on('click', getBuddies);
         $('#matchButton').on('click', sendReq);
         $('#homeButton').on('click', goHome);
+        $('#refreshButton').on('click', getBuddies);
+        $('#editButton').on('click', goProfile)
       }
       $('document').ready(setup);
 </script>
