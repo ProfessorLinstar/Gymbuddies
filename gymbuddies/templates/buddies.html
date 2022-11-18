@@ -57,20 +57,22 @@
   </div>
 </div>
 <br>
-          <div class="row mt-4">
-            <div class="col-md-6 text-sm-right">
-              <!-- <form action="{{url_for('matching.search')}}" method="post"> -->
+<div class="row mt-4">
+  <div class="col-md-6 text-sm-right">
+              <!-- <form action="{{url_for('matching.search')}}" method="post">  -->
                   <!-- <button class="btn btn-primary btn-sm">Match</button> -->
-                  <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent">Match</button>   
+                  <!-- <input id = "matchRequest" type="hidden" name="destnetid" value="{{ g.user.netid }}"></input>
+                  <input id="indexInput" type="hidden" name="index" value="{{ session.get('index') }}"></input> -->
+    <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent" onClick="sendReq()">Match</button>   
                   
-              <!-- </form> -->
-            </div>
-            <div class="col-md-6 text-sm-left">
+              <!-- </form>  -->
+  </div>
+  <div class="col-md-6 text-sm-left">
                 <!--<form action="{{url_for('matching.search')}}" method="get">-->
                   <!-- Pass button -->
-                  <button id="passButton" class="btn btn-primary btn-sm" type="button" >Pass</button>
+    <button id="passButton" class="btn btn-primary btn-sm" type="button" onClick="getBuddies()">Pass</button>
             
                 <!--</form>-->
-            </div>
-          </div>
+  </div>
+</div>
 {% endif %}
