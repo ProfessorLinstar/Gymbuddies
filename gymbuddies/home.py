@@ -68,7 +68,7 @@ def profile():
         elif submit == "schedule":
             prof = {"schedule": prof["schedule"]}
             # print("REQUEST", request.form)
-            jsdata = request.form['javascript_data']
+            jsdata = request.form.get("javascript_data")
             print("JSDATA", jsdata)
         prof.update(netid=netid)
         assert database.user.update(**prof)
@@ -80,5 +80,35 @@ def profile():
     common.fill_schedule(context, user.schedule)
 
     return render_template("profile.html", netid=netid, user=user, **context)
+
+# @bp.route("/profilecal", methods=["GET", "POST"])
+# def profilecal():
+#     """Calendar on profile page for editing user information."""
+#     netid: str = session.get("netid", "")
+#     if not netid:
+#         return redirect(url_for("auth.login"))
+
+#     user = database.user.get_user(netid)  # can access this in jinja template with {{ user }}
+
+#     if request.method == "POST" and "update" in request.form:
+#         prof: Dict[str, Any] = common.form_to_profile()
+#         submit: str = request.form.get("update", "")
+#         if submit == "information":
+#             prof.pop("schedule")
+#         elif submit == "schedule":
+#             prof = {"schedule": prof["schedule"]}
+#             # print("REQUEST", request.form)
+#             jsdata = request.form.get["javascript_data"]
+#             print("JSDATA", jsdata)
+#         prof.update(netid=netid)
+#         assert database.user.update(**prof)
+
+#     user = database.user.get_user(netid)
+#     assert user is not None
+
+#     context: Dict[str, Any] = {}
+#     common.fill_schedule(context, user.schedule)
+
+#     return render_template("profile.html", netid=netid, user=user, **context)
 
 
