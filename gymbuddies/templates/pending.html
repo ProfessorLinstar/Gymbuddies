@@ -103,6 +103,7 @@
       function setup()
       {
         refreshRequests()
+        lastrefreshed = Date.now();
         window.setInterval(refreshRequests, 1000);
       }
       $('document').ready(setup);

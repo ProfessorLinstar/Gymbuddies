@@ -301,7 +301,6 @@ def schedule_to_readable(schedule: List[int]):
         else:
             block_strs.append(f"{start.to_readable()}-{end.to_readable(time_only=True)}")
     return block_strs
-    #return ", ".join(block_strs)
 
 
 class User(BASE):

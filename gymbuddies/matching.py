@@ -235,13 +235,13 @@ def outgoingtable():
         return ""
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    matches = database.request.get_active_outgoing(netid)
-    assert matches is not None
+    requests = database.request.get_active_outgoing(netid)
+    assert requests is not None
 
-    users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
+    users = [m.destnetid for m in requests]
     users = [database.user.get_user(u) for u in users]
 
-    return render_template("outgoingtable.html", netid=netid, matchusers=zip(matches, users))
+    return render_template("outgoingtable.html", netid=netid, matchusers=zip(requests, users))
 
 
 @bp.route("/matched", methods=("GET",))

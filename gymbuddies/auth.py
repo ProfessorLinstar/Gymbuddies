@@ -13,6 +13,7 @@ def signup():
     if request.method == "GET":
         return render_template("signup.html")
     netid = request.form["netid"]
+
     if database.user.exists(netid):
         return redirect(url_for("home.home"))
     database.user.create(netid)

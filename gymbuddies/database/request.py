@@ -28,26 +28,30 @@ class RequestNotFound(Exception):
 
 @db.session_decorator(commit=False)
 def get_active_outgoing(srcnetid: str,
+                        entities: Tuple[Column, ...] = (db.Request.requestid, db.Request.destnetid,
+                                                        db.Request.schedule, db.Request.status),
                         *,
-                        session: Optional[Session] = None) -> List[db.MappedRequest]:
+                        session: Optional[Session] = None) -> List[Any]:
     """Attempts to return a list of the active outgoing requests for a user with netid 'destnetid',
     sorted in order with respect to the request's make timestamp, newest first. If 'destnetid' does
     not exist in the database, returns an empty list."""
     assert session is not None
-    return session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
-                                            db.Request.status == db.RequestStatus.PENDING).order_by(
-                                                db.Request.maketimestamp.desc()).all()
+    return session.query(*entities).filter(db.Request.srcnetid == srcnetid,
+                                           db.Request.status == db.RequestStatus.PENDING).order_by(
+                                               db.Request.maketimestamp.desc()).all()
 
 
 @db.session_decorator(commit=False)
 def get_active_incoming(destnetid: str,
                         *,
-                        session: Optional[Session] = None) -> List[db.MappedRequest]:
+                        entities: Tuple[Column, ...] = (db.Request.requestid, db.Request.srcnetid,
+                                                        db.Request.schedule, db.Request.status),
+                        session: Optional[Session] = None) -> List[Any]:
     """Attempts to return a list of the active incoming requests for a user with netid 'srcnetid',
     sorted in order with respect to the request's make timestamp, newest first. If 'srcnetid' does
     not exist in the database, returns an empty list."""
     assert session is not None
-    return session.query(db.Request).filter(db.Request.destnetid == destnetid,
+    return session.query(*entities).filter(db.Request.destnetid == destnetid,
                                             db.Request.status == db.RequestStatus.PENDING).order_by(
                                                 db.Request.maketimestamp.desc()).all()
 
