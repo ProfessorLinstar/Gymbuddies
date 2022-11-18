@@ -35,6 +35,11 @@ def home():
 
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
+    # ADD BACK FOR MATCHES CALENDAR!!!!
+    # matches = database.request.get_matches() #should return a list of requests?
+    # matchSchedules = []
+    # for match in matches:
+    #     matchSchedules.push(match.schedule) # should be array of strings
 
     return render_template("home.html",
                            netid=netid,
@@ -42,6 +47,7 @@ def home():
                            interests=interests,
                            gender=gender,
                            level=level,
+                        #    matchSchedules=matchSchedules
                            **context)
 
 
