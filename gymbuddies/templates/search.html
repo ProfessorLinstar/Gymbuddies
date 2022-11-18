@@ -22,6 +22,11 @@
               </div>
             <div class="modal-body">
               <div class="card-body">
+                <div class="row">
+                  <!-- <div class="col-md-6"> -->
+                    <img src="{{url_for('static', filename='running.png')}}" width="60%">
+                  <!-- </div> -->
+                </div>
                 <div class="row" style="text-align:center">
                   <!-- <div class="col-md-6"> -->
                     <p>Request Successfully Sent!</p>
@@ -30,21 +35,21 @@
                 <div class="row">
                   <div class="col-md-6 text-sm-center" >
                     <form action="{{url_for('matching.outgoing')}}" method="get">
-                      <button type="submit" id="goToMatches" class="btn btn-secondary" onClick="sendReq">See Outgoing Requests</button>
+                      <button type="submit" id="goToMatches" class="btn btn-primary btn-sm" onClick="sendReq">See Outgoing Requests</button>
                     </form>
                   </div>
                   <div class="col-md-6 text-sm-center">
                     <form action="{{url_for('matching.search')}}" method="get">
-                      <button type="submit" id="searchAgain" class="btn btn-secondary">Keep Looking</button>
+                      <button type="submit" id="searchAgain" class="btn btn-primary btn-sm">Keep Looking</button>
                     </form>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
+      <!-- <div class="modal-footer">
+          <button type="button" id = "homeButton" class="btn btn-secondary">Home</button> 
+      </div>-->
   </div>
 </div>
 <div class="container-fluid py-4">
@@ -62,7 +67,7 @@
               <!-- <form action="{{url_for('matching.search')}}" method="post"> -->
                   <!-- <button class="btn btn-primary btn-sm">Match</button> -->
                   <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent">Match</button>   
-                  <!--<input type="hidden" name="destnetid" value="{{ user.netid }}"></input>-->
+                  
               </form>
             </div>
             <div class="col-md-6 text-sm-left">
@@ -88,6 +93,13 @@
   <script>
       'use strict';
       let request = null;
+      function goHome() {
+        request = $.ajax(
+          {
+            url: '/home'
+          }
+        );
+      }
       function sendReq()
       {
         let destnetid = $('#matchRequest').val();
@@ -128,6 +140,7 @@
         getBuddies();
         $('#passButton').on('click', getBuddies);
         $('#matchButton').on('click', sendReq);
+        $('#homeButton').on('click', goHome);
       }
       $('document').ready(setup);
 </script>

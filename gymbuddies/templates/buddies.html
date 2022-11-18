@@ -1,3 +1,8 @@
+{% if noMatches: %}
+  <div class="row text-align:center">
+    <h6 class="text-capitalize">No more matches :( </h6>
+  </div>
+{% else %}
 <div class="row">
   <div class="col-md-6">
     <!-- Person's Schedule -->
@@ -36,3 +41,4 @@
     </div>
   </div>
 </div>
+{% endif %}
