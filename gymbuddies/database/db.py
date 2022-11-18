@@ -33,7 +33,6 @@ DAY_NAMES = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "
 engine = create_engine(DATABASE_URL)
 
 
-
 # TODO: return exception to client
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
@@ -111,11 +110,11 @@ _REQUESTSTATUS_TO_READABLE_MAP = {
 
 class ScheduleStatus(IntFlag):
     """Time block status enumeration. Indicates user status in a particular time block.
-    ScheduleStatus can have 4 states:
+    ScheduleStatus has 4 flags:
         0 - UNAVAILABLE: user indicated that they are not available at this time
-        1 - AVAILABLE:   user indicated available at this time, and no pending or finalized matches
-        2 - PENDING:     user indicated available at this time, but is waiting on a request
-        3 - MATCHED:     user indicated available at this time, but has already been matched
+        1 - AVAILABLE:   user indicated available at this time
+        2 - PENDING:     user is awaiting a request at this time
+        4 - MATCHED:     user is already matched with someone at this time
     """
 
     UNAVAILABLE = 0

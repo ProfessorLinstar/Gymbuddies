@@ -1,4 +1,5 @@
 """Common methods for routing modules."""
+import json
 from typing import Dict, Any, List
 from flask import request
 from . import database
@@ -26,6 +27,37 @@ def schedule_to_calendar(schedule: List[int]) -> List[List[str]]:
     return calendar
 
 
+def str_to_timeblock(day: str, time: str) -> db.TimeBlock:
+    """Converts a day and time of the format 'HH:MM' to a TimeBlock."""
+    hours, minutes = (int(t) for t in time.split(":"))
+    return db.TimeBlock.from_daytime(
+        int(day), hours * db.NUM_HOUR_BLOCKS + (minutes * db.NUM_HOUR_BLOCKS) // 60)
+
+
+# TODO: error protect this
+def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
+    """Converts a json calendar string of the form
+    {
+        '0': [['10:00', '11:00'], ['12:00', '17:00']],
+        '1': [],
+        '2': [],
+        '3': [['12:00', '15:00']],
+        '4': [],
+        '5': [['5:00', '11:00'], ['12:00', '17:00']],
+        '6': [],
+    }
+    to a schedule compatible with the database.
+    """
+
+    schedule = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
+    decoded: Dict[str, List[List[str]]] = json.loads(calendar)
+    for day, events in decoded.items():
+        for s, e in events:
+            for i in range(str_to_timeblock(day, s), str_to_timeblock(day, e) - 1):
+                schedule[i] = db.ScheduleStatus.AVAILABLE
+    return schedule
+
+
 def form_to_profile() -> Dict[str, Any]:
     """Converts request.form to a user profile dictionary. Ignores extraneous keys."""
     prof: Dict[str, Any] = {k: v for k, v in request.form.items() if k in db.User.__table__.columns}
@@ -34,7 +66,7 @@ def form_to_profile() -> Dict[str, Any]:
     for bool_key in ("open", "okmale", "okfemale", "okbinary"):
         prof[bool_key] = bool_key in prof
 
-    prof["schedule"] = form_to_schedule()
+    prof["schedule"] = json_to_schedule(request.form.get("jsoncalendar", ""))
 
     return prof
 
@@ -56,6 +88,7 @@ def form_to_schedule() -> List[db.ScheduleStatus]:
             schedule[i] = db.ScheduleStatus.AVAILABLE
 
     return schedule
+
 
 def needs_refresh(lastrefreshed: int, netid: str) -> bool:
     """Returns True if information regarding a user with netid 'netid' has changed since the

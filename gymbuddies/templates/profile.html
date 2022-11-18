@@ -272,19 +272,17 @@
                 <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
                 <script>
                   $('#updateCalendar').click(function(){
-                          // console.log("hello!");
-                          console.log("SERIALIZE", $("#day-schedule").data('artsy.dayScheduleSelector').serialize());
-                          jsdata = $("#day-schedule").data('artsy.dayScheduleSelector').serialize();
-                          $.ajax({
-                            type:'POST',
-                            url:'/profile',
-                            // javascript_data: jsdata,
-                            data: {"javascript_data": jsdata, "update": "schedule"},
-                            success: function(html){
-                            alert( "Submitted");
-                              }
-                           })
-                        });
+                    calendar = $("#day-schedule").data('artsy.dayScheduleSelector').serialize();
+                    console.log(calendar)
+                    $.ajax({
+                      type:'POST',
+                      url:'/profile',
+                      data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
+                      success: function(html) {
+                        alert( "Submitted");
+                      }
+                   })
+                  });
                 </script>
               </div>
             <!-- </form> -->
