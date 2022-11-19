@@ -33,8 +33,8 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
         raise UserAlreadyExists(netid)
 
     profile: Dict[str, Any] = _default_profile()
-    user = db.User()
-    _update_user(session, user, **(profile | kwargs | {"netid": netid}))
+    user = db.User(netid=netid)
+    _update_user(session, user, **(profile | kwargs))
     session.add(user)
 
     return True
@@ -60,8 +60,6 @@ def _default_profile() -> Dict[str, Any]:
     """Returns a default user profile configuration. Keys are the attribute names of db.User, and
     values are the default values."""
     return {
-        "netid":
-            "",
         "name":
             "",
         "contact":

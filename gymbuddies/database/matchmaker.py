@@ -75,7 +75,7 @@ def find_matches(netid: str) -> List[str]:
                 randusers.remove(user)
                 continue
         elif user.gender == db.Gender.NONBINARY:
-            if not main_user.oknonbinary:
+            if not main_user.okbinary:
                 randusers.remove(user)
                 continue;
         # hard filter if mainuser is not compatible with user's preferences
@@ -88,7 +88,7 @@ def find_matches(netid: str) -> List[str]:
                 randusers.remove(user)
                 continue
         elif main_user.gender == db.Gender.NONBINARY:
-            if not user.oknonbinary:
+            if not user.okbinary:
                 randusers.remove(user)
                 continue
 
