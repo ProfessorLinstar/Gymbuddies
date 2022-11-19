@@ -10,56 +10,7 @@
 {% block pagename_large %} Matches{% endblock %}
 
 {% block content %}
-  <!-- <p>You have no matches at this time.</p> -->
-    <!--<div class="row">
-      <div class="col-12 mb-4">
-        <div class="card">
-          <div class="card-header pb-0 px-3">
-            <h6 class="mb-0">Pending</h6>
-          </div>
-          <div class="card-body pt-4 p-3">
-            <ul class="list-group">
-              <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
-                <div class="d-flex flex-column">
-                  <h6 class="mb-3 text-sm">Oliver Liam</h6>
-                  <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">interested in finding someone who I can consistently do arm day with</span></span>
-                  <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Arms, Legs</span></span>
-                  <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold">Beginner</span></span>
-                </div>
-                <div class="ms-auto text-end">
-                  <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                  <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-                </div>
-              </li>
-              <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
-                <div class="d-flex flex-column">
-                  <h6 class="mb-3 text-sm">Lucas Harper</h6>
-                  <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">been going to the gym for a while and want to meet someone who will challenge me : )</span></span>
-                  <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Cardio, Lifting</span></span>
-                  <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold"> Intermediate</span></span>
-                </div>
-                <div class="ms-auto text-end">
-                  <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                  <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-                </div>
-              </li>
-              <li class="list-group-item border-0 d-flex p-4 mb-2 mt-3 bg-gray-100 border-radius-lg">
-                <div class="d-flex flex-column">
-                  <h6 class="mb-3 text-sm">Ethan James</h6>
-                  <span class="mb-2 text-xs">Bio: <span class="text-dark font-weight-bold ms-sm-2">really trying to focus on upper body this semester & looking for a partner who is experienced!</span></span>
-                  <span class="mb-2 text-xs">Interests: <span class="text-dark ms-sm-2 font-weight-bold">Chest, Arms</span></span>
-                  <span class="text-xs">Level: <span class="text-dark ms-sm-2 font-weight-bold">Intermediate</span></span>
-                </div>
-                <div class="ms-auto text-end">
-                  <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="far fa-trash-alt me-2"></i>Delete</a>
-                  <a class="btn btn-link text-dark px-3 mb-0" href="javascript:;"><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</a>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div> -->
+<!-- Card where matches show up-->
     <div class="row">
       <div class="col-12 mb-4">
         <div class="card">
@@ -79,7 +30,7 @@
   <script>
       let lastrefreshed = 0;
       let request = null;
-
+      // generates list of matches
       function listMatches(response)
       {
         if (response) {
@@ -88,7 +39,7 @@
           console.log("making an update now!", Date.now())
         }
       }
-
+      // unmatch request
       function terminate(requestid)
       {
         if (request != null)
@@ -102,7 +53,7 @@
           }
         );
       }
-
+      // refreshes match list
       function refreshMatches()
       {
         if (request != null)
@@ -116,6 +67,7 @@
           }
         );
       }
+      // sets up page. refreshes every 1000 miliseconds to get most up to date match list
       function setup()
       {
         refreshMatches();

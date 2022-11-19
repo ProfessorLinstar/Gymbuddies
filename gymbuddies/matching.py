@@ -240,8 +240,9 @@ def outgoingtable():
 
     users = [m.destnetid for m in requests]
     users = [database.user.get_user(u) for u in users]
+    length = len(requests)
 
-    return render_template("outgoingtable.html", netid=netid, matchusers=zip(requests, users))
+    return render_template("outgoingtable.html", netid=netid, matchusers=zip(requests, users), length=length)
 
 
 @bp.route("/matched", methods=("GET",))
@@ -281,5 +282,6 @@ def matchedtable():
 
     users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
     users = [database.user.get_user(u) for u in users]
+    length = len(matches)
 
-    return render_template("matchedtable.html", netid=netid, matchusers=zip(matches, users))
+    return render_template("matchedtable.html", netid=netid, matchusers=zip(matches, users), length = length)

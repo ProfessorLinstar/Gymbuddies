@@ -1,5 +1,14 @@
-<ul class="list-group">
-  {% if requestUsers|length != 0: %} {% for i in range(requestUsers|length): %}
+<!-- no incoming requests-->
+  {% if requestUsers|length == 0: %}
+  <ul class="list-group">
+    <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+      <div>No incoming requests. </div>
+    </li>
+  </ul>
+  {% else: %} 
+  <!-- Incoming Requests List-->
+  <ul class="list-group">
+  {% for i in range(requestUsers|length): %}
   <li
     class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
   >
@@ -99,7 +108,6 @@
       <!-- </div> -->
     </div>
   </li>
-  {% endfor %} {% else %}
-  <div>None</div>
-  {% endif %}
+  {% endfor %} 
 </ul>
+{% endif %}

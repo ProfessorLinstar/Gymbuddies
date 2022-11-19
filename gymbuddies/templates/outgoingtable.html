@@ -1,3 +1,10 @@
+{% if length ==0  %}
+  <ul class="list-group">
+    <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+      <div>No outgoing requests. </div>
+    </li>
+  </ul>
+{% else %}
 <div class="table-responsive p-0">
   <table class="table align-items-center justify-content-center mb-0">
     <thead>
@@ -11,6 +18,7 @@
       </tr>
     </thead>
     <tbody>
+      
       {% for match, user in matchusers %}
       <tr>
         <td>
@@ -39,8 +47,10 @@
         </td>
       </tr>
     {% endfor %}
+
     </tbody>
   </table>
 </div>
+{% endif %}
 
 
