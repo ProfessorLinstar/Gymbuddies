@@ -59,7 +59,7 @@ def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
 def schedule_to_json(schedule: List[int]) -> str:
     """Converts a schedule into stringified json representation appropriate for the artsy
     calendar."""
-    jsoncalendar = {i: [] for i in range(len(db.DAY_NAMES))}
+    jsoncalendar: Dict[int, List[List[str]]] = {i: [] for i in range(len(db.DAY_NAMES))}
     for event in db.schedule_to_events(schedule):
         day, _ = event[0].day_time()
         start, end = [t.time_str() for t in event]

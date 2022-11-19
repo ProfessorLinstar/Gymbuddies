@@ -114,7 +114,7 @@ def buddies():
         common.fill_schedule(context, g.user.schedule)
         noMatches = False
         return render_template("buddies.html",
-                        noMatches = noMatches,      
+                        noMatches = noMatches,
                            netid=netid,
                            level=level,
                            interests=interests,
@@ -180,9 +180,13 @@ def pendingtable():
 @bp.route("/pendingmodal", methods=["POST"])
 def pendingmodal():
     """Page for pending matches."""
+    # return "<div class='modal-content'>lmao</div>"
+
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
+
+    print("processing a pendingmodal request!")
 
     # TODO: handle errors when database is not available
     # requests = database.request.get_active_incoming(netid)
@@ -196,7 +200,9 @@ def pendingmodal():
     calendar = common.schedule_to_calendar(req.schedule)
     level = db.Level(user.level).to_readable()
     interests = db.interests_to_readable(user.interests)
-    
+
+    print(f"returning card with info for request {requestid = }")
+
     return render_template("pendingmodal.html",
                            netid=netid,
                            req=req,
