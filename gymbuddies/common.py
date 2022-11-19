@@ -33,6 +33,7 @@ def str_to_timeblock(day: str, time: str) -> db.TimeBlock:
     return db.TimeBlock.from_daytime(
         int(day), hours * db.NUM_HOUR_BLOCKS + (minutes * db.NUM_HOUR_BLOCKS) // 60)
 
+# def timeblock_to_str(timeblock: db.TimeBlock) -> str:
 
 # TODO: error protect this
 def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
@@ -56,6 +57,32 @@ def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
             for i in range(str_to_timeblock(day, s), str_to_timeblock(day, e) - 1):
                 schedule[i] = db.ScheduleStatus.AVAILABLE
     return schedule
+
+#schedule should be available
+def schedule_to_json(schedule: List[int]) -> str:
+    timesList = db.schedule_to_readable(schedule)
+    json = {'0': [], '1': [], '2': [], '3': [], '4': [], '5': [], '6': []}
+    for times in timesList:
+        x = times.split()
+        day = x[0]
+        time = x[1].replace("AM", "")
+        time = x[1].replace("PM", "")
+        time = time.split("-")
+        if day == "Sunday":
+            json['0'].append(time)
+        elif day == "Monday":
+            json['1'].append(time)
+        elif day == "Tuesday":
+            json['2'].append(time)
+        elif day == "Wednesday":
+            json['3'].append(time)
+        elif day == "Thursday":
+            json['4'].append(time)
+        elif day == "Friday":
+            json['5'].append(time)
+        elif day == "Saturday":
+            json['6'].append(time)
+    return json
 
 
 def form_to_profile() -> Dict[str, Any]:

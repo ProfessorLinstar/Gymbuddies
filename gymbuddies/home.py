@@ -78,5 +78,5 @@ def profile():
 
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
-
+    
     return render_template("profile.html", netid=netid, user=user, **context)

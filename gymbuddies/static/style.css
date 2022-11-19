@@ -6,6 +6,11 @@
   padding: 5px;
   background-color: #3498DB;
   cursor: pointer;
+  border: 1px black;
+}
+
+td {
+  border: 1px white;
 }
 
 .schedule-rows td:first-child {

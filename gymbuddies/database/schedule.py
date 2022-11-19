@@ -130,3 +130,6 @@ def get_available_users(timeblock: int, *, session: Optional[Session] = None) ->
     rows = session.query(db.Schedule.netid).filter(db.Schedule.timeblock == timeblock).order_by(
         db.Schedule.netid).all()
     return [row[0] for row in rows]
+
+# def int_to_string_schedule(schedule: List[int]) -> List[str]:
+#     schedule.
