@@ -216,11 +216,16 @@ class TimeBlock(int):
 
         return ("" if time_only else f"{DAY_NAMES[day]} ") + d.strftime('%-I:%M%p')
 
+    def time_str(self) -> str:
+        """Converts the time of day for a TimeBlock to a datetime."""
+        _, time = self.day_time()
+        return datetime.strptime(f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}", "%H:%M").strftime("%H:%M")
+
     def day_time(self) -> Tuple[int, int]:
         """Converts a TimeBlock to a (day, time) tuple. 'day' is an integer from 0-6, corresponding
         to Monday, ..., Sunday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
         00:00-00:05, ..., 23:55-24:00."""
-        return self // NUM_DAY_BLOCKS, self % NUM_DAY_BLOCKS
+        return divmod(self, NUM_DAY_BLOCKS)
 
 
 class Level(int, Enum):
@@ -274,32 +279,33 @@ def interests_to_readable(interests: Dict[str, bool]):
     return ", ".join(k for k, v in interests.items() if v)
 
 
-def schedule_to_readable(schedule: List[int]):
-    """Converts a schedule into a string representation as a comma separated list of times."""
+def schedule_to_events(schedule: List[int]) -> List[List[TimeBlock]]:
+    """Converts a schedule into a string representation as a comma separated list of events. Events
+    are in the format (start, end), where start and end are timeblocks, and start is inclusive while
+    end is exclusive."""
     assert len(schedule) == NUM_WEEK_BLOCKS
 
     blocks: List[List[TimeBlock]] = [[]]
     for t, status in enumerate(schedule):
-        if status != ScheduleStatus.AVAILABLE and blocks[-1]:
-            blocks[-1].append(TimeBlock(t - 1))
+        if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
+            blocks[-1].append(TimeBlock(t))
             blocks.append([])
         if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
             blocks[-1].append(TimeBlock(t))
 
     if blocks[-1]:
-        blocks[-1].append(TimeBlock(len(schedule) - 1))
+        blocks[-1].append(TimeBlock(len(schedule)))
     else:
         blocks.pop()
 
-    block_strs = []
-    for start, end in blocks:
-        end = TimeBlock((end + 1) % NUM_WEEK_BLOCKS)
+    return blocks
 
-        if start.day_time()[0] != end.day_time()[0]:
-            block_strs.append(f"{start.to_readable()} - {end.to_readable()}")
-        else:
-            block_strs.append(f"{start.to_readable()}-{end.to_readable(time_only=True)}")
-    return block_strs
+
+def schedule_to_readable(schedule: List[int]) -> List[str]:
+    return [
+        f"{s.to_readable()}-{e.to_readable(time_only=True)}"
+        for s, e in schedule_to_events(schedule)
+    ]
 
 
 class User(BASE):

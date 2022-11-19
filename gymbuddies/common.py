@@ -8,10 +8,7 @@ from .database import db
 
 def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
     """Checks the master schedule boxes according to the provided 'schedule'."""
-    for i, s in enumerate(schedule):
-        day, time = db.TimeBlock(i).day_time()
-        if s & db.ScheduleStatus.AVAILABLE and time % db.NUM_HOUR_BLOCKS == 0:
-            context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
+    context["jsoncalendar"] = schedule_to_json(schedule)
 
 
 def schedule_to_calendar(schedule: List[int]) -> List[List[str]]:
@@ -33,7 +30,6 @@ def str_to_timeblock(day: str, time: str) -> db.TimeBlock:
     return db.TimeBlock.from_daytime(
         int(day), hours * db.NUM_HOUR_BLOCKS + (minutes * db.NUM_HOUR_BLOCKS) // 60)
 
-# def timeblock_to_str(timeblock: db.TimeBlock) -> str:
 
 # TODO: error protect this
 def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
@@ -54,46 +50,40 @@ def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
     decoded: Dict[str, List[List[str]]] = json.loads(calendar)
     for day, events in decoded.items():
         for s, e in events:
-            for i in range(str_to_timeblock(day, s), str_to_timeblock(day, e) - 1):
+            for i in range(str_to_timeblock(day, s), str_to_timeblock(day, e)):
                 schedule[i] = db.ScheduleStatus.AVAILABLE
     return schedule
 
+
 #schedule should be available
 def schedule_to_json(schedule: List[int]) -> str:
-    timesList = db.schedule_to_readable(schedule)
-    json = {'0': [], '1': [], '2': [], '3': [], '4': [], '5': [], '6': []}
-    for times in timesList:
-        x = times.split()
-        day = x[0]
-        time = x[1].replace("AM", "")
-        time = x[1].replace("PM", "")
-        time = time.split("-")
-        if day == "Sunday":
-            json['0'].append(time)
-        elif day == "Monday":
-            json['1'].append(time)
-        elif day == "Tuesday":
-            json['2'].append(time)
-        elif day == "Wednesday":
-            json['3'].append(time)
-        elif day == "Thursday":
-            json['4'].append(time)
-        elif day == "Friday":
-            json['5'].append(time)
-        elif day == "Saturday":
-            json['6'].append(time)
-    return json
+    """Converts a schedule into stringified json representation appropriate for the artsy
+    calendar."""
+    jsoncalendar = {i: [] for i in range(len(db.DAY_NAMES))}
+    for event in db.schedule_to_events(schedule):
+        day, _ = event[0].day_time()
+        start, end = [t.time_str() for t in event]
+        jsoncalendar[day].append([start, end if end != "00:00" else "24:00"])
+
+    return json.dumps(jsoncalendar)
 
 
-def form_to_profile() -> Dict[str, Any]:
-    """Converts request.form to a user profile dictionary. Ignores extraneous keys."""
-    prof: Dict[str, Any] = {k: v for k, v in request.form.items() if k in db.User.__table__.columns}
-    prof["interests"] = {v: True for v in request.form.getlist("interests")}
+def form_to_profile(category: str) -> Dict[str, Any]:
+    """Converts request.form to a user profile dictionary. Ignores extraneous keys. If
+    update_schedule is True, then updates the schedule. Otherwise, updates other information."""
 
-    for bool_key in ("open", "okmale", "okfemale", "okbinary"):
-        prof[bool_key] = bool_key in prof
+    prof: Dict[str, Any] = {}
 
-    prof["schedule"] = json_to_schedule(request.form.get("jsoncalendar", ""))
+    if category == "information":
+        prof.update({k: v for k, v in request.form.items() if k in db.User.__table__.columns})
+        prof["interests"] = {v: True for v in request.form.getlist("interests")}
+        prof.pop("schedule", None)
+
+        for bool_key in ("open", "okmale", "okfemale", "okbinary"):
+            prof[bool_key] = bool_key in prof
+
+    elif category == "schedule":
+        prof["schedule"] = json_to_schedule(request.form.get("jsoncalendar", ""))
 
     return prof
 

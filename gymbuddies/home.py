@@ -48,7 +48,6 @@ def home():
                            interests=interests,
                            gender=gender,
                            level=level,
-                        #    matchSchedules=matchSchedules
                            **context)
 
 
@@ -59,24 +58,18 @@ def profile():
     if not netid:
         return redirect(url_for("auth.login"))
 
-    user = database.user.get_user(netid)  # can access this in jinja template with {{ user }}
+    user = database.user.get_user(netid)
 
     if request.method == "POST":
-        prof: Dict[str, Any] = common.form_to_profile()
         submit: str = request.form.get("update", "")
-        if submit == "information":
-            prof.pop("schedule")
-        elif submit == "schedule":
-            prof = {"schedule": prof["schedule"]}
+        prof: Dict[str, Any] = common.form_to_profile(submit)
         prof.update(netid=netid)
         assert database.user.update(**prof)
-
-        return ""
 
     user = database.user.get_user(netid)
     assert user is not None
 
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
-    
+
     return render_template("profile.html", netid=netid, user=user, **context)

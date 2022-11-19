@@ -25,9 +25,9 @@
 
 {% block content %}
     <div class="container-fluid py-4">
-    
+
       <div class="row">
-        
+
         <div class="col-md-6">
           <div class="card">
             <div class="card-header pb-0">
@@ -40,7 +40,7 @@
               <form action="{{ url_for('home.profile') }}" method="post">
               <p class="text-uppercase text-sm">User Information</p>
               <div class="row">
-                <label for="name" class="form-control-label">Net Id: </label>  <p style="font-size:13 !important">{{netid}}</p> 
+                <label for="name" class="form-control-label">Net Id: </label>  <p style="font-size:13 !important">{{netid}}</p>
               </div>
               <div class="row">
                 <div class="col-md-6">
@@ -69,8 +69,8 @@
               <div class = "row">
                 <div class = "col md-4">
                   <!--
-                  <label for = "level">Level</label> 
-          
+                  <label for = "level">Level</label>
+
                   <select class="form-control" name="level-dropdown" id="level-dropdown" placeholder="Level">
                     <option id="level0" name="level" value=0 {{ "selected" if (user.level == 0 ) else "" }}> Beginner</option>
                     <option id="level1" name="level" value=1 {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
@@ -80,7 +80,7 @@
                   <select name="level" id="cars" class="form-control" placeholder="Level">
                     <option id="level0" value="0" {{ "selected" if (user.level == 0 ) else "" }}>Beginner</option>
                     <option id="level1" value="1" {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
-                    <option id="level2" value="2" {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>      
+                    <option id="level2" value="2" {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>
                   </select>
                 </div>
               <!-- </div>
@@ -94,8 +94,8 @@
                         <label class="form-check-label" for="open">Open</label>
                       </div>
                   </div>
-                </div> 
-              
+                </div>
+
               </div>
               <div class="row">
                 <div class="col-md-4">
@@ -161,7 +161,7 @@
               <p class="text-uppercase text-sm">Match Preferences</p>
               <div class = "row">
                 <div class = "col md-4">
-                  <label for = "levelpreference">Buddy's Level</label> 
+                  <label for = "levelpreference">Buddy's Level</label>
                   <select required class="form-control" placeholder="Level" name="levelpreference">
                     <option id="level0" value="0" {{ "selected" if (user.levelpreference == 0 ) else "" }}> Equal </option>
                     <option id="level1" value="1" {{ "selected" if (user.levelpreference ==1 ) else "" }}>Less than or Equal to</option>
@@ -217,78 +217,56 @@
                 <style>
                 body { font-family:'roboto'; background-color:#ECF0F1; }
                 </style>
-                
-                <div id="day-schedule"></div>
-                <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-                  <script src="../static/index.js"></script>
-                  <script>
-                    (function ($) {
 
-                      $("#day-schedule").dayScheduleSelector({
-                        /*
-                        days: [1, 2, 3, 5, 6],
-                        interval: 15,
-                        startTime: '09:50',
-                        endTime: '21:06'
-                        */
-                        // user.schedule;
-                      });
-                      $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
-                        console.log(selected);
-                      })
-                      // console.log("SERIALIZE", $("#day-schedule").data('artsy.dayScheduleSelector').serialize())($);
-                      // function getEvents () {
-                      //       // console.log("SERIALIZE", $("#day-schedule").data('artsy.dayScheduleSelector').serialize())($);
-                      //       console.log("hello!");
-                      //       // let userEvents = returnUserEvents()
-                      //       // $.ajax({
-                      //       //     type:'POST',
-                      //       //     url:'/profile',
-                      //       //     javascript_data: userEvents,
-                      //       //     data: {"update": "schedule"}
-                      //       // })
-                      //   } $('#updateCalendar').click(() => getEvents())
-                        // $('#updateCalendar').click(function(){
-                        //   console.log("hello!");
-                        // });
-                      // $("#day-schedule").data('artsy.dayScheduleSelector').deserialize({
-                      //   '0': [['09:30', '11:00'], ['13:00', '16:30']],
-                      // });
-                
-                    })($);
-                
-                    // console.log("SERIALIZE", $("#day-schedule").data('artsy.dayScheduleSelector').serialize())})($);
-                  </script>
-                </body>
-                  <!-- <script src="../static/app.js">
-                     $.post( "/profile", {
-                      javascript_data: userEvents 
-                    });
-                  </script> -->
-            <!--<div class="chart">
-              <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
-            </div>-->
+                <div id="day-schedule"></div>
               <br>
                 <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
-                <script>
-                  $('#updateCalendar').click(function(){
-                    calendar = $("#day-schedule").data('artsy.dayScheduleSelector').serialize();
-                    console.log(calendar)
-                    $.ajax({
-                      type:'POST',
-                      url:'/profile',
-                      data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
-                      success: function(html) {
-                        alert( "Submitted");
-                      }
-                   })
-                  });
-                </script>
               </div>
             <!-- </form> -->
           </div>
         </div>
     </form>
     </div>
+
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="../static/index.js"></script>
+<script>
+  function setup() {
+
+    $("#day-schedule").dayScheduleSelector({
+      days: [0, 1, 2, 3, 4, 5, 6],
+      interval: 60,
+      startTime: '00:00',
+      endTime: '24:00'
+    });
+    const calendar = '{{ jsoncalendar|safe }}'
+    const parsed = JSON.parse(calendar)
+    // const parsed = JSON.parse('{"0": [], "1": [["08:00", "09:05"]], "2": [], "3": [], "4": [], "5": [], "6": []}')
+    console.log(calendar, parsed)
+
+    $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
+    $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
+      console.log(selected);
+    })
+
+    $('#updateCalendar').click( function() {
+      const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+
+      $.ajax({
+        type:'POST',
+        url:'/profile',
+        data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
+        success: function(response) {
+          alert( "Submitted");
+        }
+      })
+    });
+  }
+
+  $("document").ready(setup);
+
+
+
+</script>
 
 {% endblock %}
