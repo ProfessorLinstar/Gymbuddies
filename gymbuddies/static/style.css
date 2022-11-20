@@ -23,6 +23,10 @@ td {
   top: -12px;
 }
 
+.schedule-header th {
+  text-align: center
+}
+
 .schedule-rows td[data-selected],
 .schedule-rows td[data-selecting] { background-color: #5E72E3; }
 
