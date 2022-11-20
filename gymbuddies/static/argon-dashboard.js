@@ -400,7 +400,7 @@ function toggleSidenav() {
 let html = document.getElementsByTagName('html')[0];
 
 html.addEventListener("click", function(e) {
-  if (body.classList.contains('g-sidenav-pinned') && !e.target.classList.contains('sidenav-toggler-inner')) {
+  if (body.classList.contains('g-sidenav-pinned') && !(e.target.classList.contains('sidenav-toggler-inner') || e.target.classList.contains('sidenav-toggler-line'))) {
     body.classList.remove(className);
   }
 });
