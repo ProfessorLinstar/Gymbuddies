@@ -2,7 +2,7 @@
 .schedule-rows td {
   width: 85px;
   height: 30px;
-  margin: 3px;
+  margin: 1px;
   --padding: 1px;
   padding: var(--padding);
   background-color: #FFFFFF;
