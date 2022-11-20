@@ -40,7 +40,7 @@ def home():
     matchSchedules = []
     if (matches is not None):
         for match in matches:
-            matchSchedules.push(match.schedule) # should be array of strings
+            matchSchedules.append(match.schedule) # should be array of strings
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
 
