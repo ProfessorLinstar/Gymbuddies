@@ -13,45 +13,48 @@
 <!-- Popup indicating that the request was successful -->
 <div class="modal fade bd-example-modal-lg" id="requestSent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-md" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLongTitle">Success </h5>
-                <button type="button" id="closeButton" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-            <div class="modal-body">
-              <div class="card-body">
-                <div class="row">
-                  <!-- <div class="col-md-6"> -->
-                    <img src="{{url_for('static', filename='running.png')}}" width="60%">
-                  <!-- </div> -->
-                </div>
-                <div class="row" style="text-align:center">
-                  <!-- <div class="col-md-6"> -->
-                    <p>Request Successfully Sent!</p>
-                  <!-- </div> -->
-                </div>
-                <div class="row">
-                  <div class="col-md-6 text-sm-center" >
-                    <form action="{{url_for('matching.outgoing')}}" method="get">
-                      <button type="submit" id="goToMatches" class="btn btn-primary btn-sm" onClick="sendReq">See Outgoing Requests</button>
-                    </form>
-                  </div>
-                  <div class="col-md-6 text-sm-center">
-                    <form action="{{url_for('matching.search')}}" method="get">
-                      <button type="submit" id="searchAgain" class="btn btn-primary btn-sm">Keep Looking</button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Success </h5>
+          <button type="button" id="closeButton" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="card-body">
+
+          <div class="row">
+            <!-- <div class="col-md-6"> -->
+              <img src="{{url_for('static', filename='running.png')}}" width="60%">
+            <!-- </div> -->
           </div>
-      <!-- <div class="modal-footer">
-        <form action="{{url_for('home.home')}}"> 
-          <button type="submit" id = "homeButton" class="btn btn-secondary">Home</button> 
-        </form>
-      </div> -->
+          <div class="row" style="text-align:center">
+            <!-- <div class="col-md-6"> -->
+              <p>Request Successfully Sent!</p>
+            <!-- </div> -->
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-6 text-sm-center" >
+              <form action="{{url_for('matching.outgoing')}}" method="get">
+                <button type="submit" id="goToMatches" class="btn btn-primary btn-sm" onClick="sendReq">See Outgoing Requests</button>
+              </form>
+            </div>
+            <div class="col-md-6 text-sm-center">
+              <form action="{{url_for('matching.search')}}" method="get">
+                <button type="submit" id="searchAgain" class="btn btn-primary btn-sm">Keep Looking</button>
+              </form>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
