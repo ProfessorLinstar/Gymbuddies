@@ -15,16 +15,47 @@
 {% extends 'layout.html' %}
 {% block title %}Profile{% endblock %}
 {% block classdash %}<a class="nav-link" href="../home">{% endblock %}
-  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
-  {% block classreq %}<a class="nav-link" href="{{ url_for('matching.pending') }}">{% endblock %}
-  {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
-  {% block classprof %}<a class="nav-link active" href="{{ url_for('home.profile') }}">{% endblock %}
-  {% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
+{% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
+{% block classreq %}<a class="nav-link" href="{{ url_for('matching.pending') }}">{% endblock %}
+{% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
+{% block classprof %}<a class="nav-link active" href="{{ url_for('home.profile') }}">{% endblock %}
+{% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
 {% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Profile</li>{% endblock %}
 {% block pagename_large %}Profile{% endblock %}
 
 {% block content %}
+
+<div class="modal fade bd-example-modal-lg" id="Popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Success</h5>
+          <button type="button" id="closeButton" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="card-body">
+
+          <div class="row">
+            <img src="{{url_for('static', filename='running.png')}}" width="60%">
+          </div>
+          <div class="row" style="text-align:center">
+            <p>Update successful!</p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 <div class="container-fluid py-4">
+
 
   <div class="row">
 
@@ -68,19 +99,11 @@
           </div>
           <div class = "row">
             <div class = "col md-4">
-              <!--
-              <label for = "level">Level</label>
-
-              <select class="form-control" name="level-dropdown" id="level-dropdown" placeholder="Level">
-                <option id="level0" name="level" value=0 {{ "selected" if (user.level == 0 ) else "" }}> Beginner</option>
-                <option id="level1" name="level" value=1 {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
-                <option id="level2" name="level" value=2 {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>
-              </select>-->
               <label for="level">Level</label>
               <select name="level" id="cars" class="form-control" placeholder="Level">
                 <option id="level0" value="0" {{ "selected" if (user.level == 0 ) else "" }}>Beginner</option>
-                <option id="level1" value="1" {{ "selected" if (user.level ==1 ) else "" }}>Intermediate</option>
-                <option id="level2" value="2" {{ "selected" if (user.level ==2 ) else "" }}>Advanced</option>
+                <option id="level1" value="1" {{ "selected" if (user.level == 1 ) else "" }}>Intermediate</option>
+                <option id="level2" value="2" {{ "selected" if (user.level == 2 ) else "" }}>Advanced</option>
               </select>
             </div>
           <!-- </div>
@@ -255,7 +278,8 @@
         url:'/profile',
         data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
         success: function(response) {
-          alert( "Submitted");
+          $("#Popup").modal("show")
+          console.log("lmao");
         }
       })
     });
