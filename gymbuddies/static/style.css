@@ -32,6 +32,8 @@ td {
   text-align: center
 }
 
+.schedule-rows td[data-initial] { background-color: #808080; }
+
 .schedule-rows td[data-selected],
 .schedule-rows td[data-selecting] { background-color: #5E72E3; }
 
