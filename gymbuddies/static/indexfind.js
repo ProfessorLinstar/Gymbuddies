@@ -59,6 +59,7 @@
 
     $.each(generateDates(start, end, interval), function (i, d) {
       var daysInARow = $.map(new Array(days.length), function (_, i) {
+        
         return '<td class="time-slot" data-time="' + hhmm(d) + '" data-day="' + days[i] + '"></td>'
       }).join();
 
