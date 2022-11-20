@@ -15,7 +15,6 @@ USE_CAS = True
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-
 @bp.route("/signup", methods=("GET", "POST"))
 def signup():
     """Shows signup page."""
@@ -46,18 +45,27 @@ def login():
     if netid:
         return redirect(url_for("home.home"))
 
-    if request.method == "GET":
-        return render_template("login.html")
+    if not USE_CAS:
+        if request.method == "GET":
+            return render_template("login.html")
 
-    response: str = ""
-    netid = request.form["netid"]
+        response: str = ""
+        netid = request.form["netid"]
 
-    if user.get_user(netid):
-        session["netid"] = netid
-        return redirect(url_for("home.home"))
+        if user.get_user(netid):
+            session["netid"] = netid
+            return redirect(url_for("home.home"))
 
-    response = f"Netid '{request.form['netid']}' was not found in the database."
-    return render_template("login.html", response=response)
+        response = f"Netid '{request.form['netid']}' was not found in the database."
+        return render_template("login.html", response=response)
+
+    else:
+        netid = authenticate()
+        assert netid is not None
+        if database.user.exists(netid):
+            session["netid"] = netid
+            return redirect(url_for("home.home"))
+        return redirect(url_for("home.index"))
 
 
 @bp.route("/logout")
