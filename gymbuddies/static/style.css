@@ -1,5 +1,6 @@
 .schedule-table {
   width: 100%;
+  min-width: 400px;
   table-layout: fixed;
 }
 
@@ -35,3 +36,7 @@ td {
 .schedule-rows td[data-selecting] { background-color: #5E72E3; }
 
 .schedule-rows td[data-disabled] { opacity: 0.55; }
+
+.scrolling-wrapper{
+	overflow-x: auto;
+}
