@@ -16,23 +16,23 @@
       <span id="userPopup"></span>
             <!--  -->
       <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
       </div>
     </div>
 </div>
-            <div class="row">
-              <div class="col-12 mb-4">
-                <div class="card">
-                  <div class="card-header pb-0 px-3">
-                    <h6 class="mb-0">Pending</h6>
-                  </div>
-                  <div class="card-body pt-4 p-3">
-                    <span id="requestTable"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
+<div class="row">
+  <div class="col-12 mb-4">
+    <div class="card">
+      <div class="card-header pb-0 px-3">
+        <h6 class="mb-0">Pending</h6>
+      </div>
+      <div class="card-body pt-4 p-3">
+        <span id="requestTable"></span>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -42,8 +42,10 @@
       let request = null;
 
       function fillCard(response){
+        console.log("got a response: ")
         $('#userPopup').html(response);
       }
+
       function getCard(requestid) {
         if (request != null)
           request.abort();
@@ -53,13 +55,15 @@
             type: 'POST',
             data: {"requestid": requestid},
             url: '/matching/pendingmodal',
-            success: fillCard
+            success: fillCard,
+            error: function(jqXHR, exception) { console.log(jqXHR, exception); }
           }
         );
         // $('#Popup').modal(options)
         // $('#Popup').show()
         // $("#modal-content").show();
       }
+
       function listRequests(response)
       {
         if (response) {
@@ -74,8 +78,10 @@
         //let sessionindex = $('#indexInput').val();
         console.log(requestid)
         
-        if (request != null)
+        if (request != null) {
           request.abort();
+          console.log("i aborted a request!");
+        }
         request =$.ajax(
           {
             type: 'POST',

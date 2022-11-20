@@ -5,14 +5,14 @@
       <div>No incoming requests. </div>
     </li>
   </ul>
-  {% else: %} 
+  {% else: %}
   <!-- Incoming Requests List-->
   <ul class="list-group">
   {% for i in range(requestUsers|length): %}
   <li
     class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
   >
-    
+
     <div class="d-flex flex-column">
       <div class="myDIV">  {{ requestUsers[i].name }} </div>
       <div class="hide">
@@ -52,7 +52,7 @@
                 Bio: {{ requestUsers[i].bio }}
               </p>
               <!--<p class="card-description mb-4">
-                Contact: 
+                Contact:
               </p>-->
               <p class="card-description mb-4">
                 Level: {{ db.Level(requestUsers[i].level).to_readable() }}
@@ -77,37 +77,32 @@
         </div>
       </div>
       </div>
-      
+
       </div>
 
-  
-  
-  
+
+
+
 
     <div class="ms-auto text-end">
       <button
         id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
         type="button"
         onClick="act({{ requests[i].requestid }}, 'reject')"
-        ><i class="far fa-trash-alt me-2"></i>Delete</button
-      >
-      <input type="hidden" name="requestid" value="{{ requests[i].requestid }}"/>
+      ><i class="far fa-trash-alt me-2"></i>Delete</button>
+
       <button
         class="btn btn-link text-dark px-3 mb-0"
         type="submit"
         onClick="act({{ requests[i].requestid }}, 'accept')"
-        ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
-      
+      ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
+
       <button type="button" class="btn btn-block mb-3" data-toggle="modal" data-target="#Popup"
-      onClick="getCard({{ requests[i].requestid }})">
+        onClick="getCard({{ requests[i].requestid }})">
         See Requested Times
-      </button>    
-      <!--         
-      <button type="button" class="btn btn-block bg-gradient-primary mb-3" data-bs-toggle="modal" data-bs-target="#modal-default">Requested Times</button>-->    
-      <!-- <div class="col-md-4"> -->
-      <!-- </div> -->
+      </button>
     </div>
   </li>
-  {% endfor %} 
+  {% endfor %}
 </ul>
 {% endif %}

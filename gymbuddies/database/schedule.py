@@ -94,31 +94,36 @@ def remove_schedule_status(
     return True
 
 
-def _get_blocks(session: Session, netid: str, status_flag: Column) -> List[int]:
-    rows = session.query(db.Schedule.timeblock).filter(
+def _get_status_schedule(session: Session, netid: str, status_flag: Column, status:
+                         db.ScheduleStatus) -> List[int]:
+    schedule: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
+    timeblocks = session.query(db.Schedule.timeblock).filter(
         db.Schedule.netid == netid, status_flag == True).order_by(db.Schedule.timeblock).all()
-    return [row[0] for row in rows]
+    for t in timeblocks:
+        schedule[t[0]] = status
+
+    return schedule
 
 
 @db.session_decorator(commit=False)
 def get_matched_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ Return schedule specifially showing time of matches"""
     assert session is not None
-    return _get_blocks(session, netid, db.Schedule.matched)
+    return _get_status_schedule(session, netid, db.Schedule.matched, db.ScheduleStatus.MATCHED)
 
 
 @db.session_decorator(commit=False)
 def get_pending_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """ Return schedule specifially showing time of pending matches"""
     assert session is not None
-    return _get_blocks(session, netid, db.Schedule.pending)
+    return _get_status_schedule(session, netid, db.Schedule.pending, db.ScheduleStatus.PENDING)
 
 
 @db.session_decorator(commit=False)
 def get_available_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """Return schedule specifically showing time of availabilities"""
     assert session is not None
-    return _get_blocks(session, netid, db.Schedule.available)
+    return _get_status_schedule(session, netid, db.Schedule.available, db.ScheduleStatus.AVAILABLE)
 
 
 # TODO: get available users matching a given schedule

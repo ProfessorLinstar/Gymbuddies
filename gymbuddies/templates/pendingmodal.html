@@ -1,53 +1,56 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLongTitle">{{ user.name }} </h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 
-  <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">{{ user.name }} </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-    <div class="modal-body">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <!-- Person's Schedule -->
-            <div class="p-3">
-              {% with calendar=calendar %}
-                {% include 'calendarlist.html' %}
-              {% endwith %}
-            </div>
-          
+  <div class="modal-body">
+    <div class="card-body">
+      <div class="row">
+
+        <!-- Person's Schedule -->
+        <div class="col-md-6">
+          <div class="p-3">
+            {% with calendar=calendar %}
+              {% include 'calendarlist.html' %}
+            {% endwith %}
           </div>
-          <div class="col-md-6">
+        </div>
+
+        <div class="col-md-6">
           <div class="card z-index-2 h-90">
             <div class="card-header pb-0 pt-3 bg-transparent">
               <h6 class="text-capitalize">Profile</h6>
-                <div class="card-body pt-2">
-                  <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
-                  <a href="javascript:;" class="card-title h5 d-block text-darker">
-                    {{ user.name }}
-                  </a>
-                  <p class="card-description mb-4">
-                    <br>
-                    Bio: {{  user.bio }}
-                  </p>
-                  <!--<p class="card-description mb-4">
-                    Contact:
-                  </p>-->
-                  <p class="card-description mb-4">
-                    Level: {{ level }}
-                  </p>
-                  <p class="card-description mb-4">
-                    Interests: {{ interests }}
-                  </p>
-                  <p class="card-description mb-4">
-                    Additional Information: {{  user.addinfo }}
-                  </p>
-                </div>
+              <div class="card-body pt-2">
+                <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
+                <a href="javascript:;" class="card-title h5 d-block text-darker">
+                  {{ user.name }}
+                </a>
+                <p class="card-description mb-4">
+                  <br>
+                  Bio: {{  user.bio }}
+                </p>
+                <!--<p class="card-description mb-4">
+                  Contact:
+                </p>-->
+                <p class="card-description mb-4">
+                  Level: {{ level }}
+                </p>
+                <p class="card-description mb-4">
+                  Interests: {{ interests }}
+                </p>
+                <p class="card-description mb-4">
+                  Additional Information: {{  user.addinfo }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
-    
+
+</div>
