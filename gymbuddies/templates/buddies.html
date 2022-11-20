@@ -21,10 +21,28 @@
 <div class="row">
   <div class="col-md-6">
     <!-- Person's Schedule -->
-    <main id="calendar" style="display: flex;
-    justify-content:center;
-    align-items: center;">
-      {% include 'calendar.html' %}
+    <!-- Calendar -->
+        <div class="col-md-6">
+          <div class="card card-profile">
+            <div class="card-header pb-0 pt-3 bg-transparent">
+              <h6 class="text-capitalize">Your Schedule</h6>
+            </div>
+            <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->
+              <div class="card-body p-3">
+                <link rel="stylesheet" type="text/css" href="../static/style.css">
+                <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+                <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+                <style>
+                body { font-family:'roboto'; background-color:#ECF0F1; }
+                </style>
+
+                <div id="day-schedule"></div>
+              <br>
+                <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
+              </div>
+            <!-- </form> -->
+          </div>
+        </div>
     </main>
   </div>
   <div class="col-md-6">
@@ -75,4 +93,39 @@
                 <!--</form>-->
   </div>
 </div>
+<script src="../static/index.js"></script>
+<script>
+  function setup() {
+
+    $("#day-schedule").dayScheduleSelector({
+      days: [0, 1, 2, 3, 4, 5, 6],
+      interval: 60,
+      startTime: '06:00',
+      endTime: '24:00'
+    });
+    const calendar = '{{ jsoncalendar|safe }}'
+    const parsed = JSON.parse(calendar)
+    console.log(calendar, parsed)
+
+    $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
+    $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
+      console.log(selected);
+    })
+
+    $('#updateCalendar').click( function() {
+      const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+
+      $.ajax({
+        type:'POST',
+        url:'/profile',
+        data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
+        success: function(response) {
+          alert( "Submitted");
+        }
+      })
+    });
+  }
+
+  $("document").ready(setup);
+</script>
 {% endif %}
