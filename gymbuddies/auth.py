@@ -11,7 +11,7 @@ import re
 
 _CAS_URL = 'https://fed.princeton.edu/cas/'
 
-USE_CAS = True
+USE_CAS = False
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -28,7 +28,7 @@ def signup():
 
     else:
         username = authenticate()
-        if database.use.exists(netid):
+        if database.user.exists(netid):
             session["netid"] = netid
             return redirect(url_for("home.home"))
 
