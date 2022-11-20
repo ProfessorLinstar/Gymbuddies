@@ -45,12 +45,13 @@
       if (postrequest != null)
         return
 
+      $("body").addClass("wait");
       postrequest = $.ajax({
         type: 'POST',
         data: {"requestid": requestid, "action": "terminate"},
         url: "{{ url_for('matching.matchedtable') }}",
         success: listMatches,
-        complete: function() { postrequest = null; },
+        complete: function() { postrequest = null; $("body").removeClass("wait"); },
         timeout: 3000,
       });
     }
