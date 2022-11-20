@@ -33,7 +33,7 @@
           <main>
             <link rel="stylesheet" type="text/css" href="../static/style.css">
             <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
-            <!--- <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> --->
+            <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
             <!-- <style>
             body { font-family:'roboto'; background-color:#ECF0F1; }
             </style> -->
@@ -89,15 +89,24 @@
       startTime: '06:00',
       endTime: '24:00'
     });
-    const calendar = '{{ jsoncalendar|safe }}'
-    const parsed = JSON.parse(calendar)
-    console.log(calendar, parsed)
-
-    $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
     $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
       console.log(selected);
     })
-    
+    // ADD BACK FOR DASHBOARD CALENDAR!!!!!!
+    const matchSchedules = ' {{ matchSchedules }} '
+    console.log("matchSchedules", matchSchedules)
+    var JSON = {'0': [], '1': [], '2': [], '3': [], '4': [], '5': [], '6': []}
+    if (matchSchedules) {
+      var matchLength = matchSchedules.length;
+      var JSONLength = JSON.length;
+      for (var i = 0; i < matchLength; i++) {
+        for (var j = 0; j < JSONLength; j++) {
+          JSON[j.toString()].append(common.schedule_to_json(schedule));
+        }
+      }
+      // });
+      $("#day-schedule").data('artsy.dayScheduleSelector').deserialize( JSON );
+    }
   }
 
   $("document").ready(setup)
