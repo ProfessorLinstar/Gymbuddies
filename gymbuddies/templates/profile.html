@@ -26,7 +26,7 @@
 {% block content %}
 
 <div class="modal fade bd-example-modal-lg" id="Popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-  <div class="modal-dialog modal-md" role="document">
+  <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
 
       <div class="modal-header">
@@ -39,9 +39,10 @@
       <div class="modal-body">
         <div class="card-body">
 
-          <div class="row">
-            <img src="{{url_for('static', filename='running.png')}}" width="60%">
+          <div class="row text-center">
+            <i class="fa fa-check-circle fa-4x" aria-hidden="true"></i>
           </div>
+          <br>
           <div class="row" style="text-align:center">
             <p>Update successful!</p>
           </div>
