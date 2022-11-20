@@ -40,7 +40,7 @@
 
                   <div id="day-schedule"></div>
                   <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-                    <script src="../static/index.js"></script>
+                    <script src="../static/indexdash.js"></script>
                     <script>
                       (function ($) {
                         $("#day-schedule").dayScheduleSelector({
@@ -55,12 +55,20 @@
                           console.log(selected);
                         })
                         // ADD BACK FOR DASHBOARD CALENDAR!!!!!!
-                      //   var matchSchedules = ' {{ matchSchedules }} '
-                      //   var JSON = {}
-                      //   matchSchedules.forEach(function (schedule) {
-                      //     $("#day-schedule").data('artsy.dayScheduleSelector').deserialize(schedule);
+                        const matchSchedules = ' {{ matchSchedules }} '
+                        var JSON = {'0': [], '1': [], '2': [], '3': [], '4': [], '5': [], '6': []}
+                        if (matchSchedules) {
+                        var matchLength = matchSchedules.length;
+                        var JSONLength = JSON.length;
+                        for (var i = 0; i < matchLength; i++) {
+                          for (var j = 0; j < JSONLength; j++) {
+                            JSON[j.toString()].append(common.schedule_to_json(schedule));
+                          }
+                        }
                       // });
-                      })($);
+                      $("#day-schedule").data('artsy.dayScheduleSelector').deserialize( JSON );
+                      }
+                    })($);
                     </script>
                   </body>
                 </main>
