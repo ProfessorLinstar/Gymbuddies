@@ -63,7 +63,7 @@
         return '<td class="time-slot" data-time="' + hhmm(d) + '" data-day="' + days[i] + '"></td>'
       }).join();
 
-      $el.append('<tr><td class="time-label">' + hmmAmPm(d) + '</td>' + daysInARow + '</tr>');
+      $el.append('<tr><td class="time-label">' + hAmPm(d) + '</td>' + daysInARow + '</tr>');
     });
   };
 
@@ -257,11 +257,11 @@
    * @private
    * @returns {String} Time in H:mm format with am/pm, e.g. '9:30am'
    */
-  function hmmAmPm(date) {
+  function hAmPm(date) {
     var hours = date.getHours()
-      , minutes = date.getMinutes()
-      , ampm = hours >= 12 ? 'pm' : 'am';
-    return hours + ':' + ('0' + minutes).slice(-2) + ampm;
+      , ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    return (hours != 0 ? hours : 12) + ' ' + ampm;
   }
 
   /**
