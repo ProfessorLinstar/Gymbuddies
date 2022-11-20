@@ -75,6 +75,7 @@
     return !!this.$selectingStart;
   }
 
+  DayScheduleSelector.prototype.initialize = function ($slot) { $slot.attr('data-initial', 'selected'); }
   DayScheduleSelector.prototype.select = function ($slot) { $slot.attr('data-selected', 'selected'); }
   DayScheduleSelector.prototype.deselect = function ($slot) { $slot.removeAttr('data-selected'); }
 
@@ -104,6 +105,7 @@
     this.$el.on('click', '.time-slot', function () {
       var day = $(this).data('day');
       if (!plugin.isSelecting()) {  // if we are not in selecting mode
+        if (!$(this).is("[data-initial]")) return;
         if (isSlotSelected($(this))) { plugin.deselect($(this)); }
         else {  // then start selecting
           plugin.$selectingStart = $(this);
@@ -112,14 +114,14 @@
           plugin.$el.find('.time-slot[data-day="' + day + '"]').removeAttr('data-disabled');
         }
       } else {  // if we are in selecting mode
+        // then end of selection
+        plugin.$el.find('.time-slot[data-day="' + day + '"]').filter('[data-selecting]')
+          .attr('data-selected', 'selected').removeAttr('data-selecting');
+        plugin.$el.find('.time-slot').removeAttr('data-disabled');
         if (day == plugin.$selectingStart.data('day')) {  // if clicking on the same day column
-          // then end of selection
-          plugin.$el.find('.time-slot[data-day="' + day + '"]').filter('[data-selecting]')
-            .attr('data-selected', 'selected').removeAttr('data-selecting');
-          plugin.$el.find('.time-slot').removeAttr('data-disabled');
           plugin.$el.trigger('selected.artsy.dayScheduleSelector', [getSelection(plugin, plugin.$selectingStart, $(this))]);
-          plugin.$selectingStart = null;
         }
+        plugin.$selectingStart = null;
       }
     });
 
@@ -133,7 +135,7 @@
         end = $slots.index(this);
         if (end < 0) return;  // not hovering on the same column
         if (start > end) { temp = start; start = end; end = temp; }
-        $slots.slice(start, end + 1).attr('data-selecting', 'selecting');
+        $slots.slice(start, end + 1).filter("[data-initial]").attr('data-selecting', 'selecting');
       }
     });
   };
@@ -201,7 +203,7 @@
       $.each(ds, function(_, s) {
         for (i = 0; i < $slots.length; i++) {
           if ($slots.eq(i).data('time') >= s[1]) { break; }
-          if ($slots.eq(i).data('time') >= s[0]) { plugin.select($slots.eq(i)); }
+          if ($slots.eq(i).data('time') >= s[0]) { plugin.initialize($slots.eq(i)); }
         }
       })
     });
