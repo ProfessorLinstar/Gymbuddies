@@ -20,10 +20,11 @@ td {
 
 .schedule-rows td:first-child {
   background-color: transparent;
-  text-align: left;
+  text-align: right;
 
   position: relative;
   top: -15px;
+  right: 10px;
 }
 
 .schedule-header th {

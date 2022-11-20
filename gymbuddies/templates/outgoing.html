@@ -40,7 +40,7 @@
   }
 
 
-  function reject(requestid)
+  function reject(requestid, el)
   {
     if (postrequest != null)
       return
@@ -51,7 +51,7 @@
         data: {"requestid": requestid, "action": "reject"},
         url: '/matching/outgoingtable',
         success: listOutgoing,
-        complete: function () { postrequest = null; },
+        complete: function () { postrequest = null; console.log(el.css); },
         timeout: 3000,
       }
     );

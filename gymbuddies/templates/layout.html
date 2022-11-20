@@ -169,14 +169,14 @@
             </li>
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
-                <div class="sidenav-toggler-inner">
+                <div class="sidenav-toggler-inner sidenav-toggler-line">
                   <i class="sidenav-toggler-line bg-white"></i>
                   <i class="sidenav-toggler-line bg-white"></i>
                   <i class="sidenav-toggler-line bg-white"></i>
                 </div>
               </a>
             </li>
-            <li class="nav-item px-3 d-flex align-items-center" role ="button">
+            <li class="nav-item px-3 d-flex align-items-center">
               <a href="{{ url_for('auth.logout') }}" class="nav-link text-white p-0">
                 <i class="fa fa-sign-out fixed-plugin-button-nav cursor-pointer"></i>
               </a>
@@ -234,7 +234,6 @@
 
 
   <!-- Control Center for Argon Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="{{ url_for('static', filename='argon-dashboard.min.js') }}"></script>
   <script src="{{ url_for('static', filename='argon-dashboard.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
