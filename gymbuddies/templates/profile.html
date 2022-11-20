@@ -143,7 +143,7 @@
                     <label class="custom-control-label" for="Cardiovascular Fitness" >Cardiovascular Fitness</label>
                   </div>
                   <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="upper"
+                    <input type="checkbox" class="custom-control-input" id="Upper Body"
                     name="interests"
                     value="Upper Body"{{ "checked" if user.interests.get("Upper Body" ) else "" }}>
                     <label class="custom-control-label" for="Upper Body" >Upper Body</label>
@@ -163,7 +163,7 @@
                     <input type="radio" class="custom-control-input" id="nonbinary"
                     name="gender"
                     value="2" {{ "checked" if (user.gender == 2 ) else "" }}>
-                    <label class="custom-control-label" for="customCheck2">Non-Binary</label>
+                    <label class="custom-control-label" for="nonbinary">Non-Binary</label>
                   </div>
                   <div class="custom-control custom-checkbox">
                     <input type="radio" class="custom-control-input" id="male"
