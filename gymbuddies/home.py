@@ -37,20 +37,24 @@ def home():
     common.fill_schedule(context, user.schedule)
     # ADD BACK FOR MATCHES CALENDAR!!!!
     matches = database.request.get_matches(netid) #should return a list of requests?
-    matchSchedules = []
+    matchSchedules = [] * 2016
     if (matches is not None):
         for match in matches:
-            matchSchedules.append(match.schedule) # should be array of strings
+            #print("row", len(match.schedule))
+            #matchSchedules.append(match.schedule) # should be array of strings
+            matchSchedules = matchSchedules + match.schedule
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
-
+    print(matchSchedules)
+    context: Dict[str, Any] = {}
+    common.fill_schedule(context, matchSchedules)
     return render_template("home.html",
                            netid=netid,
                            user=user,
                            interests=interests,
                            gender=gender,
                            level=level,
-                           matchSchedules=matchSchedules,
+                           #matchSchedules=matchSchedules,
                            **context)
 
 
