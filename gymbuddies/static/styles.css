@@ -105,3 +105,7 @@ body {
 .hide {
   display: none;
 }
+
+.wait, .wait * {
+   cursor:wait !important;
+}

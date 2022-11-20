@@ -273,6 +273,7 @@
     $('#updateCalendar').click( function() {
       const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
 
+      $("body").addClass("wait");
       $.ajax({
         type:'POST',
         url:'/profile',
@@ -280,6 +281,9 @@
         success: function(response) {
           $("#Popup").modal("show")
           console.log("lmao");
+        },
+        complete: function(response) {
+          $("body").removeClass("wait");
         }
       })
     });

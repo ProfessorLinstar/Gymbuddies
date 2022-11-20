@@ -11,18 +11,18 @@
 {% block pagename_large %}Outgoing Requests{% endblock %}
 
 {% block content %}
-    <div class="row">
-      <div class="col-12 mb-4">
-        <div class="card">
-          <div class="card-header pb-0">
-            <h6>Outgoing Requests</h6>
-          </div>
-          <div class="card-body px-0 pt-0 pb-2">
-            <span id="outgoingTable"></span>
-          </div>
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6>Outgoing Requests</h6>
+        </div>
+        <div class="card-body px-0 pt-0 pb-2">
+          <span id="outgoingTable"></span>
         </div>
       </div>
     </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
@@ -31,8 +31,7 @@
   let getrequest = null;
   let postrequest = null;
 
-  function listOutgoing(response)
-  {
+  function listOutgoing(response) {
     if (response) { // if response is empty, then no update is necessary
       lastrefreshed = Date.now();
       $('#outgoingTable').html(response);
@@ -40,42 +39,38 @@
   }
 
 
-  function reject(requestid, el)
-  {
+  function reject(requestid) {
     if (postrequest != null)
       return
 
+   $("body").addClass("wait");
     postrequest = $.ajax(
       {
         type: 'POST',
         data: {"requestid": requestid, "action": "reject"},
         url: '/matching/outgoingtable',
         success: listOutgoing,
-        complete: function () { postrequest = null; console.log(el.css); },
+        complete: function () { postrequest = null; $("body").removeClass("wait"); },
         timeout: 3000,
       }
     );
   }
 
-  function refreshOutgoing()
-  {
+  function refreshOutgoing() {
     if (getrequest != null || postrequest != null)
       getrequest.abort();
 
-    getrequest = $.ajax(
-      {
-        type: 'GET',
-        data: {"lastrefreshed": lastrefreshed},
-        url: '/matching/outgoingtable',
-        success: listOutgoing,
-        getrequest: function() { getrequest = null; },
-        timeout: 3000,
-      }
-    );
+    getrequest = $.ajax({
+      type: 'GET',
+      data: {"lastrefreshed": lastrefreshed},
+      url: '/matching/outgoingtable',
+      success: listOutgoing,
+      getrequest: function() { getrequest = null; },
+      timeout: 3000,
+    });
   }
 
-  function setup()
-  {
+  function setup() {
     refreshOutgoing();
     window.setInterval(refreshOutgoing, 1000);
   }

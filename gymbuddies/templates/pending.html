@@ -74,12 +74,13 @@
       return;
     }
 
+    $("body").addClass("wait");
     postrequest = $.ajax({
       type: 'POST',
       data: { "requestid": requestid, "action": action },
       url: "{{ url_for('matching.pendingtable') }}",
       success: listRequests,
-      complete: function() { postrequest = null; },
+      complete: function() { postrequest = null; $("body").removeClass("wait"); },
       error: function() { console.log("act failed!"); },
       timeout: 3000,
     });
