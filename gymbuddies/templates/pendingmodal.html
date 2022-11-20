@@ -13,9 +13,7 @@
         <!-- Person's Schedule -->
         <div class="col-md-6">
           <div class="p-3">
-            {% with calendar=calendar %}
-              {% include 'calendarlist.html' %}
-            {% endwith %}
+            <div id="day-schedule"></div>
           </div>
         </div>
 
@@ -56,3 +54,41 @@
   </div>
 
 </div>
+
+<script src="../static/index.js"></script>
+<script>
+  function setup() {
+
+    $("#day-schedule").dayScheduleSelector({
+      days: [0, 1, 2, 3, 4, 5, 6],
+      interval: 60,
+      startTime: '06:00',
+      endTime: '24:00'
+    });
+    const calendar = '{{ jsoncalendar|safe }}'
+    const parsed = JSON.parse(calendar)
+    console.log(calendar, parsed)
+
+    $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
+    $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
+      console.log(selected);
+    })
+
+    $('#updateCalendar').click( function() {
+      const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+
+      $.ajax({
+        type:'POST',
+        url:'/profile',
+        data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
+        success: function(response) {
+          $("#Popup").modal("show")
+          console.log("lmao");
+        }
+      })
+    });
+  }
+
+  $("document").ready(setup);
+
+</script>
