@@ -192,7 +192,7 @@ def pendingmodal():
 
     user = database.user.get_user(req.srcnetid)
     assert user is not None
-    calendar = common.schedule_to_calendar(req.schedule)
+    jsoncalendar = common.schedule_to_json(req.schedule)
     level = db.Level(user.level).to_readable()
     interests = db.interests_to_readable(user.interests)
 
@@ -202,7 +202,7 @@ def pendingmodal():
                            netid=netid,
                            req=req,
                            user = user,
-                           calendar=calendar,
+                           jsoncalendar=jsoncalendar,
                            level=level,
                            interests=interests)
 

@@ -1,6 +1,9 @@
+.schedule-table {
+  width: 100%;
+  table-layout: fixed;
+}
 
 .schedule-rows td {
-  width: 200px;
   height: 30px;
   margin: 1px;
   --padding: 1px;
