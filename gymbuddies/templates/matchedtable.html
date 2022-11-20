@@ -40,7 +40,7 @@
               {% endfor %}
           </td>
           <td>
-            <span class="text-xs font-weight-bold">{{ db.RequestStatus(match.status).to_readable() }}</span>
+            <p class="text-sm font-weight-bold mb-0">{{ db.RequestStatus(match.status).to_readable() }}</p>
           </td>
           <td class="align-middle">
           <!--
