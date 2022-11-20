@@ -86,8 +86,8 @@
   }
 
   function refreshRequests() {
-    if (getrequest != null) {
-      console.log("getrequest detected");
+    if (getrequest != null || postrequest != null) {
+      console.log("getrequest/postrequest detected");
       return;
     }
 

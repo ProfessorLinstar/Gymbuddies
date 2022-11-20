@@ -28,47 +28,50 @@
 {% block scripts %}
 <script>
     let lastrefreshed = 0;
-    let request = null;
+    let getrequest = null;
+    let postrequest = null;
+
     // generates list of matches
-    function listMatches(response)
-    {
+    function listMatches(response) {
       if (response) {
         lastrefreshed = Date.now();
         $('#matchesTable').html(response);
         console.log("making an update now!", Date.now())
       }
     }
+
     // unmatch request
-    function terminate(requestid)
-    {
-      if (request != null)
-        request.abort();
-      request =$.ajax(
-        {
-          type: 'POST',
-          data: {"requestid": requestid, "action": "terminate"},
-          url: '/matching/matchedtable',
-          success: listMatches
-        }
-      );
+    function terminate(requestid) {
+      if (postrequest != null)
+        return
+
+      postrequest = $.ajax({
+        type: 'POST',
+        data: {"requestid": requestid, "action": "terminate"},
+        url: "{{ url_for('matching.matchedtable') }}",
+        success: listMatches,
+        complete: function() { postrequest = null; },
+        timeout: 3000,
+      });
     }
+
     // refreshes match list
-    function refreshMatches()
-    {
-      if (request != null)
-        request.abort();
-      request =$.ajax(
-        {
-          type: 'GET',
-          data: {"lastrefreshed": lastrefreshed},
-          url: '/matching/matchedtable',
-          success: listMatches
-        }
-      );
+    function refreshMatches() {
+      if (getrequest != null || postrequest != null)
+        return
+
+      getrequest = $.ajax({
+        type: 'GET',
+        data: {"lastrefreshed": lastrefreshed},
+        url: "{{ url_for('matching.matchedtable') }}",
+        success: listMatches,
+        complete: function() { getrequest = null; },
+        timeout: 3000,
+      });
     }
+
     // sets up page. refreshes every 1000 miliseconds to get most up to date match list
-    function setup()
-    {
+    function setup() {
       refreshMatches();
       window.setInterval(refreshMatches, 1000);
     }
