@@ -26,14 +26,10 @@
         <div class="card-body">
 
           <div class="row">
-            <!-- <div class="col-md-6"> -->
-              <img src="{{url_for('static', filename='running.png')}}" width="60%">
-            <!-- </div> -->
+            <img src="{{url_for('static', filename='running.png')}}" width="60%">
           </div>
           <div class="row" style="text-align:center">
-            <!-- <div class="col-md-6"> -->
-              <p>Request Successfully Sent!</p>
-            <!-- </div> -->
+            <p>Request Successfully Sent!</p>
           </div>
 
           <div class="row">
@@ -63,23 +59,21 @@
   <div class="row">
     <div class="col-md-12">
       <div class="card">
+
         <div class="card-header pb-0 pt-3 bg-transparent">
           <h6 class="text-capitalize">Find a Buddy</h6>
         </div>
         <div class="card-body">
           <span id="buddies"></span>
-          
-          </div>
         </div>
+
       </div>
     </div>
   </div>
 </div>
-    </div>
-  </div>  
-</div>
 
 {% endblock %}
+
 {% block scripts %}
 <script>
   'use strict';

@@ -15,71 +15,69 @@
   <link rel="stylesheet" href="https://uicdn.toast.com/calendar/latest/toastui-calendar.min.css" />
   <script src="https://uicdn.toast.com/calendar /latest/toastui-calendar.min.js"></script>
 </head> -->
-<body>
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <h class="font-weight-bolder p-3 " style="font-size:xx-large;text-align: center;"> You Look Great Today </h>
+
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <h class="font-weight-bolder p-3 " style="font-size:xx-large;text-align: center;"> You Look Great Today </h>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+
+  <div class="col-lg-7 mb-lg-0 mb-4">
+    <div class="card z-index-2 h-80">
+
+      <div class="card-header pb-0 pt-3 bg-transparent">
+        <h6 class="text-capitalize">Your Schedule</h6>
+      </div>
+
+      <div class="card-body p-3">
+        <div id="day-schedule"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="col-lg-5 mb-lg-0 mb-4">
+    <div class="card z-index-2 h-90">
+      <div class="card-header pb-0 pt-3 bg-transparent">
+
+        <h6 class="text-capitalize">Profile</h6>
+        <div class="card-body pt-2">
+          <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{ netid }}</span>
+          <a href="javascript:;" class="card-title h5 d-block text-darker">
+            Hello, {{ user.name }}
+          </a>
+          <p class="card-description mb-4">
+            Gender: {{ gender }} 
+          </p>
+          <p class="card-description mb-4">
+            Bio: {{ user.bio }}
+          </p>
+          <p class="card-description mb-4">
+            Contact: {{ user.contact }} 
+          </p>
+          <p class="card-description mb-4">
+            Level: {{ level }}
+          </p>
+          <p class="card-description mb-4">
+            Interests: {{ interests }}
+          </p>
+          <p class="card-description mb-4">
+            Additional Information: {{ user.addinfo }} 
+          </p>
+        </div>
+
       </div>
     </div>
   </div>
-  <div class="row mt-4">
-    <div class="col-lg-7 mb-lg-0 mb-4">
-      <div class="card z-index-2 h-80">
-        <div class="card-header pb-0 pt-3 bg-transparent">
-          <h6 class="text-capitalize">Your Schedule</h6>
-        </div>
-        <div class="card-body p-3">
-          <main>
-            <link rel="stylesheet" type="text/css" href="../static/style.css">
-            <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
-            <!--- <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> --->
-            <!-- <style>
-            body { font-family:'roboto'; background-color:#ECF0F1; }
-            </style> -->
 
-            <div id="day-schedule"></div>
-            </body>
-          </main>
-          <!-- <img src = "{{ url_for('static', filename='matchcalendar.png') }}" width="100%"> -->
-          <!--<div class="chart">
-            <canvas id="chart-line" class="chart-canvas" height="300"></canvas>
-          </div>-->
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-5 mb-lg-0 mb-4">
-      <div class="card z-index-2 h-90">
-        <div class="card-header pb-0 pt-3 bg-transparent">
-          <h6 class="text-capitalize">Profile</h6>
-      <div class="card-body pt-2">
-        <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{ netid }}</span>
-        <a href="javascript:;" class="card-title h5 d-block text-darker">
-          Hello, {{ user.name }}
-        </a>
-        <p class="card-description mb-4">
-          Gender: {{ gender }} 
-        </p>
-        <p class="card-description mb-4">
-          Bio: {{ user.bio }}
-        </p>
-        <p class="card-description mb-4">
-          Contact: {{ user.contact }} 
-        </p>
-        <p class="card-description mb-4">
-          Level: {{ level }}
-        </p>
-        <p class="card-description mb-4">
-          Interests: {{ interests }}
-        </p>
-        <p class="card-description mb-4">
-          Additional Information: {{ user.addinfo }} 
-        </p>
-      </div>
-    </div>
-  </div>
-</body>
+</div>
 
+<link rel="stylesheet" type="text/css" href="../static/style.css">
 <script src="../static/indexdash.js"></script>
 <script>
   function setup() {
