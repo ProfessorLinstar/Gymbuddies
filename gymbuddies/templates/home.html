@@ -39,17 +39,14 @@
                   </style> -->
 
                   <div id="day-schedule"></div>
-                  <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
                     <script src="../static/indexdash.js"></script>
                     <script>
                       (function ($) {
                         $("#day-schedule").dayScheduleSelector({
-                          /*
-                          days: [1, 2, 3, 5, 6],
-                          interval: 15,
-                          startTime: '09:50',
-                          endTime: '21:06'
-                          */
+                          days: [0, 1, 2, 3, 4, 5, 6],
+                          interval: 60,
+                          startTime: '06:00',
+                          endTime: '24:00'
                         });
                         $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
                           console.log(selected);

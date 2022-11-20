@@ -228,7 +228,6 @@
     </form>
     </div>
 
-<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="../static/index.js"></script>
 <script>
   function setup() {
@@ -236,12 +235,11 @@
     $("#day-schedule").dayScheduleSelector({
       days: [0, 1, 2, 3, 4, 5, 6],
       interval: 60,
-      startTime: '00:00',
+      startTime: '06:00',
       endTime: '24:00'
     });
     const calendar = '{{ jsoncalendar|safe }}'
     const parsed = JSON.parse(calendar)
-    // const parsed = JSON.parse('{"0": [], "1": [["08:00", "09:05"]], "2": [], "3": [], "4": [], "5": [], "6": []}')
     console.log(calendar, parsed)
 
     $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);

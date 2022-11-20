@@ -26,61 +26,60 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script>
-      let lastrefreshed = 0;
-      let request = null;
-      let ongoing = false;
+<script>
+    let lastrefreshed = 0;
+    let request = null;
+    let ongoing = false;
 
-      function listOutgoing(response)
-      {
-        ongoing = false;
-        if (response) {
-          lastrefreshed = Date.now();
-          $('#outgoingTable').html(response);
+    function listOutgoing(response)
+    {
+      ongoing = false;
+      if (response) {
+        lastrefreshed = Date.now();
+        $('#outgoingTable').html(response);
+      }
+    }
+
+
+    function reject(requestid)
+    {
+      if (request != null)
+        request.abort();
+      request = $.ajax(
+        {
+          type: 'POST',
+          data: {"requestid": requestid, "action": "reject"},
+          url: '/matching/outgoingtable',
+          success: listOutgoing
         }
-      }
+      );
+    }
 
+    function refreshOutgoing()
+    {
+      if (ongoing)
+        return
 
-      function reject(requestid)
-      {
-        if (request != null)
-          request.abort();
-        request = $.ajax(
-          {
-            type: 'POST',
-            data: {"requestid": requestid, "action": "reject"},
-            url: '/matching/outgoingtable',
-            success: listOutgoing
-          }
-        );
-      }
+      ongoing = true;
+      if (request != null)
+        request.abort();
 
-      function refreshOutgoing()
-      {
-        if (ongoing)
-          return
+      request = $.ajax(
+        {
+          type: 'GET',
+          data: {"lastrefreshed": lastrefreshed},
+          url: '/matching/outgoingtable',
+          success: listOutgoing,
+          error: function() { ongoing = false; }
+        }
+      );
+    }
 
-        ongoing = true;
-        if (request != null)
-          request.abort();
-
-        request = $.ajax(
-          {
-            type: 'GET',
-            data: {"lastrefreshed": lastrefreshed},
-            url: '/matching/outgoingtable',
-            success: listOutgoing,
-            error: function() { ongoing = false; }
-          }
-        );
-      }
-
-      function setup()
-      {
-        refreshOutgoing();
-        window.setInterval(refreshOutgoing, 1000);
-      }
-      $('document').ready(setup);
-  </script>
+    function setup()
+    {
+      refreshOutgoing();
+      window.setInterval(refreshOutgoing, 1000);
+    }
+    $('document').ready(setup);
+</script>
 {% endblock %}

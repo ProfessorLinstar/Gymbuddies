@@ -26,53 +26,52 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script>
-      let lastrefreshed = 0;
-      let request = null;
-      // generates list of matches
-      function listMatches(response)
-      {
-        if (response) {
-          lastrefreshed = Date.now();
-          $('#matchesTable').html(response);
-          console.log("making an update now!", Date.now())
+<script>
+    let lastrefreshed = 0;
+    let request = null;
+    // generates list of matches
+    function listMatches(response)
+    {
+      if (response) {
+        lastrefreshed = Date.now();
+        $('#matchesTable').html(response);
+        console.log("making an update now!", Date.now())
+      }
+    }
+    // unmatch request
+    function terminate(requestid)
+    {
+      if (request != null)
+        request.abort();
+      request =$.ajax(
+        {
+          type: 'POST',
+          data: {"requestid": requestid, "action": "terminate"},
+          url: '/matching/matchedtable',
+          success: listMatches
         }
-      }
-      // unmatch request
-      function terminate(requestid)
-      {
-        if (request != null)
-          request.abort();
-        request =$.ajax(
-          {
-            type: 'POST',
-            data: {"requestid": requestid, "action": "terminate"},
-            url: '/matching/matchedtable',
-            success: listMatches
-          }
-        );
-      }
-      // refreshes match list
-      function refreshMatches()
-      {
-        if (request != null)
-          request.abort();
-        request =$.ajax(
-          {
-            type: 'GET',
-            data: {"lastrefreshed": lastrefreshed},
-            url: '/matching/matchedtable',
-            success: listMatches
-          }
-        );
-      }
-      // sets up page. refreshes every 1000 miliseconds to get most up to date match list
-      function setup()
-      {
-        refreshMatches();
-        window.setInterval(refreshMatches, 1000);
-      }
-      $('document').ready(setup);
-  </script>
+      );
+    }
+    // refreshes match list
+    function refreshMatches()
+    {
+      if (request != null)
+        request.abort();
+      request =$.ajax(
+        {
+          type: 'GET',
+          data: {"lastrefreshed": lastrefreshed},
+          url: '/matching/matchedtable',
+          success: listMatches
+        }
+      );
+    }
+    // sets up page. refreshes every 1000 miliseconds to get most up to date match list
+    function setup()
+    {
+      refreshMatches();
+      window.setInterval(refreshMatches, 1000);
+    }
+    $('document').ready(setup);
+</script>
 {% endblock %}
