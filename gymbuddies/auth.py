@@ -41,7 +41,7 @@ def signup():
 @bp.route("/login", methods=("GET", "POST"))
 def login():
     """Shows login page."""
-    netid: str = session.get("netid", "")
+    netid = session.get("netid", "")
     if netid:
         return redirect(url_for("home.home"))
 
@@ -88,6 +88,7 @@ def load_logged_in_user():
     g.user = user.get_user(netid) if netid else None
 
 
+@bp.route("/logoutapp")
 def logoutapp():
     """Logs out of the current user."""
     session.clear()
@@ -105,7 +106,7 @@ def strip_ticket(url):
 
 
 # Validate a login ticket by contacting the CAS server. If
-# valid, return the user’s username; otherwise, return None.
+# valid, return the user’s netid; otherwise, return None.
 
 
 def validate(ticket):
@@ -124,20 +125,20 @@ def validate(ticket):
     return second_line
 
 
-# Authenticate the remote user, and return the user's username.
+# Authenticate the remote user, and return the user's netid.
 # Do not return unless the user is successfully authenticated
 def authenticate():
     if 'netid' in flask.session:
-        return flask.session.get('username')
+        return flask.session.get('netid')
     ticket = flask.request.args.get('ticket')
     if ticket is None:
         login_url = (_CAS_URL + "login?service=" + urllib.parse.quote(flask.request.url))
         flask.abort(flask.redirect(login_url))
-    username = validate(ticket)
-    if username is None:
+    netid = validate(ticket)
+    if netid is None:
         login_url = (_CAS_URL + "login?service=" +
                      urllib.parse.quote(strip_ticket(flask.request.url)))
         flask.abort(flask.redirect(login_url))
-    username = username.strip()
-    flask.session['netid'] = username
-    return username
+    netid = netid.strip()
+    flask.session['netid'] = netid
+    return netid

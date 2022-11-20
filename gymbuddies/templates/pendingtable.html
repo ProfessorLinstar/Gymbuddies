@@ -1,108 +1,42 @@
 <!-- no incoming requests-->
-  {% if requestUsers|length == 0: %}
+{% if requestUsers|length == 0: %}
   <ul class="list-group">
     <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
-      <div>No incoming requests. </div>
+      No incoming requests.
     </li>
   </ul>
-  {% else: %}
+{% else: %}
   <!-- Incoming Requests List-->
   <ul class="list-group">
   {% for i in range(requestUsers|length): %}
-  <li
-    class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg"
-  >
+    <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
 
-    <div class="d-flex flex-column">
-      <div class="myDIV">  {{ requestUsers[i].name }} </div>
-      <div class="hide">
-      <!--
       <div class="d-flex flex-column">
-      <span class="mb-2 text-xs"
-        >Bio:
-        <span class="text-dark font-weight-bold ms-sm-2"
-          >{{ requestUsers[i].bio }}</span
-        ></span
-      >
-      <span class="mb-2 text-xs"
-        >Interests:
-        <span class="text-dark ms-sm-2 font-weight-bold"
-          >{{ interests[i] }}</span
-        ></span
-      >
-      <span class="text-xs"
-        >Level:
-        <span class="text-dark ms-sm-2 font-weight-bold"
-          >{{ db.Level(requestUsers[i].level).to_readable() }}</span
-        ></span>
-      </div> -->
-      <div class="row">
-        <div class="col-md-6">
-          <!-- Person's Profile Card -->
-          <div class="card z-index-2 h-90">
-            <div class="card-header pb-0 pt-3 bg-transparent">
-                <h6 class="text-capitalize">Profile</h6>
-            <div class="card-body pt-2">
-              <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
-              <a href="javascript:;" class="card-title h5 d-block text-darker">
-                {{ requestUsers[i].name }}
-              </a>
-              <p class="card-description mb-4">
-                <br>
-                Bio: {{ requestUsers[i].bio }}
-              </p>
-              <!--<p class="card-description mb-4">
-                Contact:
-              </p>-->
-              <p class="card-description mb-4">
-                Level: {{ db.Level(requestUsers[i].level).to_readable() }}
-              </p>
-              <p class="card-description mb-4">
-                Interests: {{ interests[i] }} <!-- {{ database.user.get_interests("ejcho") }} -->
-              </p>
-              <p class="card-description mb-4">
-                Additional Information: {{ requestUsers[i].addinto }}
-              </p>
-            </div>
-          </div>
+        {{ requestUsers[i].name }}
+      </div>
+
+      <div class="ms-auto text-end">
+        <div>
+          <button
+            id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
+            type="button"
+            onClick="act({{ requests[i].requestid }}, 'reject')"
+          ><i class="far fa-trash-alt me-2"></i>Delete</button>
+
+          <button
+            class="btn btn-link text-dark px-3 mb-0"
+            type="submit"
+            onClick="act({{ requests[i].requestid }}, 'accept')"
+          ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
         </div>
-      </div>
-        <div class="col-md-6">
-          <!-- Person's Schedule -->
-          <div class="p-3">
-            {% with calendar=calendars[i] %}
-              {% include 'calendarlist.html' %}
-            {% endwith %}
-          </div>
-        </div>
-      </div>
+
+        <button type="button" class="btn btn-block mb-3" data-toggle="modal" data-target="#Popup"
+          onClick="getCard({{ requests[i].requestid }})">
+          See Requested Times
+        </button>
       </div>
 
-      </div>
-
-
-
-
-
-    <div class="ms-auto text-end">
-      <button
-        id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
-        type="button"
-        onClick="act({{ requests[i].requestid }}, 'reject')"
-      ><i class="far fa-trash-alt me-2"></i>Delete</button>
-
-      <button
-        class="btn btn-link text-dark px-3 mb-0"
-        type="submit"
-        onClick="act({{ requests[i].requestid }}, 'accept')"
-      ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
-
-      <button type="button" class="btn btn-block mb-3" data-toggle="modal" data-target="#Popup"
-        onClick="getCard({{ requests[i].requestid }})">
-        See Requested Times
-      </button>
-    </div>
-  </li>
+    </li>
   {% endfor %}
 </ul>
 {% endif %}

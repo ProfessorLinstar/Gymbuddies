@@ -105,8 +105,3 @@ body {
 .hide {
   display: none;
 }
-
-.myDIV:hover + .hide {
-  display: flex;
-  color: black;
-}

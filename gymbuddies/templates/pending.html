@@ -6,19 +6,16 @@
   {% block classprof %}<a class="nav-link" href="{{ url_for('home.profile') }}">{% endblock %} 
   {% block classmast %}<a class="nav-link" href="{{ url_for('master.show') }}">{% endblock %}
   {% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Incoming Requests</li>
-{% endblock %} 
-{% block pagename_large %}Incoming Requests{%endblock %} 
+{% endblock %}
+{% block pagename_large %}Incoming Requests{%endblock %}
 
 {% block content %}
 <div class="modal fade bd-example-modal-lg" id="Popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
-            <!-- <p>You have no requests at this time.</p>-->
       <span id="userPopup"></span>
-            <!--  -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-      </div>
+      <!-- <div class="modal-footer"> -->
+      <!--   <button type="button" class="btn btn-secondary" onclick="closeCard()">Close</button> -->
+      <!-- </div> -->
     </div>
 </div>
 <div class="row">
@@ -36,83 +33,85 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script>
-      let lastrefreshed = 0;
-      let getrequest = null;
-      let postrequest = null;
+<script>
+  let lastrefreshed = 0;
+  let getrequest = null;
+  let postrequest = null;
 
-      function fillCard(response) {
-        console.log("got a response: ");
-        $('#userPopup').html(response);
-      }
+  function fillCard(response) {
+    console.log("got a response");
+    $('#userPopup').html(response);
+  }
 
-      function getCard(requestid) {
-        if (getrequest != null) {
-          console.log("aborting elsewhere!");
-          getrequest.abort();
-        }
-        console.log(requestid)
-        getrequest=$.ajax(
-          {
-            type: 'GET',
-            data: {"requestid": requestid},
-            url: '/matching/pendingmodal',
-            success: fillCard,
-            complete: function() { getrequest = null; }
-          }
-        );
-        // $('#Popup').modal(options)
-        // $('#Popup').show()
-        // $("#modal-content").show();
-      }
+  function getCard(requestid) {
+    if (getrequest != null) {
+      console.log("aborting other getrequests!");
+      getrequest.abort();
+    }
 
-      function listRequests(response) {
-        if (response) {
-          lastrefreshed = Date.now();
-          $('#requestTable').html(response);
-          console.log("making an update now!", Date.now())
-        }
-      }
+    getrequest = $.ajax({
+      type: 'GET',
+      data: {"requestid": requestid},
+      url: "{{ url_for('matching.pendingmodal') }}",
+      success: fillCard,
+      complete: function() { getrequest = null; },
+      error: function() { console.log("getCard failed!"); },
+      timeout: 3000,
+    });
+  }
 
-      function act(requestid, action) {
-        //let sessionindex = $('#indexInput').val();
-        console.log(requestid)
-        
-        if (postrequest != null) {
-          console.log("postrequest already in process! breaking!");
-          return;
-        }
-        postrequest=$.ajax({
-          type: 'POST',
-          data: {"requestid": requestid, "action": action},
-          url: '/matching/pendingtable',
-          success: listRequests,
-          complete: function() { postrequest = null; }
-        });
-      }
+  function listRequests(response) {
+    if (response) {
+      lastrefreshed = Date.now();
+      $('#requestTable').html(response);
+      console.log("making an update now!", Date.now())
+    }
+  }
 
-      function refreshRequests() {
-        if (getrequest != null) {
-          console.log("getrequest detected");
-          return;
-        }
-        getrequest=$.ajax({
-          type: 'GET',
-          data: {"lastrefreshed": lastrefreshed},
-          url: '/matching/pendingtable',
-          success: listRequests,
-          complete: function() { getrequest = null; },
-          timeout: 3000,
-        });
-      }
+  function act(requestid, action) {
+    if (postrequest != null) {
+      console.log("postrequest already in process! breaking!");
+      return;
+    }
 
-      function setup() {
-        refreshRequests()
-        window.setInterval(refreshRequests, 1000);
-      }
-      $('document').ready(setup);
-  </script>
+    postrequest = $.ajax({
+      type: 'POST',
+      data: { "requestid": requestid, "action": action },
+      url: "{{ url_for('matching.pendingtable') }}",
+      success: listRequests,
+      complete: function() { postrequest = null; },
+      error: function() { console.log("act failed!"); },
+      timeout: 3000,
+    });
+  }
+
+  function refreshRequests() {
+    if (getrequest != null) {
+      console.log("getrequest detected");
+      return;
+    }
+
+    getrequest = $.ajax({
+      type: 'GET',
+      data: {"lastrefreshed": lastrefreshed},
+      url: "{{ url_for('matching.pendingtable') }}",
+      success: listRequests,
+      complete: function() { getrequest = null; },
+      error: function() { console.log("refresh failed!"); },
+      timeout: 3000,
+    });
+  }
+
+  function setup() {
+    refreshRequests()
+    window.setInterval(refreshRequests, 1000);
+    $("#Popup").on("hide.bs.modal", function() {
+      console.log("hidden!");
+      $("#userPopup").html("");
+    });
+  }
+  $('document').ready(setup);
+</script>
 {% endblock %}
 
 
