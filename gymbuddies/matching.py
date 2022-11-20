@@ -157,11 +157,7 @@ def pendingtable():
     requests = database.request.get_active_incoming(netid)
     assert requests is not None
 
-    request_users = []
-    calendars = []
-    for req in requests:
-        request_users.append(database.user.get_user(req.srcnetid))
-        calendars.append(common.schedule_to_calendar(req.schedule))
+    request_users: List[Any] = [database.user.get_user(req.srcnetid) for req in requests]
 
     levels = []
     interests = []
@@ -172,7 +168,6 @@ def pendingtable():
     return render_template("pendingtable.html",
                            netid=netid,
                            requests=requests,
-                           calendars=calendars,
                            requestUsers=request_users,
                            levels=levels,
                            interests=interests)

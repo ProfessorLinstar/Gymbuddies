@@ -45,7 +45,7 @@ def get_active_outgoing(srcnetid: str,
 def get_active_incoming(destnetid: str,
                         *,
                         entities: Tuple[Column, ...] = (db.Request.requestid, db.Request.srcnetid,
-                                                        db.Request.schedule, db.Request.status),
+                                                        db.Request.status),
                         session: Optional[Session] = None) -> List[Any]:
     """Attempts to return a list of the active incoming requests for a user with netid 'srcnetid',
     sorted in order with respect to the request's make timestamp, newest first. If 'srcnetid' does
