@@ -17,7 +17,8 @@ td {
 
 .schedule-rows td:first-child {
   background-color: transparent;
-  text-align: right;
+  text-align: left;
+
   position: relative;
   top: -12px;
 }
