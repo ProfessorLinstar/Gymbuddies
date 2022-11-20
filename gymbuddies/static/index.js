@@ -11,7 +11,7 @@
 
   DayScheduleSelector.DEFAULTS = {
     days        : [0, 1, 2, 3, 4, 5, 6],  // Sun - Sat
-    startTime   : '00:00',                // HH:mm format
+    startTime   : '06:00',                // HH:mm format
     endTime     : '24:00',                // HH:mm format
     interval    : 30,                     // minutes
     stringDays  : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],

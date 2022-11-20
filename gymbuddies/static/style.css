@@ -1,10 +1,10 @@
 
 .schedule-rows td {
-  width: 80px;
+  width: 70px;
   height: 30px;
   margin: 3px;
   padding: 5px;
-  background-color: #3498DB;
+  background-color: #FFFFFF;
   cursor: pointer;
   border: 1px black;
 }
@@ -21,6 +21,6 @@ td {
 }
 
 .schedule-rows td[data-selected],
-.schedule-rows td[data-selecting] { background-color: #E74C3C; }
+.schedule-rows td[data-selecting] { background-color: #5E72E3; }
 
 .schedule-rows td[data-disabled] { opacity: 0.55; }
