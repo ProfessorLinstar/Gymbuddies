@@ -37,49 +37,17 @@
                 </style>
 
                 <div id="day-schedule"></div>
-              <br>
-                <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
               </div>
             <!-- </form> -->
           </div>
         <!--- </div> --->
-    <main>
       <link rel="stylesheet" type="text/css" href="../static/style.css">
       <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
       <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
       <style>
       /* body { font-family:'roboto'; background-color:#ECF0F1; } */
       </style>
-      <div class="card z-index-2 h-90">
-        <div class="card-header pb-0 pt-3 bg-transparent">
         <div id="day-schedule"></div>
-        <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-          <script src="../static/indexdash.js"></script>
-          <script>
-            (function ($) {
-              $("#day-schedule").dayScheduleSelector({
-                days: [0, 1, 2, 3, 4, 5, 6],
-                interval: 60,
-                startTime: '06:00',
-                endTime: '24:00'
-              });
-              const calendar = '{{ jsoncalendar|safe }}'
-              const parsed = JSON.parse(calendar)
-              $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
-                console.log(selected);
-              })
-              $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
-              $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
-                console.log(selected);
-              })
-              // $("#day-schedule").data('artsy.dayScheduleSelector').deserialize({
-              //   '0': [['09:30', '11:00'], ['13:00', '16:30']],
-              // });
-        
-            })($);
-          </script>
-            </div>
-          </div>
           <!-- console.log("SERIALIZE", $("#day-schedule").data('artsy.dayScheduleSelector').serialize())})($); -->
       </body>
     </main>
@@ -120,7 +88,7 @@
                   <!-- <button class="btn btn-primary btn-sm">Match</button> -->
                   <!-- <input id = "matchRequest" type="hidden" name="destnetid" value="{{ g.user.netid }}"></input>
                   <input id="indexInput" type="hidden" name="index" value="{{ session.get('index') }}"></input> -->
-    <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent" onClick="sendReq()">Match</button>   
+    <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent" onClick="makeMatch()">Match</button>
                   
               <!-- </form>  -->
   </div>
@@ -134,6 +102,25 @@
 </div>
 <script src="../static/index.js"></script>
 <script>
+  function makeMatch() {
+      console.log("lmao")
+      const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+      let destnetid = $('#matchRequest').val();
+      let sessionindex = $('#indexInput').val();
+      console.log(destnetid)
+      if (request != null)
+        request.abort();
+
+      $.ajax({
+        type:'POST',
+        url:'/matching/search',
+        data: { "destnetid": destnetid, "index": sessionindex, "jsoncalendar": JSON.stringify(calendar) },
+        error: function(xhr, textstatus, errorthrown) {
+          console.log(xhr, textstatus, errorthrown)
+        }
+      })
+    }
+
   function setup() {
 
     $("#day-schedule").dayScheduleSelector({
@@ -150,19 +137,6 @@
     $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
       console.log(selected);
     })
-
-    $('#updateCalendar').click( function() {
-      const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
-
-      $.ajax({
-        type:'POST',
-        url:'/profile',
-        data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
-        success: function(response) {
-          alert( "Submitted");
-        }
-      })
-    });
   }
 
   $("document").ready(setup);

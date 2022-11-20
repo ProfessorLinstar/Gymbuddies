@@ -52,6 +52,7 @@ def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
         for s, e in events:
             for i in range(str_to_timeblock(day, s), str_to_timeblock(day, e)):
                 schedule[i] = db.ScheduleStatus.AVAILABLE
+
     return schedule
 
 
