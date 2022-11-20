@@ -39,24 +39,27 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script>
       let lastrefreshed = 0;
-      let request = null;
+      let getrequest = null;
+      let postrequest = null;
 
-      function fillCard(response){
-        console.log("got a response: ")
+      function fillCard(response) {
+        console.log("got a response: ");
         $('#userPopup').html(response);
       }
 
       function getCard(requestid) {
-        if (request != null)
-          request.abort();
+        if (getrequest != null) {
+          console.log("aborting elsewhere!");
+          getrequest.abort();
+        }
         console.log(requestid)
-        request =$.ajax(
+        getrequest=$.ajax(
           {
-            type: 'POST',
+            type: 'GET',
             data: {"requestid": requestid},
             url: '/matching/pendingmodal',
             success: fillCard,
-            error: function(jqXHR, exception) { console.log(jqXHR, exception); }
+            complete: function() { getrequest = null; }
           }
         );
         // $('#Popup').modal(options)
@@ -64,8 +67,7 @@
         // $("#modal-content").show();
       }
 
-      function listRequests(response)
-      {
+      function listRequests(response) {
         if (response) {
           lastrefreshed = Date.now();
           $('#requestTable').html(response);
@@ -73,41 +75,39 @@
         }
       }
 
-      function act(requestid, action)
-      {
+      function act(requestid, action) {
         //let sessionindex = $('#indexInput').val();
         console.log(requestid)
         
-        if (request != null) {
-          request.abort();
-          console.log("i aborted a request!");
+        if (postrequest != null) {
+          console.log("postrequest already in process! breaking!");
+          return;
         }
-        request =$.ajax(
-          {
-            type: 'POST',
-            data: {"requestid": requestid, "action": action},
-            url: '/matching/pendingtable',
-            success: listRequests
-          }
-        );
+        postrequest=$.ajax({
+          type: 'POST',
+          data: {"requestid": requestid, "action": action},
+          url: '/matching/pendingtable',
+          success: listRequests,
+          complete: function() { postrequest = null; }
+        });
       }
 
-      function refreshRequests()
-      {
-        if (request != null)
-          request.abort();
-        request =$.ajax(
-          {
-            type: 'GET',
-            data: {"lastrefreshed": lastrefreshed},
-            url: '/matching/pendingtable',
-            success: listRequests
-          }
-        );
+      function refreshRequests() {
+        if (getrequest != null) {
+          console.log("getrequest detected");
+          return;
+        }
+        getrequest=$.ajax({
+          type: 'GET',
+          data: {"lastrefreshed": lastrefreshed},
+          url: '/matching/pendingtable',
+          success: listRequests,
+          complete: function() { getrequest = null; },
+          timeout: 3000,
+        });
       }
 
-      function setup()
-      {
+      function setup() {
         refreshRequests()
         window.setInterval(refreshRequests, 1000);
       }

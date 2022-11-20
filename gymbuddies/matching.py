@@ -177,7 +177,7 @@ def pendingtable():
                            levels=levels,
                            interests=interests)
 
-@bp.route("/pendingmodal", methods=["POST"])
+@bp.route("/pendingmodal", methods=["GET"])
 def pendingmodal():
     """Page for pending matches."""
     # return "<div class='modal-content'>lmao</div>"
@@ -191,7 +191,7 @@ def pendingmodal():
     # TODO: handle errors when database is not available
     # requests = database.request.get_active_incoming(netid)
     # assert requests is not None
-    requestid = request.form.get("requestid", "0")
+    requestid = request.args.get("requestid", "0")
     req = database.request.get_request(int(requestid))
     assert req is not None
 
