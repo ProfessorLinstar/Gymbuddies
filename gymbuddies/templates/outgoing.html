@@ -57,7 +57,7 @@ function listOutgoing(response) {
 
   function refreshOutgoing() {
     if (getrequest != null || postrequest != null)
-      getrequest.abort();
+      return
 
     getrequest = $.ajax({
       type: 'GET',
