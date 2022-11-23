@@ -15,13 +15,13 @@ bp = Blueprint("home", __name__, url_prefix="")
 def index():
     """Default page for the Gymbuddies web application. Redirects to user home page if logged in."""
     # if session.get("netid"):
-    #    return redirect(url_for("home.home"))
+    #    return redirect(url_for("home.dashbaord"))
     return render_template("index.html")
 
 
 
-@bp.route("/home")
-def home():
+@bp.route("/dashboard")
+def dashboard():
     """Homepage for logged-in user."""
     netid: str = session.get("netid", "")
     if not netid:
@@ -48,7 +48,7 @@ def home():
     print(matchSchedule)
     context: Dict[str, Any] = {}
     common.fill_schedule(context, matchSchedule)
-    return render_template("home.html",
+    return render_template("dashboard.html",
                            netid=netid,
                            user=user,
                            interests=interests,

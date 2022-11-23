@@ -14,9 +14,9 @@
 -->
 {% extends 'layout.html' %}
 {% block title %}Profile{% endblock %}
-{% block classdash %}<a class="nav-link" href="../home">{% endblock %}
-{% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
-{% block classreq %}<a class="nav-link" href="{{ url_for('matching.pending') }}">{% endblock %}
+{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
+{% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
+{% block classreq %}<a class="nav-link" href="{{ url_for('matching.incoming') }}">{% endblock %}
 {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
 {% block classprof %}<a class="nav-link active" href="{{ url_for('home.profile') }}">{% endblock %}
 {% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
@@ -235,7 +235,7 @@
         </div>
         <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->
           <div class="card-body p-3">
-            <link rel="stylesheet" type="text/css" href="../static/style.css">
+            <link rel="stylesheet" type="text/css" href="../static/css/style.css">
             <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
             <!--- <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> --->
             <style>
@@ -252,7 +252,7 @@
   </form>
 </div>
 
-<script src="../static/index.js"></script>
+<script src="../static/js/calprofile.js"></script>
 <script>
   function setup() {
 

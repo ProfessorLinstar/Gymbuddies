@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 {% block title %}Outgoing Requests{% endblock %}
-{% block classdash %}<a class="nav-link" href="../home">{% endblock %}
-  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
-  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.pending') }}">{% endblock %}
+{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
+  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
+  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.incoming') }}">{% endblock %}
   {% block classreqa %}<a class="nav-link active" href="{{ url_for('matching.outgoing') }}">{% endblock %}
   {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
   {% block classprof %}<a class="nav-link " href="{{ url_for('home.profile') }}">{% endblock %}
@@ -31,14 +31,13 @@
   let getrequest = null;
   let postrequest = null;
 
-  function listOutgoing(response) {
-    if (response) { // if response is empty, then no update is necessary
-      lastrefreshed = Date.now();
-      $('#outgoingTable').html(response);
-    }
+  // from outgoing.html
+function listOutgoing(response) {
+  if (response) { // if response is empty, then no update is necessary
+    lastrefreshed = Date.now();
+    $('#outgoingTable').html(response);
   }
-
-
+}
   function reject(requestid) {
     if (postrequest != null)
       return

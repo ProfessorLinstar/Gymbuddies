@@ -1,7 +1,7 @@
 {% extends 'layout.html' %} {% block title %}Incoming Requests{% endblock %} 
-{% block classdash %}<a class="nav-link" href="../home">{% endblock %} 
-  {% block classfind %}<a class="nav-link" href="{{ url_for('matching.search') }}">{% endblock %} 
-  {% block classreq %}<a class="nav-link active" href="{{ url_for('matching.pending') }}">{% endblock %} 
+{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %} 
+  {% block classfind %}<a class="nav-link" href="{{ url_for('matching.findabuddy') }}">{% endblock %} 
+  {% block classreq %}<a class="nav-link active" href="{{ url_for('matching.incoming') }}">{% endblock %} 
   {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %} 
   {% block classprof %}<a class="nav-link" href="{{ url_for('home.profile') }}">{% endblock %} 
   {% block classmast %}<a class="nav-link" href="{{ url_for('master.show') }}">{% endblock %}
@@ -22,7 +22,7 @@
   <div class="col-12 mb-4">
     <div class="card">
       <div class="card-header pb-0 px-3">
-        <h6 class="mb-0">Pending</h6>
+        <h6 class="mb-0">Incoming Requests</h6>
       </div>
       <div class="card-body pt-4 p-3">
         <span id="requestTable"></span>
@@ -33,41 +33,11 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="../static/js/ajax.js"></script>
 <script>
-  let lastrefreshed = 0;
+let lastrefreshed = 0;
   let getrequest = null;
   let postrequest = null;
-
-  function fillCard(response) {
-    console.log("got a response");
-    $('#userPopup').html(response);
-  }
-
-  function getCard(requestid) {
-    if (getrequest != null) {
-      console.log("aborting other getrequests!");
-      getrequest.abort();
-    }
-
-    getrequest = $.ajax({
-      type: 'GET',
-      data: {"requestid": requestid},
-      url: "{{ url_for('matching.pendingmodal') }}",
-      success: fillCard,
-      complete: function() { getrequest = null; },
-      error: function() { console.log("getCard failed!"); },
-      timeout: 3000,
-    });
-  }
-
-  function listRequests(response) {
-    if (response) {
-      lastrefreshed = Date.now();
-      $('#requestTable').html(response);
-      console.log("making an update now!", Date.now())
-    }
-  }
-
   function act(requestid, action) {
     if (postrequest != null) {
       console.log("postrequest already in process! breaking!");
@@ -78,14 +48,13 @@
     postrequest = $.ajax({
       type: 'POST',
       data: { "requestid": requestid, "action": action },
-      url: "{{ url_for('matching.pendingtable') }}",
+      url: "{{ url_for('matching.incomingtable') }}",
       success: listRequests,
       complete: function() { postrequest = null; $("body").removeClass("wait"); },
       error: function() { console.log("act failed!"); },
       timeout: 3000,
     });
   }
-
   function refreshRequests() {
     if (getrequest != null || postrequest != null) {
       console.log("getrequest/postrequest detected");
@@ -95,7 +64,7 @@
     getrequest = $.ajax({
       type: 'GET',
       data: {"lastrefreshed": lastrefreshed},
-      url: "{{ url_for('matching.pendingtable') }}",
+      url: "{{ url_for('matching.incomingtable') }}",
       success: listRequests,
       complete: function() { getrequest = null; },
       error: function() { console.log("refresh failed!"); },

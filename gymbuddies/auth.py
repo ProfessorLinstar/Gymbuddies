@@ -31,7 +31,7 @@ def signup():
         assert netid is not None
         if database.user.exists(netid):
             session["netid"] = netid
-            return redirect(url_for("home.home"))
+            return redirect(url_for("home.dashboard"))
 
     database.user.create(netid)
     session["netid"] = netid
@@ -43,7 +43,7 @@ def login():
     """Shows login page."""
     netid = session.get("netid", "")
     if netid:
-        return redirect(url_for("home.home"))
+        return redirect(url_for("home.dashboard"))
 
     if not USE_CAS:
         if request.method == "GET":
@@ -54,7 +54,7 @@ def login():
 
         if user.get_user(netid):
             session["netid"] = netid
-            return redirect(url_for("home.home"))
+            return redirect(url_for("home.dashboard"))
 
         response = f"Netid '{request.form['netid']}' was not found in the database."
         return render_template("login.html", response=response)
@@ -64,7 +64,7 @@ def login():
         assert netid is not None
         if database.user.exists(netid):
             session["netid"] = netid
-            return redirect(url_for("home.home"))
+            return redirect(url_for("home.dashboard"))
         return redirect(url_for("home.index"))
 
 

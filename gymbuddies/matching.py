@@ -16,8 +16,8 @@ from .database import db
 bp = Blueprint("matching", __name__, url_prefix="/matching")
 
 
-@bp.route("/search", methods=("GET", "POST"))
-def search():
+@bp.route("/findabuddy", methods=("GET", "POST"))
+def findabuddy():
     # get the current user in the session
     netid: str = session.get("netid", "")
     if not netid:
@@ -30,7 +30,7 @@ def search():
         session["index"] += 1
         assert database.request.new(netid, destnetid, schedule)
         # return redirect(url_for("matching.outgoing"))
-        print("inside search POST")
+        print("inside findabuddy POST")
         return ""
 
     # implement the roundtable format of getting matches
@@ -53,7 +53,7 @@ def search():
     # generate "no more matches message"
     if len(matches) is 0:
         noMatches = True
-        return render_template("search.html", netid=netid, noMatches = noMatches)
+        return render_template("findabuddy.html", netid=netid, noMatches = noMatches)
     else:
         g.user = database.user.get_user(
             matches[index])  # can access this in jinja template with {{ g.user }}
@@ -66,7 +66,7 @@ def search():
         context: Dict[str, Any] = {}
         noMatches = False
         common.fill_schedule(context, g.user.schedule)
-        return render_template("search.html",
+        return render_template("findabuddy.html",
                             noMatches = noMatches,
                            netid=netid,
                            level=level,
@@ -122,19 +122,19 @@ def buddies():
                            **context)
 
 
-@bp.route("/pending", methods=("GET",))
-def pending():
-    """Page for pending matches."""
+@bp.route("/incoming", methods=("GET",))
+def incoming():
+    """Page for incoming requests."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
 
-    return render_template("pending.html", netid=netid)
+    return render_template("incoming.html", netid=netid)
 
 
-@bp.route("/pendingtable", methods=("GET", "POST"))
-def pendingtable():
-    """Page for pending matches."""
+@bp.route("/incomingtable", methods=("GET", "POST"))
+def incomingtable():
+    """Table for incoming requests."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
@@ -165,23 +165,21 @@ def pendingtable():
         levels.append(db.Level(ruser.level).to_readable())
         interests.append(db.interests_to_readable(ruser.interests))
 
-    return render_template("pendingtable.html",
+    return render_template("incomingtable.html",
                            netid=netid,
                            requests=requests,
                            requestUsers=request_users,
                            levels=levels,
                            interests=interests)
 
-@bp.route("/pendingmodal", methods=["GET"])
-def pendingmodal():
-    """Page for pending matches."""
-    # return "<div class='modal-content'>lmao</div>"
-
+@bp.route("/incomingmodal", methods=["GET"])
+def incomingmodal():
+    """Modal for incoming requests."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
 
-    print("processing a pendingmodal request!")
+    print("processing an incoming modal request!")
 
     # TODO: handle errors when database is not available
     # requests = database.request.get_active_incoming(netid)
@@ -198,7 +196,7 @@ def pendingmodal():
 
     print(f"returning card with info for request {requestid = }")
 
-    return render_template("pendingmodal.html",
+    return render_template("incomingmodal.html",
                            netid=netid,
                            req=req,
                            user = user,

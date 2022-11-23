@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 {% block title %}Matches{% endblock %}
-{% block classdash %}<a class="nav-link" href="../home">{% endblock %}
-  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
-  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.pending') }}">{% endblock %}
+{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
+  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
+  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.incoming') }}">{% endblock %}
   {% block classmat %}<a class="nav-link active" href="{{ url_for('matching.matched') }}">{% endblock %}
   {% block classprof %}<a class="nav-link " href="{{ url_for('home.profile') }}">{% endblock %}
   {% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
@@ -26,35 +26,27 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="../static/js/ajax.js"></script>
 <script>
     let lastrefreshed = 0;
     let getrequest = null;
     let postrequest = null;
 
-    // generates list of matches
-    function listMatches(response) {
-      if (response) {
-        lastrefreshed = Date.now();
-        $('#matchesTable').html(response);
-        console.log("making an update now!", Date.now())
-      }
-    }
-
     // unmatch request
-    function terminate(requestid) {
-      if (postrequest != null)
-        return
+function terminate(requestid) {
+  if (postrequest != null)
+    return
 
-      $("body").addClass("wait");
-      postrequest = $.ajax({
-        type: 'POST',
-        data: {"requestid": requestid, "action": "terminate"},
-        url: "{{ url_for('matching.matchedtable') }}",
-        success: listMatches,
-        complete: function() { postrequest = null; $("body").removeClass("wait"); },
-        timeout: 3000,
-      });
-    }
+  $("body").addClass("wait");
+  postrequest = $.ajax({
+    type: 'POST',
+    data: {"requestid": requestid, "action": "terminate"},
+    url: "{{ url_for('matching.matchedtable') }}",
+    success: listMatches,
+    complete: function() { postrequest = null; $("body").removeClass("wait"); },
+    timeout: 3000,
+  });
+}
 
     // refreshes match list
     function refreshMatches() {

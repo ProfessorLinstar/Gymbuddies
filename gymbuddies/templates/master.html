@@ -1,6 +1,6 @@
 {% extends 'layout.html' %} {% block title %}Master Debugger{% endblock %} {%
 block links %}
-<link rel="stylesheet" href="{{ url_for('static', filename='master.css') }}" />
+<link rel="stylesheet" href="../static/css/master.css" />
 {% endblock %}
 {% block classdash %}<a class="nav-link" href="../home">{% endblock %}
   {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
