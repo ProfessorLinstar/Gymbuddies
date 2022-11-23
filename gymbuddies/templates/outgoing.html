@@ -49,7 +49,7 @@ function listOutgoing(response) {
         data: {"requestid": requestid, "action": "reject"},
         url: '/matching/outgoingtable',
         success: listOutgoing,
-        complete: function () { postrequest = null; $("body").removeClass("wait"); },
+        complete: function() { postrequest = null; $("body").removeClass("wait"); },
         timeout: 3000,
       }
     );
@@ -64,7 +64,7 @@ function listOutgoing(response) {
       data: {"lastrefreshed": lastrefreshed},
       url: '/matching/outgoingtable',
       success: listOutgoing,
-      getrequest: function() { getrequest = null; },
+      complete: function() { getrequest = null; },
       timeout: 3000,
     });
   }
