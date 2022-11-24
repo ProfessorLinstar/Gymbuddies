@@ -243,15 +243,21 @@
             </style>
 
             <div id="day-schedule"></div>
-          <br>
-            <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
+            <br>
+            <div class="col-md-6">
+              <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
+            </div>
+           
+            <span class="text-sm" id="lastUpdated"></span>
+            </div>
           </div>
         <!-- </form> -->
       </div>
     </div>
   </form>
 </div>
-
+{% endblock %}
+{% block scripts%}
 <script src="../static/js/calprofile.js"></script>
 <script>
   function setup() {
@@ -271,23 +277,49 @@
       console.log(selected);
     })
 
+    // $('#updateCalendar').click( function() {
+    //   const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+
+    //   $("body").addClass("wait");
+    //   $.ajax({
+    //     type:'POST',
+    //     url:'/profile',
+    //     data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
+    //     success: function(response) {
+    //       $("#Popup").modal("show")
+    //       console.log("lmao");
+    //     },
+    //     complete: function(response) {
+    //       $("body").removeClass("wait");
+    //     }
+    //   })
+    // });
     $('#updateCalendar').click( function() {
       const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
-
+      
       $("body").addClass("wait");
       $.ajax({
         type:'POST',
         url:'/profile',
-        data: { "update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
+        data: {"update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
         success: function(response) {
-          $("#Popup").modal("show")
-          console.log("lmao");
+          let lastupdated = new Date()
+          $.ajax({
+            type:'GET',
+            url:'/profileupdated',
+            data: {"lastupdated":lastupdated},
+            success: function(response) {
+              $('#lastUpdated').html(response);
+            }
+          })
         },
         complete: function(response) {
           $("body").removeClass("wait");
         }
       })
     });
+
+
   }
 
   $("document").ready(setup);

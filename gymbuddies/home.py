@@ -80,3 +80,9 @@ def profile():
     common.fill_schedule(context, user.schedule)
 
     return render_template("profile.html", netid=netid, user=user, **context)
+
+@bp.route("/profileupdated", methods=["GET"])
+def profileupdated():
+    """Updated profile message."""
+    time: str = request.args.get("lastupdated")
+    return render_template("profileupdated.html", time = time)
