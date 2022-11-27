@@ -1,9 +1,23 @@
 """Common methods for routing modules."""
 import json
+import sys
+import traceback
 from typing import Dict, Any, List
+
 from flask import request
 from . import database
 from .database import db
+
+
+class VerificationError(Exception):
+    """Exception raised in API call if attempting to create a user with a netid already in the
+    database."""
+
+    netid: str
+
+    def __init__(self, netid: str):
+        self.netid = netid
+        super().__init__(f"User with netid '{netid}' does not exist. Verification failed.")
 
 
 def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
@@ -114,5 +128,4 @@ def needs_refresh(lastrefreshed: int, netid: str) -> bool:
     number of milliseconds since January 1st, 1970 00:00:00 UTC, as is done by javascript's
     Date.now() function. Otherwise, returns False."""
 
-    lastupdated = database.user.get_lastupdated(netid)
-    return lastupdated is not None and lastupdated.timestamp() * 1000 <= lastrefreshed
+    return database.user.get_lastupdated(netid).timestamp() * 1000 <= lastrefreshed

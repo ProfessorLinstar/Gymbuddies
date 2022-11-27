@@ -51,23 +51,23 @@ def findabuddy():
     # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
     # TODO: when no more matches -- index out of bound error
     # generate "no more matches message"
-    if len(matches) is 0:
-        noMatches = True
-        return render_template("findabuddy.html", netid=netid, noMatches = noMatches)
-    else:
-        g.user = database.user.get_user(
-            matches[index])  # can access this in jinja template with {{ g.user }}
-        assert g.user is not None
-        # g.requests = database.request.get_active_incoming(netid)
-        level = database.db.Level(g.user.level)
-        level = level.to_readable()
-        interests = database.user.get_interests_string(netid)
-        # grab schedule
-        context: Dict[str, Any] = {}
-        noMatches = False
-        common.fill_schedule(context, g.user.schedule)
-        return render_template("findabuddy.html",
-                            noMatches = noMatches,
+    if len(matches) == 0:
+        no_matches = True
+        return render_template("findabuddy.html", netid=netid, no_matches=no_matches)
+
+    g.user = database.user.get_user(
+        matches[index])  # can access this in jinja template with {{ g.user }}
+    assert g.user is not None
+    # g.requests = database.request.get_active_incoming(netid)
+    level = database.db.Level(g.user.level)
+    level = level.to_readable()
+    interests = database.user.get_interests_string(netid)
+    # grab schedule
+    context: Dict[str, Any] = {}
+    no_matches = False
+    common.fill_schedule(context, g.user.schedule)
+    return render_template("findabuddy.html",
+                           no_matches=no_matches,
                            netid=netid,
                            level=level,
                            interests=interests,
@@ -97,24 +97,24 @@ def buddies():
         matches = session.get("matches", None)
         index = session.get("index", None)
 
-    if len(matches) is 0:
-        noMatches = True
-        return render_template("buddies.html", netid=netid, noMatches = noMatches)
-    else:
-         # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
-        g.user = database.user.get_user(
-            matches[index])  # can access this in jinja template with {{ g.user }}
-        assert g.user is not None
-        # g.requests = database.request.get_active_incoming(netid)
-        level = database.db.Level(g.user.level)
-        level = level.to_readable()
-        interests = database.user.get_interests_string(netid)
-        # grab schedule
-        context: Dict[str, Any] = {}
-        common.fill_schedule(context, g.user.schedule)
-        noMatches = False
-        return render_template("buddies.html",
-                        noMatches = noMatches,
+    if len(matches) == 0:
+        no_matches = True
+        return render_template("buddies.html", netid=netid, no_matches=no_matches)
+
+    # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
+    g.user = database.user.get_user(
+        matches[index])  # can access this in jinja template with {{ g.user }}
+    assert g.user is not None
+    # g.requests = database.request.get_active_incoming(netid)
+    level = database.db.Level(g.user.level)
+    level = level.to_readable()
+    interests = database.user.get_interests_string(netid)
+    # grab schedule
+    context: Dict[str, Any] = {}
+    common.fill_schedule(context, g.user.schedule)
+    no_matches = False
+    return render_template("buddies.html",
+                           no_matches=no_matches,
                            netid=netid,
                            level=level,
                            interests=interests,
@@ -155,7 +155,6 @@ def incomingtable():
 
     # TODO: handle errors when database is not available
     requests = database.request.get_active_incoming(netid)
-    assert requests is not None
 
     request_users: List[Any] = [database.user.get_user(req.srcnetid) for req in requests]
 
@@ -172,6 +171,7 @@ def incomingtable():
                            levels=levels,
                            interests=interests)
 
+
 @bp.route("/incomingmodal", methods=["GET"])
 def incomingmodal():
     """Modal for incoming requests."""
@@ -186,10 +186,8 @@ def incomingmodal():
     # assert requests is not None
     requestid = request.args.get("requestid", "0")
     req = database.request.get_request(int(requestid))
-    assert req is not None
 
     user = database.user.get_user(req.srcnetid)
-    assert user is not None
     jsoncalendar = common.schedule_to_json(req.schedule)
     level = db.Level(user.level).to_readable()
     interests = db.interests_to_readable(user.interests)
@@ -199,7 +197,7 @@ def incomingmodal():
     return render_template("incomingmodal.html",
                            netid=netid,
                            req=req,
-                           user = user,
+                           user=user,
                            jsoncalendar=jsoncalendar,
                            level=level,
                            interests=interests)
@@ -235,13 +233,15 @@ def outgoingtable():
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     requests = database.request.get_active_outgoing(netid)
-    assert requests is not None
 
     users = [m.destnetid for m in requests]
     users = [database.user.get_user(u) for u in users]
     length = len(requests)
 
-    return render_template("outgoingtable.html", netid=netid, matchusers=zip(requests, users), length=length)
+    return render_template("outgoingtable.html",
+                           netid=netid,
+                           matchusers=zip(requests, users),
+                           length=length)
 
 
 @bp.route("/matched", methods=("GET",))
@@ -277,10 +277,12 @@ def matchedtable():
 
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     matches = database.request.get_matches(netid)
-    assert matches is not None
 
     users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
     users = [database.user.get_user(u) for u in users]
     length = len(matches)
 
-    return render_template("matchedtable.html", netid=netid, matchusers=zip(matches, users), length = length)
+    return render_template("matchedtable.html",
+                           netid=netid,
+                           matchusers=zip(matches, users),
+                           length=length)

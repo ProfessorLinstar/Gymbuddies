@@ -2,12 +2,10 @@
 
 import functools
 import os
-import sys
-import traceback
 
 from datetime import datetime
 from enum import Enum, IntFlag
-from typing import Tuple, Callable, ParamSpec, TypeVar, Optional, Dict, List, Any
+from typing import Tuple, Callable, ParamSpec, TypeVar, Dict, List, Any
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
@@ -34,7 +32,7 @@ engine = create_engine(DATABASE_URL)
 
 
 # TODO: return exception to client
-def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
+def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
        func(..., *, session: Session=None, x, y, ..., **kwargs) -> R,
@@ -50,10 +48,10 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
     function decorated by '@session_decorator(commit=True)'. Because of this, it is recommended that
     any such function use 'commit=True' instead of manually calling 'session.commit'."""
 
-    def decorator(func: Callable[P, R]) -> Callable[P, Optional[R]]:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
 
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             if "session" in kwargs:  # A session can be provided manually
                 return func(*args, **kwargs)
 

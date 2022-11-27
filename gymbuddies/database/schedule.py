@@ -59,9 +59,7 @@ def add_schedule_status(
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is marked for the corresponding TimeBlock. If False, then the element is ignored."""
 
-    schedule: Optional[List[int]] = db_user.get_schedule(netid, session=session)
-    if schedule is None:
-        raise db_user.UserNotFound(netid=netid)
+    schedule: List[int] = db_user.get_schedule(netid, session=session)
 
     for i, m in enumerate(marked):
         if m:
@@ -82,10 +80,7 @@ def remove_schedule_status(
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is unmarked for the corresponding TimeBlock. if False, then the element is ignored."""
 
-    schedule: Optional[List[int]] = db_user.get_schedule(netid, session=session)
-    if schedule is None:
-        raise db_user.UserNotFound(netid=netid)
-
+    schedule: List[int] = db_user.get_schedule(netid, session=session)
     for i, m in enumerate(marked):
         if m:
             schedule[i] &= ~status

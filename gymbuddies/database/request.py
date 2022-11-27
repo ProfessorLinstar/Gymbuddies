@@ -10,16 +10,24 @@ from . import schedule as db_schedule
 
 
 class MultipleActiveRequests(Exception):
-    """Exception raised in API call if user required but not found in database."""
+    """Exception raised in API call if more than one active request found between two users."""
+
+    netid1: str
+    netid2: str
 
     def __init__(self, netid1: str, netid2: str):
+        self.netid1 = netid1
+        self.netid2 = netid2
         super().__init__(f"Multiple active requests found between users '{netid1}' and '{netid2}'.")
 
 
 class RequestNotFound(Exception):
-    """Exception raised in API call if user required but not found in database."""
+    """Exception raised in API call if request not found."""
+
+    requestid: int
 
     def __init__(self, requestid: int):
+        self.requestid = requestid
         super().__init__(f"Request with requestid '{requestid}' not found in the database.")
 
 
@@ -52,8 +60,8 @@ def get_active_incoming(destnetid: str,
     not exist in the database, returns an empty list."""
     assert session is not None
     return session.query(*entities).filter(db.Request.destnetid == destnetid,
-                                            db.Request.status == db.RequestStatus.PENDING).order_by(
-                                                db.Request.maketimestamp.desc()).all()
+                                           db.Request.status == db.RequestStatus.PENDING).order_by(
+                                               db.Request.maketimestamp.desc()).all()
 
 
 @db.session_decorator(commit=False)

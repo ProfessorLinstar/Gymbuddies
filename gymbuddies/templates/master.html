@@ -3,8 +3,8 @@ block links %}
 <link rel="stylesheet" href="../static/css/master.css" />
 {% endblock %}
 {% block classdash %}<a class="nav-link" href="../home">{% endblock %}
-  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
-  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.pending') }}">{% endblock %}
+  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
+  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.incoming') }}">{% endblock %}
   {% block classmat %}<a class="nav-link " href="{{ url_for('matching.matched') }}">{% endblock %}
   {% block classprof %}<a class="nav-link " href="{{ url_for('home.profile') }}">{% endblock %}
   {% block classmast %}<a class="nav-link active" href="{{ url_for('master.show') }}">{% endblock %}
@@ -204,7 +204,7 @@ block links %}
 
       <div id="right">
         <h2>Schedule</h2>
-        {% include 'calendarold.html' %}
+        {% include 'calendars/calendarold.html' %}
       </div>
     </div>
 
