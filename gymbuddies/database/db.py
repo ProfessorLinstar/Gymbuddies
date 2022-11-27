@@ -55,21 +55,14 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
         @functools.wraps(func)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
             if "session" in kwargs:  # A session can be provided manually
-                return func(*args, **kwargs)  # propogate exception to outer session
+                return func(*args, **kwargs)
 
-            try:
-
-                with Session(engine) as session:
-                    kwargs["session"] = session
-                    result = func(*args, **kwargs)
-                    if commit:
-                        session.commit()
-                return result
-
-            except Exception:
-                traceback.print_exc(file=sys.stderr)
-
-            return None
+            with Session(engine) as session:
+                kwargs["session"] = session
+                result = func(*args, **kwargs)
+                if commit:
+                    session.commit()
+            return result
 
         return wrapper
 

@@ -15,13 +15,14 @@ USE_CAS = False
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+
 @bp.route("/signup", methods=("GET", "POST"))
 def signup():
     """Shows signup page."""
     if not USE_CAS:
         if request.method == "GET":
             return render_template("signup.html")
-        netid = request.form["netid"]
+        netid = request.form.get("netid", "")
 
         if database.user.exists(netid):
             return redirect(url_for("auth.login"))
@@ -29,6 +30,7 @@ def signup():
     else:
         netid = authenticate()
         assert netid is not None
+
         if database.user.exists(netid):
             session["netid"] = netid
             return redirect(url_for("home.dashboard"))
@@ -59,18 +61,17 @@ def login():
         response = f"Netid '{request.form['netid']}' was not found in the database."
         return render_template("login.html", response=response)
 
-    else:
-        netid = authenticate()
-        assert netid is not None
-        if database.user.exists(netid):
-            session["netid"] = netid
-            return redirect(url_for("home.dashboard"))
-        return redirect(url_for("home.index"))
+    netid = authenticate()
+    assert netid is not None
+    if database.user.exists(netid):
+        session["netid"] = netid
+        return redirect(url_for("home.dashboard"))
+    return redirect(url_for("home.index"))
 
 
 @bp.route("/logout")
 def logout():
-    # Log out of the CAS session, and then the application.
+    """Log out of the CAS session, and then the application."""
     if USE_CAS:
         logout_url = (_CAS_URL + "logout?service=" +
                       urllib.parse.quote(re.sub("logout", "logoutapp", flask.request.url)))
@@ -95,9 +96,8 @@ def logoutapp():
     return redirect(url_for("home.index"))
 
 
-# Return url after stripping out the "ticket" parameter that was
-# added by the CAS server
 def strip_ticket(url):
+    """Returns url after strippling out the ticket parameter added by the CAS server."""
     if url is None:
         return "something is badly wrong"
     url = re.sub(r"ticket=[^&]*&?", "", url)
@@ -105,11 +105,9 @@ def strip_ticket(url):
     return url
 
 
-# Validate a login ticket by contacting the CAS server. If
-# valid, return the user’s netid; otherwise, return None.
-
-
 def validate(ticket):
+    """Validates a login ticket by contacting the CAS server. If valid, returns the user's netid;
+    otehrwise, returns None."""
     val_url = (_CAS_URL + "validate" + "?service=" +
                urllib.parse.quote(strip_ticket(flask.request.url)) + "&ticket=" +
                urllib.parse.quote(ticket))
@@ -125,9 +123,9 @@ def validate(ticket):
     return second_line
 
 
-# Authenticate the remote user, and return the user's netid.
-# Do not return unless the user is successfully authenticated
 def authenticate():
+    """Authenticates the remote user, and returns the user's netid. Does not return unless the user
+    is successfully authenticated."""
     if 'netid' in flask.session:
         return flask.session.get('netid')
     ticket = flask.request.args.get('ticket')
