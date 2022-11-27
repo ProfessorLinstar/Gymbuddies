@@ -184,23 +184,18 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     submit: str = request.form.get("submit-schedule", "")
 
     if submit == "Get":
-        timeblocks: Optional[List[int]] = []
+        schedule: List[int] = []
         if which_schedule == "match":
-            timeblocks = database.schedule.get_matched_schedule(netid)
+            schedule = database.schedule.get_matched_schedule(netid)
         elif which_schedule == "pending":
-            timeblocks = database.schedule.get_pending_schedule(netid)
+            schedule = database.schedule.get_pending_schedule(netid)
         elif which_schedule == "available":
-            timeblocks = database.schedule.get_available_schedule(netid)
+            schedule = database.schedule.get_available_schedule(netid)
 
-        if timeblocks is not None:
-            for t in timeblocks:
-                day, time = db.TimeBlock(t).day_time()
-                context[f"s{day}_{time // db.NUM_HOUR_BLOCKS}"] = "checked"
+        fill_schedule(context, schedule)
 
-            context["query"] += f"Get {which_schedule} schedule for user '{netid}' successful."
-            context["query"] += f"\nFound these timeblocks: {timeblocks}"
-        else:
-            context["query"] += f"Get {which_schedule} schedule for user '{netid}' failed."
+        context["query"] += f"Get {which_schedule} schedule for user '{netid}' successful."
+        context["query"] += f"\nFound these timeblocks: {schedule}"
 
     elif submit == "Update":
         status: db.ScheduleStatus = db.ScheduleStatus.from_str(which_schedule)

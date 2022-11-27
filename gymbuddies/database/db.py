@@ -193,7 +193,7 @@ class TimeBlock(int):
     @classmethod
     def from_daytime(cls, day: int, time: int) -> "TimeBlock":
         """Converts a (day, time) tuple to a TimeBlock. 'day' is an integer from 0-6, corresponding
-        to Monday, ..., Sunday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
+        to Sunday, ..., Saturday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
         00:00-00:05, ..., 23:55-24:00."""
         return cls(day * NUM_DAY_BLOCKS + time)
 
@@ -210,11 +210,13 @@ class TimeBlock(int):
     def time_str(self) -> str:
         """Converts the time of day for a TimeBlock to a datetime."""
         _, time = self.day_time()
-        return datetime.strptime(f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}", "%H:%M").strftime("%H:%M")
+        return datetime.strptime(
+            f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}",
+            "%H:%M").strftime("%H:%M")
 
     def day_time(self) -> Tuple[int, int]:
         """Converts a TimeBlock to a (day, time) tuple. 'day' is an integer from 0-6, corresponding
-        to Monday, ..., Sunday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
+        to Sunday, ..., Saturday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
         00:00-00:05, ..., 23:55-24:00."""
         return divmod(self, NUM_DAY_BLOCKS)
 

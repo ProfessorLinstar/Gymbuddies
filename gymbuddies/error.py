@@ -6,15 +6,10 @@ import traceback
 from flask import Blueprint
 from flask import session
 from flask import render_template
+from werkzeug.exceptions import HTTPException
 from . import database
 
 bp = Blueprint("error", __name__, url_prefix="")
-
-
-@bp.app_errorhandler(database.user.UserAlreadyExists)
-def user_already_exists(_):
-    """Application error handler for when attempting to create a user which already exists."""
-    return render_template("404.html"), 404
 
 
 @bp.app_errorhandler(database.request.RequestNotFound)
@@ -39,6 +34,9 @@ def user_not_found(ex: database.user.UserNotFound):
 def internal_server_error(ex):
     """Application error handler for when an unexpected error occurs."""
 
+    if isinstance(ex, HTTPException):
+        return ex
+
     traceback.print_exception(ex, file=sys.stderr)
     print("unexpected error occurred!")
-    return render_template("500.html"), 500
+    return render_template("500.html", ex=ex), 500
