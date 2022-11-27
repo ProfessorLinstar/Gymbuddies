@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import func
 from . import db
 from . import schedule as db_schedule
+from . import request as db_request
 
 
 class UserAlreadyExists(Exception):
@@ -134,8 +135,10 @@ def delete(netid: str, *, session: Optional[Session] = None) -> bool:
     Does nothing if the user does not exist."""
     assert session is not None
 
-    user = get_user(netid, session=session)
-    session.delete(user)
+    db_request.delete_all(netid)
+    db_schedule.update_schedule(netid, [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
+                                session=session)
+    session.delete(get_user(netid, session=session))
 
     return True
 
