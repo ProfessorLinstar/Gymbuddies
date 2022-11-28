@@ -66,16 +66,26 @@ def get_active_incoming(destnetid: str, *, session: Optional[Session] = None) ->
 
 
 @db.session_decorator(commit=False)
-def get_active(netid1: str,
-               netid2: str,
-               entities: Tuple[Column, ...] = (db.Request,),
-               *,
-               session: Optional[Session] = None) -> Any:
+def get_active_single(netid: str, *, session: Optional[Session] = None) -> List[db.MappedRequest]:
     """Attempts to return the requestid of an active request from a user with netid 'srcnetid' to a
     user with netid 'destnetid'. If no such request exists, returns None."""
     assert session is not None
 
-    return session.query(*entities).filter(
+    return session.query(db.Request).filter(
+        (db.Request.srcnetid == netid) | (db.Request.srcnetid == netid),
+        db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).all()
+
+
+@db.session_decorator(commit=False)
+def get_active_pair(netid1: str,
+                    netid2: str,
+                    *,
+                    session: Optional[Session] = None) -> db.MappedRequest:
+    """Attempts to return the requestid of an active request from a user with netid 'srcnetid' to a
+    user with netid 'destnetid'. If no such request exists, returns None."""
+    assert session is not None
+
+    return session.query(db.Request).filter(
         ((db.Request.srcnetid == netid1) & (db.Request.destnetid == netid2)) |
         ((db.Request.srcnetid == netid2) & (db.Request.destnetid == netid1)),
         db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).scalar()
@@ -175,6 +185,7 @@ def _get_column(session: Session, requestid: int, column: Column) -> Any:
     return _get(session, requestid, (column,))
 
 
+# TODO: disallow making requests for times that are unavailable, or already matched, or empty
 @db.session_decorator(commit=True)
 def new(srcnetid: str,
         destnetid: str,
@@ -201,7 +212,7 @@ def new(srcnetid: str,
         elif prev.status == db.RequestStatus.FINALIZED:
             prev.status = db.RequestStatus.TERMINATED
 
-    elif get_active(srcnetid, destnetid, session=session):
+    elif get_active_pair(srcnetid, destnetid, session=session):
         raise RequestAlreadyExists(srcnetid, destnetid)
 
     request = db.Request(srcnetid=srcnetid,
@@ -230,18 +241,22 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> None:
 
     for netid in (request.srcnetid, request.destnetid):
         db_schedule.add_schedule_status(netid, request.schedule, db.ScheduleStatus.MATCHED)
+        for active in get_active_single(netid, session=session):
+            if active.requestid == request.requestid:
+                continue
+            if any(x and y for x, y in zip(request.schedule, active.schedule)):
+                _deactivate(session, active)
 
 
 @db.session_decorator(commit=True)
 def reject(requestid: int, *, session: Optional[Session] = None) -> None:
-    """Reject request with id 'requestid'. If this request is not pending, does nothing and returns
-    False."""
+    """Reject request with id 'requestid'. If this request is not pending, raises an error."""
     assert session is not None
     _reject(session, _get(session, requestid))
 
 
 def _reject(session: Session, request: db.MappedRequest) -> None:
-    """Rejects request. If this request is not pending, does nothing and returns False."""
+    """Rejects request. If this request is not pending, raises an error."""
     if request.status != db.RequestStatus.PENDING:
         raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.PENDING)
 
@@ -254,13 +269,14 @@ def _reject(session: Session, request: db.MappedRequest) -> None:
 
 @db.session_decorator(commit=True)
 def terminate(requestid: int, *, session: Optional[Session] = None) -> None:
-    """delete outgoing request"""
+    """Terminates a request with id 'requestid'. If this request is not finalized, raises an
+    error."""
     assert session is not None
     _terminate(session, _get(session, requestid))
 
 
 def _terminate(session: Session, request: db.MappedRequest) -> None:
-    """Terminates a request. If this request is not finalized, does nothing and returns False."""
+    """Terminates a request. If this request is not finalized, raises an error."""
     if request.status != db.RequestStatus.FINALIZED:
         raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.FINALIZED)
 
@@ -271,6 +287,14 @@ def _terminate(session: Session, request: db.MappedRequest) -> None:
                                            session=session)
 
     request.status = db.RequestStatus.TERMINATED
+
+
+def _deactivate(session: Session, request: db.MappedRequest) -> None:
+    """Deactivates a request if it is active."""
+    if request.status == db.RequestStatus.PENDING:
+        _reject(session, request)
+    elif request.status == db.RequestStatus.FINALIZED:
+        _terminate(session, request)
 
 
 @db.session_decorator(commit=True)
@@ -292,6 +316,5 @@ def delete_all(netid: str, *, session: Optional[Session] = None) -> None:
         db.Request).filter((db.Request.srcnetid == netid) | (db.Request.destnetid == netid)).all()
 
     for request in requests:
-        _reject(session, request)
-        _terminate(session, request)
+        _deactivate(session, request)
         session.delete(request)
