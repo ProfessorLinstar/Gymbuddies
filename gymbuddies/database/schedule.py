@@ -19,7 +19,7 @@ def update_schedule(netid: str,
                     schedule: List[int],
                     *,
                     session: Optional[Session] = None,
-                    update_user: bool = True) -> bool:
+                    update_user: bool = True) -> None:
     """Updates either Availability, Pending, or Matched to be set for a certain time block.
     In the case that the attribute was already set, False is returned. status should
     be a ScheduleStatus enum value"""
@@ -43,8 +43,6 @@ def update_schedule(netid: str,
     print(f"update_schedule: trying to update user: {netid = }, {update_user = }")
     if update_user:
         db_user.update(netid, session=session, schedule=schedule, update_schedule=False)
-
-    return True
 
 
 @db.session_decorator(commit=True)

@@ -35,53 +35,15 @@
 {% block scripts %}
 <script src="../static/js/ajax.js"></script>
 <script>
-let lastrefreshed = 0;
-  let getrequest = null;
-  let postrequest = null;
-  function act(requestid, action) {
-    if (postrequest != null) {
-      console.log("postrequest already in process! breaking!");
-      return;
-    }
-
-    $("body").addClass("wait");
-    postrequest = $.ajax({
-      type: 'POST',
-      data: { "requestid": requestid, "action": action },
-      url: "{{ url_for('matching.incomingtable') }}",
-      success: listRequests,
-      complete: function() { postrequest = null; $("body").removeClass("wait"); },
-      error: function() { console.log("act failed!"); },
-      timeout: 3000,
-    });
-  }
-  function refreshRequests() {
-    if (getrequest != null || postrequest != null) {
-      console.log("getrequest/postrequest detected");
-      return;
-    }
-
-    getrequest = $.ajax({
-      type: 'GET',
-      data: {"lastrefreshed": lastrefreshed},
-      url: "{{ url_for('matching.incomingtable') }}",
-      success: listRequests,
-      complete: function() { getrequest = null; },
-      error: function() { console.log("refresh failed!"); },
-      timeout: 3000,
-    });
-  }
-
   function setup() {
-    refreshRequests()
-    window.setInterval(refreshRequests, 1000);
+    refreshWrapper = function() { refresh("{{ url_for('matching.incomingtable') }}", "#requestTable"); };
+    refreshWrapper();
+    window.setInterval(refreshWrapper, 1000);
+
     $("#Popup").on("hide.bs.modal", function() {
-      console.log("hidden!");
       $("#userPopup").html("");
     });
   }
   $('document').ready(setup);
 </script>
 {% endblock %}
-
-

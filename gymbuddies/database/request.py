@@ -2,23 +2,22 @@
 from typing import List, Optional, Dict, Tuple, Any
 from datetime import datetime, timezone
 from sqlalchemy import Column
-from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.orm import Session
 from . import db
 from . import user as db_user
 from . import schedule as db_schedule
 
 
-class MultipleActiveRequests(Exception):
-    """Exception raised in API call if more than one active request found between two users."""
+class RequestAlreadyExists(Exception):
+    """Exception raised in API call if attempting to create multiple active requests."""
 
-    netid1: str
-    netid2: str
+    srcnetid: str
+    destnetid: str
 
-    def __init__(self, netid1: str, netid2: str):
-        self.netid1 = netid1
-        self.netid2 = netid2
-        super().__init__(f"Multiple active requests found between users '{netid1}' and '{netid2}'.")
+    def __init__(self, srcnetid: str, destnetid: str):
+        self.srcnetid = srcnetid
+        self.destnetid = destnetid
+        super().__init__(f"Active request between '{srcnetid}' and '{destnetid}' already exists.")
 
 
 class RequestNotFound(Exception):
@@ -29,6 +28,19 @@ class RequestNotFound(Exception):
     def __init__(self, requestid: int):
         self.requestid = requestid
         super().__init__(f"Request with requestid '{requestid}' not found in the database.")
+
+
+class RequestStatusMismatch(Exception):
+    """Exception raised if the actual status of a request does not match the expected status of a
+    database API call."""
+
+    actual: db.RequestStatus
+    expected: db.RequestStatus
+
+    def __init__(self, actual: db.RequestStatus, expected: db.RequestStatus):
+        self.actual = actual
+        self.expected = expected
+        super().__init__(f"Expected request status {expected}; instead got {actual}.")
 
 
 @db.session_decorator(commit=False)
@@ -63,15 +75,10 @@ def get_active(netid1: str,
     user with netid 'destnetid'. If no such request exists, returns None."""
     assert session is not None
 
-    try:
-        request = session.query(*entities).filter(
-            ((db.Request.srcnetid == netid1) & (db.Request.destnetid == netid2)) |
-            ((db.Request.srcnetid == netid2) & (db.Request.destnetid == netid1)),
-            db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).scalar()
-    except MultipleResultsFound as ex:
-        raise MultipleActiveRequests(netid1, netid2) from ex
-
-    return request
+    return session.query(*entities).filter(
+        ((db.Request.srcnetid == netid1) & (db.Request.destnetid == netid2)) |
+        ((db.Request.srcnetid == netid2) & (db.Request.destnetid == netid1)),
+        db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).scalar()
 
 
 @db.session_decorator(commit=False)
@@ -174,7 +181,7 @@ def new(srcnetid: str,
         schedule: List[db.ScheduleStatus],
         *,
         session: Optional[Session] = None,
-        prev: Optional[db.MappedRequest] = None) -> bool:
+        prev: Optional[db.MappedRequest] = None) -> None:
     """Make a new outgoing request from user 'srcnetid' to user 'destnetid' with the proposed
     'schedule'. If an active 'prevrequest' is specified, then rejects or terminates 'prevrequest',
     and sets prevrequestid in the newly created request. Returns the new request object if
@@ -186,17 +193,16 @@ def new(srcnetid: str,
         if not db_user.exists(netid):
             raise db_user.UserNotFound(netid)
 
-    if get_active(srcnetid, destnetid, session=session) and prev is None:
-        return False
-
     prevrequestid: int = 0
-    if prev:
+    if prev is not None:
+        prevrequestid = prev.requestid
         if prev.status == db.RequestStatus.PENDING:
             prev.status = db.RequestStatus.REJECTED
         elif prev.status == db.RequestStatus.FINALIZED:
             prev.status = db.RequestStatus.TERMINATED
-        else:
-            return False
+
+    elif get_active(srcnetid, destnetid, session=session):
+        raise RequestAlreadyExists(srcnetid, destnetid)
 
     request = db.Request(srcnetid=srcnetid,
                          destnetid=destnetid,
@@ -210,16 +216,14 @@ def new(srcnetid: str,
     db_user.update(srcnetid, session=session)
     db_user.update(destnetid, session=session)
 
-    return True
-
 
 @db.session_decorator(commit=True)
-def finalize(requestid: int, *, session: Optional[Session] = None) -> bool:
+def finalize(requestid: int, *, session: Optional[Session] = None) -> None:
     """finalize the request by approving the accept request"""
     assert session is not None
     request = _get(session, requestid)
     if request.status != db.RequestStatus.PENDING:
-        return False
+        raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.PENDING)
 
     request.finalizedtimestamp = datetime.now(timezone.utc)
     request.status = db.RequestStatus.FINALIZED
@@ -227,20 +231,19 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> bool:
     for netid in (request.srcnetid, request.destnetid):
         db_schedule.add_schedule_status(netid, request.schedule, db.ScheduleStatus.MATCHED)
 
-    return True
-
 
 @db.session_decorator(commit=True)
-def reject(requestid: int, *, session: Optional[Session] = None) -> bool:
+def reject(requestid: int, *, session: Optional[Session] = None) -> None:
     """Reject request with id 'requestid'. If this request is not pending, does nothing and returns
     False."""
     assert session is not None
-    return _reject(session, _get(session, requestid))
+    _reject(session, _get(session, requestid))
 
-def _reject(session: Session, request: db.MappedRequest) -> bool:
+
+def _reject(session: Session, request: db.MappedRequest) -> None:
     """Rejects request. If this request is not pending, does nothing and returns False."""
     if request.status != db.RequestStatus.PENDING:
-        return False
+        raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.PENDING)
 
     request.status = db.RequestStatus.REJECTED
 
@@ -248,19 +251,18 @@ def _reject(session: Session, request: db.MappedRequest) -> bool:
     db_user.update(request.srcnetid, session=session)
     db_user.update(request.destnetid, session=session)
 
-    return True
-
 
 @db.session_decorator(commit=True)
-def terminate(requestid: int, *, session: Optional[Session] = None) -> bool:
+def terminate(requestid: int, *, session: Optional[Session] = None) -> None:
     """delete outgoing request"""
     assert session is not None
-    return _terminate(session, _get(session, requestid))
+    _terminate(session, _get(session, requestid))
 
-def _terminate(session: Session, request: db.MappedRequest) -> bool:
+
+def _terminate(session: Session, request: db.MappedRequest) -> None:
     """Terminates a request. If this request is not finalized, does nothing and returns False."""
     if request.status != db.RequestStatus.FINALIZED:
-        return False
+        raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.FINALIZED)
 
     for netid in (request.srcnetid, request.destnetid):
         db_schedule.remove_schedule_status(netid,
@@ -269,18 +271,17 @@ def _terminate(session: Session, request: db.MappedRequest) -> bool:
                                            session=session)
 
     request.status = db.RequestStatus.TERMINATED
-    return True
 
 
 @db.session_decorator(commit=True)
 def modify(requestid: int,
            schedule: List[db.ScheduleStatus],
            *,
-           session: Optional[Session] = None) -> bool:
-    """Modifies active (pending or matching) request. Returns False if the new operation fails."""
+           session: Optional[Session] = None) -> None:
+    """Modifies active (pending or matching) request. Switches direction of request."""
     assert session is not None
     request = _get(session, requestid)
-    return bool(new(request.destnetid, request.srcnetid, schedule, session=session, prev=request))
+    new(request.destnetid, request.srcnetid, schedule, session=session, prev=request)
 
 
 @db.session_decorator(commit=True)

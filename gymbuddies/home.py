@@ -36,11 +36,11 @@ def dashboard():
     # ADD BACK FOR MATCHES CALENDAR!!!!
     matches = database.request.get_matches(netid)  #should return a list of requests?
     matchSchedule = [0] * db.NUM_WEEK_BLOCKS
-    if (matches is not None):
-        for match in matches:
-            #print("row", len(match.schedule))
-            #matchSchedules.append(match.schedule) # should be array of strings
-            matchSchedule = [a + b for a, b in zip(matchSchedule, match.schedule)]
+    for match in matches:
+        #print("row", len(match.schedule))
+        #matchSchedules.append(match.schedule) # should be array of strings
+        matchSchedule = [a + b for a, b in zip(matchSchedule, match.schedule)]
+
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
     print(matchSchedule)

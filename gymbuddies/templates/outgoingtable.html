@@ -1,56 +1,71 @@
-{% if length ==0  %}
+{% if length == 0  %}
+
   <ul class="list-group">
     <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
       <div>No outgoing requests. </div>
     </li>
   </ul>
+
 {% else %}
-<div class="table-responsive p-0">
-  <table class="table align-items-center justify-content-center mb-0">
-    <thead>
-      <tr>
-        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
-        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Netid</th>
-        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Contact</th>
-        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Time</th>
-        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      
-      {% for match, user in matchusers %}
-      <tr>
-        <td>
-          <div class="d-flex px-2 my-auto">
-            <h6 class="mb-0 text-sm">{{ user.name }}</h6>
-          </div>
-        </td>
-        <td>
-          <p class="text-sm font-weight-bold mb-0">{{ user.netid }}</p>
-        </td>
-        <td>
-          <p class="text-sm font-weight-bold mb-0">{{ user.contact }}</p>
-        </td>
-        <td>
-          {% for time in db.schedule_to_readable(match.schedule) %}
-            <p class="text-sm font-weight-bold mb-0">{{ time }}</p>
-          {% endfor %}
-        </td>
-        <td>
-        <span class="text-xs font-weight-bold">{{ db.RequestStatus(match.status).to_readable() }}</span>
-        </td>
-        <td class="align-middle">
-          <div class="ms-auto text-end">
-            <button class="btn btn-link text-danger text-gradient px-3 mb-0" type="button" onclick="reject({{ match.requestid }}, this)" aria-hidden="true"><i class="far fa-trash-alt me-2" aria-hidden="true"></i>Delete</button>
-          </div>                     
-        </td>
-      </tr>
-    {% endfor %}
 
-    </tbody>
-  </table>
-</div>
+  <div class="table-responsive p-0">
+    <table class="table align-items-center justify-content-center mb-0">
+
+      <thead>
+        <tr>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Netid</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Contact</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Time</th>
+          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for match, user in matchusers %}
+          <tr>
+
+            <td>
+              <div class="d-flex px-2 my-auto">
+                <h6 class="mb-0 text-sm">{{ user.name }}</h6>
+              </div>
+            </td>
+
+            <td>
+              <p class="text-sm font-weight-bold mb-0">{{ user.netid }}</p>
+            </td>
+
+            <td>
+              <p class="text-sm font-weight-bold mb-0">{{ user.contact }}</p>
+            </td>
+
+            <td>
+              {% for time in db.schedule_to_readable(match.schedule) %}
+                <p class="text-sm font-weight-bold mb-0">{{ time }}</p>
+              {% endfor %}
+            </td>
+
+            <td>
+            <span class="text-xs font-weight-bold">{{ db.RequestStatus(match.status).to_readable() }}</span>
+            </td>
+
+            <td class="align-middle">
+              <div class="ms-auto text-end">
+                <button class="btn btn-link text-danger text-gradient px-3 mb-0"
+                  type="button" onclick="act('{{ url_for('matching.outgoingtable') }}', '#outgoingTable', {{ match.requestid }}, 'reject')"
+                  aria-hidden="true">
+                  <i class="far fa-trash-alt me-2" aria-hidden="true"></i>
+                  Delete
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+
 {% endif %}
-
-

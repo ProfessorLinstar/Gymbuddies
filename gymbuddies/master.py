@@ -100,24 +100,18 @@ def handle_user(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     if submit == "Create":
         if netid == "":
             context["query"] += "Cannot create user with empty netid. Creation aborted."
-        elif database.user.create(**profile):
+        else:
             context["query"] += f"Creation of user with netid '{netid}' successful.\n"
             context["query"] += wrap(database.debug.sprint_users(db.User.netid == netid))
-        else:
-            context["query"] += f"User with netid '{netid}' already exists. Skipping creation."
 
     elif submit == "Update":
-        if database.user.update(**profile):
-            context["query"] += f"Update of user with netid '{netid}' successful.\n"
-            context["query"] += wrap(database.debug.sprint_users(db.User.netid == netid))
-        else:
-            context["query"] += f"netid '{netid}' not found in the database."
+        database.user.update(**profile)
+        context["query"] += f"Update of user with netid '{netid}' successful.\n"
+        context["query"] += wrap(database.debug.sprint_users(db.User.netid == netid))
 
     elif submit == "Delete":
-        if database.user.delete(netid):
-            context["query"] += f"Deletion of user with netid '{netid}' successful."
-        else:
-            context["query"] += f"netid '{netid}' not found in the database."
+        database.user.delete(netid)
+        context["query"] += f"Deletion of user with netid '{netid}' successful."
 
     elif submit == "Query":
         user: Optional[db.MappedUser] = None
@@ -199,11 +193,9 @@ def handle_schedule(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 
     elif submit == "Update":
         status: db.ScheduleStatus = db.ScheduleStatus.from_str(which_schedule)
-        if database.schedule.add_schedule_status(netid, profile["schedule"], status):
-            context["query"] += f"Update {which_schedule} schedule for user '{netid}' "
-            context["query"] += "successful."
-        else:
-            context["query"] += f"Update {which_schedule} schedule for user '{netid}' failed."
+        database.schedule.add_schedule_status(netid, profile["schedule"], status)
+        context["query"] += f"Update {which_schedule} schedule for user '{netid}' "
+        context["query"] += "successful."
 
 
 def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
@@ -233,70 +225,33 @@ def handle_request(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
 
     elif submit == "New":
         response = database.request.new(srcnetid, destnetid, profile["schedule"])
-
-        if response:
-            context["query"] += f"Request made from '{srcnetid}' to '{destnetid}'."
-        elif response is None:
-            context["query"] += f"Request from '{srcnetid}' to '{destnetid}' failed."
-        else:
-            context["query"] += f"Active request from '{srcnetid}' to '{destnetid}' already exists."
+        context["query"] += f"Request made from '{srcnetid}' to '{destnetid}'."
 
     elif submit == "Finalize":
         response = database.request.finalize(requestid)
-
-        if response:
-            context["query"] += f"Request {requestid} successfully finalized."
-        elif response is None:
-            context["query"] += f"Finalization of request {requestid} failed."
-        else:
-            context["query"] += f"Request {requestid} is not pending. Unable to finalize."
+        context["query"] += f"Request {requestid} successfully finalized."
 
     elif submit == "Modify":
         response = database.request.modify(requestid, profile["schedule"])
-
-        if response:
-            context["query"] += f"Request {requestid} successfully modified."
-        elif response is None:
-            context["query"] += f"Modification of request {requestid} failed."
-        else:
-            context["query"] += f"Request {requestid} is not pending/finalized. Unable to modify."
+        context["query"] += f"Request {requestid} successfully modified."
 
     elif submit == "Reject":
         response = database.request.reject(requestid)
-
-        if response:
-            context["query"] += f"Request {requestid} successfully rejected."
-        elif response is None:
-            context["query"] += f"Rejection of request {requestid} failed."
-        else:
-            context["query"] += f"Request {requestid} is not pending. Unable to reject."
+        context["query"] += f"Request {requestid} successfully rejected."
 
     elif submit == "Terminate":
         response = database.request.terminate(requestid)
-
-        if response:
-            context["query"] += f"Request {requestid} successfully terminated."
-        elif response is None:
-            context["query"] += f"Termination of request {requestid} failed."
-        else:
-            context["query"] += f"Request {requestid} is not finalized. Unable to terminate."
+        context["query"] += f"Request {requestid} successfully terminated."
 
     elif submit == "Query":
         in_requests = database.request.incoming_requests(srcnetid)
-        if in_requests is None:
-            context["query"] += f"Incoming requests query for user with netid '{srcnetid}' failed."
-            return
-
         context["query"] += f"Incoming requests for user with netid '{srcnetid}':\n"
         context["query"] += database.debug.sprint_requests(in_requests) + "\n"
 
         out_requests = database.request.outgoing_requests(srcnetid)
-        if out_requests is None:
-            context["query"] += f"Outgoing requests query for user with netid '{srcnetid}' failed."
-            return
-
         context["query"] += f"Outgoing requests for user with netid '{srcnetid}':\n"
         context["query"] += database.debug.sprint_requests(out_requests) + "\n"
+
 
 def handle_matching(context: Dict[str, Any], profile: Dict[str, Any]) -> None:
     """Handles matching functions."""

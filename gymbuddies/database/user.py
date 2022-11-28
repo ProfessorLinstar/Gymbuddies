@@ -38,7 +38,7 @@ class UserNotFound(Exception):
 
 
 @db.session_decorator(commit=True)
-def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
+def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> None:
     """Attempts to create a user with netid and a profile provided by **kwargs. Does nothing if the
     user already exists."""
     assert session is not None
@@ -53,8 +53,6 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     user = db.User(netid=netid)
     _update_user(session, user, **(profile | kwargs))
     session.add(user)
-
-    return True
 
 
 @db.session_decorator(commit=True)
@@ -130,7 +128,7 @@ def _update_user(session: Session,
 
 # TODO: terminate/delete all requests related to netid
 @db.session_decorator(commit=True)
-def delete(netid: str, *, session: Optional[Session] = None) -> bool:
+def delete(netid: str, *, session: Optional[Session] = None) -> None:
     """Attempts to remove a user from the database, removing all related entries and references.
     Does nothing if the user does not exist."""
     assert session is not None
@@ -139,8 +137,6 @@ def delete(netid: str, *, session: Optional[Session] = None) -> bool:
     db_schedule.update_schedule(netid, [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
                                 session=session)
     session.delete(get_user(netid, session=session))
-
-    return True
 
 
 @db.session_decorator(commit=False)

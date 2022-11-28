@@ -28,7 +28,7 @@ def findabuddy():
         schedule = common.json_to_schedule(request.form["jsoncalendar"])
 
         session["index"] += 1
-        assert database.request.new(netid, destnetid, schedule)
+        database.request.new(netid, destnetid, schedule)
         # return redirect(url_for("matching.outgoing"))
         print("inside findabuddy POST")
         return ""
@@ -57,7 +57,6 @@ def findabuddy():
 
     g.user = database.user.get_user(
         matches[index])  # can access this in jinja template with {{ g.user }}
-    assert g.user is not None
     # g.requests = database.request.get_active_incoming(netid)
     level = database.db.Level(g.user.level)
     level = level.to_readable()
@@ -104,7 +103,6 @@ def buddies():
     # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
     g.user = database.user.get_user(
         matches[index])  # can access this in jinja template with {{ g.user }}
-    assert g.user is not None
     # g.requests = database.request.get_active_incoming(netid)
     level = database.db.Level(g.user.level)
     level = level.to_readable()
@@ -183,7 +181,6 @@ def incomingmodal():
 
     # TODO: handle errors when database is not available
     # requests = database.request.get_active_incoming(netid)
-    # assert requests is not None
     requestid = request.args.get("requestid", "0")
     req = database.request.get_request(int(requestid))
 
@@ -234,8 +231,7 @@ def outgoingtable():
     g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
     requests = database.request.get_active_outgoing(netid)
 
-    users = [m.destnetid for m in requests]
-    users = [database.user.get_user(u) for u in users]
+    users = [database.user.get_user(m.destnetid) for m in requests]
     length = len(requests)
 
     return render_template("outgoingtable.html",

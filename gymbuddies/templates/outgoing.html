@@ -26,52 +26,12 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
-  let lastrefreshed = 0;
-  let getrequest = null;
-  let postrequest = null;
-
-  // from outgoing.html
-function listOutgoing(response) {
-  if (response) { // if response is empty, then no update is necessary
-    lastrefreshed = Date.now();
-    $('#outgoingTable').html(response);
-  }
-}
-  function reject(requestid) {
-    if (postrequest != null)
-      return
-
-   $("body").addClass("wait");
-    postrequest = $.ajax(
-      {
-        type: 'POST',
-        data: {"requestid": requestid, "action": "reject"},
-        url: '/matching/outgoingtable',
-        success: listOutgoing,
-        complete: function() { postrequest = null; $("body").removeClass("wait"); },
-        timeout: 3000,
-      }
-    );
-  }
-
-  function refreshOutgoing() {
-    if (getrequest != null || postrequest != null)
-      return
-
-    getrequest = $.ajax({
-      type: 'GET',
-      data: {"lastrefreshed": lastrefreshed},
-      url: '/matching/outgoingtable',
-      success: listOutgoing,
-      complete: function() { getrequest = null; },
-      timeout: 3000,
-    });
-  }
-
   function setup() {
-    refreshOutgoing();
-    window.setInterval(refreshOutgoing, 1000);
+    refreshWrapper = function() { refresh("{{ url_for('matching.outgoingtable') }}", "#outgoingTable"); };
+    refreshWrapper()
+    window.setInterval(refreshWrapper, 1000);
   }
   $('document').ready(setup);
 </script>
