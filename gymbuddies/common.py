@@ -20,9 +20,9 @@ class VerificationError(Exception):
         super().__init__(f"User with netid '{netid}' does not exist. Verification failed.")
 
 
-def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
+def fill_schedule(context: Dict[str, Any], schedule: List[int], matchNames: List[str]) -> None:
     """Checks the master schedule boxes according to the provided 'schedule'."""
-    context["jsoncalendar"] = schedule_to_json(schedule)
+    context["jsoncalendar"] = schedule_to_json(schedule, matchNames)
 
 
 def schedule_to_calendar(schedule: List[int]) -> List[List[str]]:
@@ -71,14 +71,30 @@ def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
 
 
 #schedule should be available
-def schedule_to_json(schedule: List[int]) -> str:
+def schedule_to_json(schedule: List[int], matchNames: List[str]) -> str:
     """Converts a schedule into stringified json representation appropriate for the artsy
     calendar."""
     jsoncalendar: Dict[int, List[List[str]]] = {i: [] for i in range(len(db.DAY_NAMES))}
-    for event in db.schedule_to_events(schedule):
-        day, _ = event[0].day_time()
-        start, end = [t.time_str() for t in event]
-        jsoncalendar[day].append([start, end if end != "00:00" else "24:00"])
+
+    # blocks: List[List[TimeBlock]] = [[]]
+    # for t, status in enumerate(schedule):
+    #     if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
+    #         blocks[-1].append(TimeBlock(t))
+    #         blocks.append([])
+    #     if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
+    #         blocks[-1].append(TimeBlock(t))
+
+    # if blocks[-1]:
+    #     blocks[-1].append(TimeBlock(len(schedule)))
+    # else:
+    #     blocks.pop()
+
+    # return blocks
+
+    for event in db.schedule_to_events(schedule, matchNames):
+        day, _ = event[0][0].day_time()
+        start, end = [t[0].time_str() for t in event]
+        jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
 
     return json.dumps(jsoncalendar)
 

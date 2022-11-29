@@ -1,4 +1,5 @@
 """Home page blueprint."""
+import json
 from typing import Any, Dict
 from flask import Blueprint
 from flask import session
@@ -31,21 +32,38 @@ def dashboard():
     gender = db.Gender(user.gender).to_readable()
     level = db.Level(user.level).to_readable()
 
-    context: Dict[str, Any] = {}
-    common.fill_schedule(context, user.schedule)
+    # context: Dict[str, Any] = {}
+    # common.fill_schedule(context, user.schedule)
     # ADD BACK FOR MATCHES CALENDAR!!!!
     matches = database.request.get_matches(netid)  #should return a list of requests?
     matchSchedule = [0] * db.NUM_WEEK_BLOCKS
+    requestName = ""
+    matchNames = [""] * 2016
     for match in matches:
+        # matchNames = match.schedule.copy()
+        requestName = database.user.get_name(match.destnetid)
+        # if (match.srcnetid == netid):
+        #     requestid = match.destnetid
+        # else: 
+        #     requestid = match.srcnetid
+        for i in range(len(matchNames)):
+            # print(matchNames[i].AVAILABLE)
+            if (match.schedule[i] == 4):
+                print("triggered")
+                matchNames[i] = requestName
         #print("row", len(match.schedule))
         #matchSchedules.append(match.schedule) # should be array of strings
         matchSchedule = [a + b for a, b in zip(matchSchedule, match.schedule)]
+        # for i in range(len(matchSchedule)):
+        #     if ()
 
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
-    print(matchSchedule)
+    print("schedule", matchSchedule)
+    print("names", matchNames)
     context: Dict[str, Any] = {}
-    common.fill_schedule(context, matchSchedule)
+    common.fill_schedule(context, matchSchedule, matchNames)
+    # json.dumps(matchNames)
     return render_template(
         "dashboard.html",
         netid=netid,
@@ -53,7 +71,7 @@ def dashboard():
         interests=interests,
         gender=gender,
         level=level,
-        #matchSchedules=matchSchedules,
+        matchNames=matchNames,
         **context)
 
 

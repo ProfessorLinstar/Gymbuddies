@@ -272,19 +272,19 @@ def interests_to_readable(interests: Dict[str, bool]):
     return ", ".join(k for k, v in interests.items() if v)
 
 
-def schedule_to_events(schedule: List[int]) -> List[List[TimeBlock]]:
+def schedule_to_events(schedule: List[int], matchNames: List[str]) -> List[List[TimeBlock]]:
     """Converts a schedule into a string representation as a comma separated list of events. Events
     are in the format (start, end), where start and end are timeblocks, and start is inclusive while
     end is exclusive."""
     assert len(schedule) == NUM_WEEK_BLOCKS
 
-    blocks: List[List[TimeBlock]] = [[]]
+    blocks: List[List[TimeBlock, str]] = [[]]
     for t, status in enumerate(schedule):
         if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
-            blocks[-1].append(TimeBlock(t))
+            blocks[-1].append([TimeBlock(t), matchNames[t]])
             blocks.append([])
         if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
-            blocks[-1].append(TimeBlock(t))
+            blocks[-1].append([TimeBlock(t), matchNames[t]])
 
     if blocks[-1]:
         blocks[-1].append(TimeBlock(len(schedule)))
