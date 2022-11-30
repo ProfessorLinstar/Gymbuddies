@@ -20,6 +20,20 @@ class RequestAlreadyExists(Exception):
         super().__init__(f"Active request between '{srcnetid}' and '{destnetid}' already exists.")
 
 
+class InvalidRequestSchedule(Exception):
+    """Exception raised in API call if request made with empty schedule."""
+
+    def __init__(self):
+        super().__init__("Invalid request schedule. Request must have one or more selected blocks.")
+
+
+class ConflictingRequestSchedule(Exception):
+    """Exception raised in API call if request made with conflicting schedules."""
+
+    def __init__(self):
+        super().__init__("Conflicting request schedules.")
+
+
 class RequestNotFound(Exception):
     """Exception raised in API call if request not found."""
 
@@ -203,6 +217,14 @@ def new(srcnetid: str,
     for netid in (srcnetid, destnetid):
         if not db_user.exists(netid):
             raise db_user.UserNotFound(netid)
+
+    if all(not x for x in schedule):
+        raise InvalidRequestSchedule
+
+    if any(x and (s == db.ScheduleStatus.MATCHED or d != db.ScheduleStatus.AVAILABLE)
+           for x, s, d in zip(schedule, db_user.get_schedule(srcnetid, session=session),
+                              db_user.get_schedule(destnetid, session=session))):
+        raise ConflictingRequestSchedule
 
     prevrequestid: int = 0
     if prev is not None:
