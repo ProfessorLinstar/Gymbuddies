@@ -60,7 +60,7 @@ def dashboard():
     print("schedule", matchSchedule)
     print("names", matchNames)
     context: Dict[str, Any] = {}
-    common.fill_schedule(context, matchSchedule, matchNames)
+    common.fill_match_schedule(context, matchSchedule, matchNames)
     # json.dumps(matchNames)
     return render_template(
         "dashboard.html",
@@ -120,7 +120,7 @@ def newuser():
     user = database.user.get_user(netid)
 
     context: Dict[str, Any] = {}
-    # print(user.schedule)
-    # common.fill_schedule(context, user.schedule)
+
+    common.fill_schedule(context, user.schedule)
 
     return render_template("newuser.html", netid=netid, user=user, **context)

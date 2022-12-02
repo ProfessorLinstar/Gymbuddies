@@ -20,9 +20,13 @@ class VerificationError(Exception):
         super().__init__(f"User with netid '{netid}' does not exist. Verification failed.")
 
 
-def fill_schedule(context: Dict[str, Any], schedule: List[int], matchNames: List[str]) -> None:
+def fill_schedule(context: Dict[str, Any], schedule: List[int]) -> None:
     """Checks the master schedule boxes according to the provided 'schedule'."""
-    context["jsoncalendar"] = schedule_to_json(schedule, matchNames)
+    context["jsoncalendar"] = schedule_to_json(schedule)
+
+def fill_match_schedule(context: Dict[str, Any], schedule: List[int], matchNames: List[str]) -> None:
+    """Checks the master schedule boxes according to the provided 'schedule'."""
+    context["jsoncalendar"] = schedule_to_jsonmatches(schedule, matchNames)
 
 
 def schedule_to_calendar(schedule: List[int]) -> List[List[str]]:
@@ -69,9 +73,21 @@ def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
 
     return schedule
 
+# schedule should be available
+def schedule_to_json(schedule: List[int]) -> str:
+    """Converts a schedule into stringified json representation appropriate for the artsy
+    calendar."""
+    jsoncalendar: Dict[int, List[List[str]]] = {i: [] for i in range(len(db.DAY_NAMES))}
+
+    for event in db.schedule_to_events(schedule):
+        day, _ = event[0].day_time()
+        start, end = [t.time_str() for t in event]
+        jsoncalendar[day].append([start, end if end != "00:00" else "24:00"])
+
+    return json.dumps(jsoncalendar)
 
 #schedule should be available
-def schedule_to_json(schedule: List[int], matchNames: List[str]) -> str:
+def schedule_to_jsonmatches(schedule: List[int], matchNames: List[str]) -> str:
     """Converts a schedule into stringified json representation appropriate for the artsy
     calendar."""
     jsoncalendar: Dict[int, List[List[str]]] = {i: [] for i in range(len(db.DAY_NAMES))}
@@ -91,7 +107,7 @@ def schedule_to_json(schedule: List[int], matchNames: List[str]) -> str:
 
     # return blocks
 
-    for event in db.schedule_to_events(schedule, matchNames):
+    for event in db.schedule_to_matchevents(schedule, matchNames):
         day, _ = event[0][0].day_time()
         start, end = [t[0].time_str() for t in event]
         jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
