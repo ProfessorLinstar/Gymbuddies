@@ -31,7 +31,7 @@ def signup():
     session["netid"] = netid
     try:
         database.user.create(netid)
-        return redirect(url_for("home.profile"))
+        return redirect(url_for("home.newuser"))
     except user.UserAlreadyExists:
         return redirect(url_for("home.dashboard"))
 

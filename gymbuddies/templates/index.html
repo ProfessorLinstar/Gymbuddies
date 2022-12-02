@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="apple-touch-icon" sizes="76x76" href="apple-icon.png">
   <link rel="icon" type="image/png" href="favicon.png">
-  <title>{% block title %}{% endblock %}</title>
+  <title>GymBuddies</title>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
   <!-- Font Awesome Icons -->
@@ -26,7 +26,7 @@
 </head>
 <body class="g-sidenav-show   bg-gray-100">
   <section id = "login-background" class="vh-100">
-    <div class="container py-5 h-100">
+    <div class="container-fluid  py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col col-xl-7">
           <div class="card" style="border-radius: 1rem;">
@@ -40,10 +40,10 @@
                     <h5 class="fw-normal mb-3 pb-3" style="letter-spacing:1px;text-align:center;">Sign into your account</h5>
   
                     <div class="d-flex pt-1 mb-4 justify-content-center">
-                      <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-primary" type="button" style="width:35%">Login</a>
+                      <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-primary" type="button" >Login</a>
                     </div>
                     <div class="d-flex pt-1 mb-4 justify-content-center">
-                      <a href="{{ url_for('auth.signup') }}" class="btn btn-lg btn-primary" type="button" style="width:35%">Sign Up</a>
+                      <a href="{{ url_for('auth.signup') }}" class="btn btn-lg btn-primary" type="button">Sign Up</a>
                     </div>
                     <div class="d-flex justify-content-center">
                       <a href="{{ url_for('master.show') }}">Master Debug</a>

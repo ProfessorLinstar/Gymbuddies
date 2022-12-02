@@ -118,6 +118,25 @@ def form_to_profile(category: str) -> Dict[str, Any]:
 
     return prof
 
+def form_to_entireprofile() -> Dict[str, Any]:
+    """Converts request.form to a user profile dictionary. Ignores extraneous keys. updates b
+    oth schedule and information at the same time"""
+
+    prof: Dict[str, Any] = {}
+
+    # if category == "information":
+    prof.update({k: v for k, v in request.form.items() if k in db.User.__table__.columns})
+    prof["interests"] = {v: True for v in request.form.getlist("interests")}
+    prof.pop("schedule", None)
+
+    for bool_key in ("open", "okmale", "okfemale", "okbinary"):
+            prof[bool_key] = bool_key in prof
+
+    # elif category == "schedule":
+    prof["schedule"] = json_to_schedule(request.form.get("jsoncalendar", ""))
+
+    return prof
+
 
 def form_to_schedule() -> List[db.ScheduleStatus]:
     """Populates 'schedule' with the user provided information in request.form."""

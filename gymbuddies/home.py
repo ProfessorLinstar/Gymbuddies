@@ -54,8 +54,6 @@ def dashboard():
         #print("row", len(match.schedule))
         #matchSchedules.append(match.schedule) # should be array of strings
         matchSchedule = [a + b for a, b in zip(matchSchedule, match.schedule)]
-        # for i in range(len(matchSchedule)):
-        #     if ()
 
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
@@ -103,3 +101,26 @@ def profileupdated():
     """Updated profile message."""
     time: str = request.args.get("lastupdated", "")
     return render_template("profileupdated.html", time=time)
+
+
+@bp.route("/newuser", methods=["GET", "POST"])
+def newuser():
+    """Profile page for editing user information."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    user = database.user.get_user(netid)
+
+    if request.method == "POST":
+        prof: Dict[str, Any] = common.form_to_entireprofile()
+        prof.update(netid=netid)
+        assert database.user.update(**prof)
+
+    user = database.user.get_user(netid)
+
+    context: Dict[str, Any] = {}
+    # print(user.schedule)
+    # common.fill_schedule(context, user.schedule)
+
+    return render_template("newuser.html", netid=netid, user=user, **context)
