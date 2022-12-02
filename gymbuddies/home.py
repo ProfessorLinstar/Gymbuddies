@@ -41,15 +41,15 @@ def dashboard():
     matchNames = [""] * 2016
     for match in matches:
         # matchNames = match.schedule.copy()
-        requestName = database.user.get_name(match.destnetid)
-        # if (match.srcnetid == netid):
-        #     requestid = match.destnetid
-        # else: 
-        #     requestid = match.srcnetid
+        # requestName = database.user.get_name(match.destnetid)
+        if (match.srcnetid == netid):
+            requestName = database.user.get_name(match.destnetid)
+        else: 
+            requestName = database.user.get_name(match.srcnetid)
         for i in range(len(matchNames)):
             # print(matchNames[i].AVAILABLE)
             if (match.schedule[i] == 4):
-                print("triggered")
+                # print("triggered")
                 matchNames[i] = requestName
         #print("row", len(match.schedule))
         #matchSchedules.append(match.schedule) # should be array of strings
@@ -58,7 +58,7 @@ def dashboard():
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
     print("schedule", matchSchedule)
-    print("names", matchNames)
+    # print("names", matchNames)
     context: Dict[str, Any] = {}
     common.fill_match_schedule(context, matchSchedule, matchNames)
     # json.dumps(matchNames)
