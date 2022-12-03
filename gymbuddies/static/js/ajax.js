@@ -138,6 +138,15 @@ function listMatches(response) {
   }
 }
 
+// generates history of matches
+function listHistory(response) {
+  if (response) {
+    lastrefreshed = Date.now();
+    $('#historyTable').html(response);
+    console.log("making an update now!", Date.now())
+  }
+}
+
 // used as the 'success' property of an ajax request argument. Requires an
 // 'id' property to be provided to indicate where to write the response.
 function success(response) {
