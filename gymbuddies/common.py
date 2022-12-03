@@ -165,6 +165,8 @@ def form_to_profile(category: str) -> Dict[str, Any]:
         for bool_key in ("open", "okmale", "okfemale", "okbinary"):
             prof[bool_key] = bool_key in prof
 
+        print("form_to_profile: got this contact: ", prof["contact"])
+
     elif category == "schedule":
         prof["schedule"] = json_to_schedule(request.form.get("jsoncalendar", ""))
 
