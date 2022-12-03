@@ -105,7 +105,7 @@ def profileupdated():
 
 @bp.route("/newuser", methods=["GET", "POST"])
 def newuser():
-    """Profile page for editing user information."""
+    """Profile page for creating new user information."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
@@ -124,3 +124,63 @@ def newuser():
     common.fill_schedule(context, user.schedule)
 
     return render_template("newuser.html", netid=netid, user=user, **context)
+
+
+@bp.route("/settings", methods=["GET", "POST"])
+def settings():
+    """Settings page."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    user = database.user.get_user(netid)
+
+    if request.method == "POST":
+        submit: str = request.form.get("update", "")
+        prof: Dict[str, Any] = common.form_to_profile(submit)
+        prof.update(netid=netid)
+        assert database.user.update(**prof)
+
+    user = database.user.get_user(netid)
+
+    context: Dict[str, Any] = {}
+    common.fill_schedule(context, user.schedule)
+
+    return render_template("settings.html", netid=netid, user=user, **context)
+
+@bp.route("/blockedtable", methods=["GET", "POST"])
+def blockedtable():
+    """Returns table of blocked people."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        requestid = int(request.form.get("requestid", "0"))
+        action = request.form.get("action")
+
+        if action == "terminate":
+            # INSERT function to unblock
+            database.request.terminate(requestid)
+        else:
+            print(f"Action not found! {action = }")
+
+    elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
+
+    print("blockedtable refreshed!")
+
+    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    # matches = database.request.get_matches(netid)
+
+    # GET BLOCKED!!!! REIMPLEMENT
+    blocked = database.request.get_blocked(netid)
+
+    users = [b.srcnetid if netid != b.srcnetid else b.destnetid for b in blocked]
+    users = [database.user.get_user(u) for u in users]
+    length = len(blocked)
+
+    return render_template("blockedtable.html",
+                           netid=netid,
+                           blockedusers=zip(blocked, users),
+                           length=length)

@@ -49,7 +49,7 @@ def findabuddy():
         index = session.get("index", None)
 
     no_matches = False
-    
+
     # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
     # TODO: when no more matches -- index out of bound error
     # generate "no more matches message"
@@ -98,9 +98,13 @@ def buddies():
         matches = session.get("matches", None)
         index = session.get("index", None)
 
+    no_matches = False
+
     if len(matches) == 0:
         no_matches = True
         return render_template("buddies.html", netid=netid, no_matches=no_matches)
+
+    
 
     # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
     g.user = database.user.get_user(
@@ -112,7 +116,7 @@ def buddies():
     # grab schedule
     context: Dict[str, Any] = {}
     common.fill_schedule(context, g.user.schedule)
-    no_matches = False
+    
     return render_template("buddies.html",
                            no_matches=no_matches,
                            netid=netid,
@@ -187,6 +191,7 @@ def incomingmodal():
     req = database.request.get_request(int(requestid))
 
     user = database.user.get_user(req.srcnetid)
+    # create schedule with combined...current events show up gray?
     jsoncalendar = common.schedule_to_json(req.schedule)
     level = db.Level(user.level).to_readable()
     interests = db.interests_to_readable(user.interests)
