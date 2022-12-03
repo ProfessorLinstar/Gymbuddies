@@ -9,6 +9,8 @@ NEW_REQUEST_MESSAGE = "Hello from Gymbuddies. You have recieved a new match requ
 
 FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, you have finalized your match with $netid$!"
 
+MATCH_TERMINATE_MESSAGE = "Hello from Gymbuddies. Your match with $netid$ has been cancelled"
+
 def sendsms(number: str, message: str) -> bool:
     """sends sms message. Makes sure that the number is valid"""
     numberstr = "+" + number
