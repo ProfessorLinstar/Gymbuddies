@@ -7,7 +7,7 @@ SEND_SMS = True
 
 NEW_REQUEST_MESSAGE = "Hello from Gymbuddies. You have recieved a new match request from $netid$!"
 
-FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, you have finalized your math with $netid$!"
+FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, you have finalized your match with $netid$!"
 
 def sendsms(number: str, message: str) -> bool:
     """sends sms message. Makes sure that the number is valid"""

@@ -177,8 +177,10 @@ def incomingtable():
                 src_number = database.user.get_contact(srcnetid)
                 destnetid = database.request.get_destnetid(requestid)
                 dest_number = database.user.get_contact(destnetid)
-                sendsms.sendsms("1" + src_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", destnetid))
-                sendsms.sendsms("1" + dest_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", srcnetid))
+                if netid == destnetid:
+                    sendsms.sendsms("1" + src_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", destnetid))
+                elif netid == srcnetid:
+                    sendsms.sendsms("1" + dest_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", srcnetid))
         else:
             print(f"Action not found! {action = }")
 
