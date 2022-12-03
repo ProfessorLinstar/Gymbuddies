@@ -84,6 +84,9 @@ def profile():
         prof: Dict[str, Any] = common.form_to_profile(submit)
         prof.update(netid=netid)
         database.user.update(**prof)
+        # update the find a buddies page
+        session["matches"] = database.matchmaker.find_matches(netid)
+        session["index"] = 0
 
     user = database.user.get_user(netid)
 
