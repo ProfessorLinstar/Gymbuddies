@@ -2,6 +2,8 @@
   width: 100%;
   min-width: 400px;
   table-layout: fixed;
+  border: none;
+  border-collapse: collapse;
   /* border-collapse: separate */
 }
 
@@ -26,9 +28,11 @@
 
 td {
   text-align: center;
-  border: 10px white;
+  /* border: 10px white; */
   color: white;
   white-space: nowrap;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
 }
 
 .schedule-rows td[data-selected] {
@@ -43,9 +47,14 @@ td {
   background-color: transparent;
   text-align: right;
   color: #808080;
+  border-left: none;
   /* position: relative;
   top: -15px;
   right: 10px; */
+}
+
+.schedule-rows td:last-child {
+  border-right: none;
 }
 
 .schedule-header th {

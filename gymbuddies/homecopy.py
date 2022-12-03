@@ -1,7 +1,8 @@
 """Home page blueprint."""
+import json
 from typing import Any, Dict
 from flask import Blueprint
-from flask import session, g
+from flask import session
 from flask import request
 from flask import render_template, redirect, url_for
 from . import common
@@ -9,6 +10,7 @@ from . import database
 from .database import db
 
 bp = Blueprint("home", __name__, url_prefix="")
+
 
 @bp.route("/")
 def index():
@@ -32,21 +34,22 @@ def dashboard():
 
     # context: Dict[str, Any] = {}
     # common.fill_schedule(context, user.schedule)
+    # ADD BACK FOR MATCHES CALENDAR!!!!
     matches = database.request.get_matches(netid)  #should return a list of requests?
     matchSchedule = [0] * db.NUM_WEEK_BLOCKS
     requestName = ""
-    matchNames = [""] * db.NUM_WEEK_BLOCKS
+    matchNames = [""] * 2016
     for match in matches:
         # matchNames = match.schedule.copy()
-        # requestName = database.user.get_name(match.destnetid)
-        if (match.srcnetid == netid):
-            requestName = database.user.get_name(match.destnetid)
-        else: 
-            requestName = database.user.get_name(match.srcnetid)
+        requestName = database.user.get_name(match.destnetid)
+        # if (match.srcnetid == netid):
+        #     requestid = match.destnetid
+        # else: 
+        #     requestid = match.srcnetid
         for i in range(len(matchNames)):
             # print(matchNames[i].AVAILABLE)
-            if (match.schedule[i] == 4 and match.schedule[i-1] != 4 and match.schedule[i+1] == 4):
-                # print("triggered")
+            if (match.schedule[i] == 4):
+                print("triggered")
                 matchNames[i] = requestName
         #print("row", len(match.schedule))
         #matchSchedules.append(match.schedule) # should be array of strings
@@ -82,8 +85,11 @@ def profile():
     if request.method == "POST":
         submit: str = request.form.get("update", "")
         prof: Dict[str, Any] = common.form_to_profile(submit)
+        print(prof)
         prof.update(netid=netid)
-        database.user.update(**prof)
+        print("user updated")
+        
+        assert database.user.update(**prof)
 
     user = database.user.get_user(netid)
 
@@ -91,6 +97,26 @@ def profile():
     common.fill_schedule(context, user.schedule)
 
     return render_template("profile.html", netid=netid, user=user, **context)
+
+@bp.route("/profilecard", methods=["GET","POST"])
+def profilecard():
+    """Profile page for editing user information."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    user = database.user.get_user(netid)
+    if request.method == "POST":
+        submit: str = request.form.get("update", "")
+        prof: Dict[str, Any] = common.form_to_profile(submit)
+        prof.update(netid=netid)
+        assert database.user.update(**prof)
+    user = database.user.get_user(netid)
+
+    # context: Dict[str, Any] = {}
+    # common.fill_schedule(context, user.schedule)
+
+    return render_template("profileinfo.html", netid=netid, user=user)
 
 
 @bp.route("/profileupdated", methods=["GET"])
@@ -102,7 +128,7 @@ def profileupdated():
 
 @bp.route("/newuser", methods=["GET", "POST"])
 def newuser():
-    """Profile page for creating new user information."""
+    """Profile page for editing user information."""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
@@ -112,73 +138,11 @@ def newuser():
     if request.method == "POST":
         prof: Dict[str, Any] = common.form_to_entireprofile()
         prof.update(netid=netid)
-        database.user.update(**prof)
-        return redirect(url_for("home.profile"))
-
-    user = database.user.get_user(netid)
+        assert database.user.update(**prof)
+        return redirect(url_for("home.dashboard"))
 
     context: Dict[str, Any] = {}
-
     common.fill_schedule(context, user.schedule)
+    print(user.schedule)
 
     return render_template("newuser.html", netid=netid, user=user, **context)
-
-
-@bp.route("/settings", methods=["GET", "POST"])
-def settings():
-    """Settings page."""
-    netid: str = session.get("netid", "")
-    if not netid:
-        return redirect(url_for("auth.login"))
-
-    user = database.user.get_user(netid)
-
-    if request.method == "POST":
-        submit: str = request.form.get("update", "")
-        prof: Dict[str, Any] = common.form_to_profile(submit)
-        prof.update(netid=netid)
-        database.user.update(**prof)
-
-    user = database.user.get_user(netid)
-
-    context: Dict[str, Any] = {}
-    common.fill_schedule(context, user.schedule)
-
-    return render_template("settings.html", netid=netid, user=user, **context)
-
-@bp.route("/blockedtable", methods=["GET", "POST"])
-def blockedtable():
-    """Returns table of blocked people."""
-    netid: str = session.get("netid", "")
-    if not netid:
-        return redirect(url_for("auth.login"))
-
-    if request.method == "POST":
-        requestid = int(request.form.get("requestid", "0"))
-        action = request.form.get("action")
-
-        if action == "terminate":
-            # INSERT function to unblock
-            database.request.terminate(requestid)
-        else:
-            print(f"Action not found! {action = }")
-
-    elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
-        return ""
-
-    print("blockedtable refreshed!")
-
-    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
-    # matches = database.request.get_matches(netid)
-
-    # GET BLOCKED!!!! REIMPLEMENT
-    blocked = database.request.get_blocked(netid)
-
-    users = [b.srcnetid if netid != b.srcnetid else b.destnetid for b in blocked]
-    users = [database.user.get_user(u) for u in users]
-    length = len(blocked)
-
-    return render_template("blockedtable.html",
-                           netid=netid,
-                           blockedusers=zip(blocked, users),
-                           length=length)

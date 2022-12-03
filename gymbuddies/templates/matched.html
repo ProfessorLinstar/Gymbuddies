@@ -61,13 +61,25 @@
         </div>
       </div>
     </div>
+    <div class="row">
+      <div class="col-12 mb-4">
+        <div class="card">
+          <div class="card-header pb-0">
+            <h6>Past Matches</h6>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+            <span id="historyTable"></span>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="../static/js/ajax.js"></script>
 <script>
   function setup() {
-    refreshWrapper = function() { refresh("{{ url_for('matching.matchedtable') }}", "#matchesTable"); };
+    refreshWrapper = function() { refresh("{{ url_for('matching.matchedtable') }}", "#matchesTable");}; 
     refreshWrapper();
     window.setInterval(refreshWrapper, 1000);
 
@@ -79,6 +91,9 @@
     $("#toggleOld").click(
 
     )
+    refreshWrapper2 =  function() {refresh("{{ url_for('matching.historytable') }}", "#historyTable");};
+    refreshWrapper2();
+    window.setInterval(refreshWrapper2, 1000);
   }
   $('document').ready(setup);
 </script>

@@ -13,6 +13,7 @@ from werkzeug.exceptions import HTTPException
 from .error import NoLoginError
 from . import common
 from . import database
+from . import sendsms
 from .database import db
 
 bp = Blueprint("matching", __name__, url_prefix="/matching")
@@ -31,6 +32,11 @@ def findabuddy():
 
         session["index"] += 1
         database.request.new(netid, destnetid, schedule)
+        # ADD SMS MESSAGING HERE
+        if sendsms.SEND_SMS:
+            number = database.user.get_contact(destnetid)
+            success = sendsms.sendsms("1" + number, sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", netid))
+            print(success)
         # return redirect(url_for("matching.outgoing"))
         print("inside findabuddy POST")
         return ""
@@ -166,6 +172,16 @@ def incomingtable():
             database.request.reject(requestid)
         elif action == "accept":
             database.request.finalize(requestid)
+            # ADD SMS MESSAGING HERE
+            if sendsms.SEND_SMS:
+                srcnetid = database.request.get_srcnetid(requestid)
+                src_number = database.user.get_contact(srcnetid)
+                destnetid = database.request.get_destnetid(requestid)
+                dest_number = database.user.get_contact(destnetid)
+                if netid == destnetid:
+                    sendsms.sendsms("1" + src_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", destnetid))
+                elif netid == srcnetid:
+                    sendsms.sendsms("1" + dest_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", srcnetid))
         else:
             print(f"Action not found! {action = }")
 
@@ -365,10 +381,6 @@ def matchedtable():
 @bp.route("/matchedmodal", methods=["GET","POST"])
 def matchedmodal():
     """Modal for modifying matches."""
-    netid: str = session.get("netid", "")
-    if not netid:
-        return redirect(url_for("auth.login"))
-
     print("processing a modifying match request!")
 
     if request.method == "POST":
@@ -422,3 +434,36 @@ def matchedmodal():
                            level=level,
                            interests=interests,
                            requestid = requestid)
+
+@bp.route("/historytable", methods=("GET", "POST"))
+def historytable():
+    """HTML for matches history table"""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    # if request.method == "POST":
+    #     requestid = int(request.form.get("requestid", "0"))
+    #     action = request.form.get("action")
+
+    #     if action == "terminate":
+    #         database.request.terminate(requestid)
+    #     else:
+    #         print(f"Action not found! {action = }")
+
+    # elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+    #     return ""
+
+    print("historytable refreshed!")
+
+    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    matches = database.request.get_terminated(netid)
+    print("matches", matches)
+    users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
+    users = [database.user.get_user(u) for u in users]
+    length = len(matches)
+
+    return render_template("historytable.html",
+                           netid=netid,
+                           historyusers=zip(matches, users),
+                           length=length)

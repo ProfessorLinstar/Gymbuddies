@@ -117,7 +117,10 @@ def _update_user(session: Session,
     """Updates the attributes of 'user' according to 'kwargs'. """
     assert "netid" not in kwargs and "lastupdated" not in kwargs
 
+    print("_update_user: using these kwargs: ", kwargs)
+    print("columns:", db.User.__table__.columns)
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
+        print("updating this: ", k, v)
         setattr(user, k, v)
     user.lastupdated = datetime.now(timezone.utc)
 

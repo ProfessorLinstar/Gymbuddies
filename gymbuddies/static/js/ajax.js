@@ -17,7 +17,7 @@
 
 // }
 
-const timeout = 3000;
+const ajaxtimeout = 3000;
 const retries = 3;
 
 let lastrefreshed = 0;
@@ -116,7 +116,7 @@ function getCard(requestid, url) {
     success: fillCard,
     complete: function() { getrequest = null; },
     error: function() { console.log("getCard failed!"); },
-    timeout: timeout,
+    timeout: ajaxtimeout,
   });
 }
 
@@ -134,6 +134,15 @@ function listMatches(response) {
   if (response) {
     lastrefreshed = Date.now();
     $('#matchesTable').html(response);
+    console.log("making an update now!", Date.now())
+  }
+}
+
+// generates history of matches
+function listHistory(response) {
+  if (response) {
+    lastrefreshed = Date.now();
+    $('#historyTable').html(response);
     console.log("making an update now!", Date.now())
   }
 }
@@ -158,7 +167,7 @@ function error(xhr, textStatus, errorThrown) {
     this.timeout *= 2;
     $.ajax(this);
     console.log("retrying after timeout! doubled timeout to ", this.timeout);
-  } else {
+  } else if (textStatus != "abort") {
     $("#errorPopup").modal("show");
   }
 }
@@ -178,7 +187,7 @@ function act(url, id, requestid, action) {
     success: success,
     complete: function() { postrequest = null; $("body").removeClass("wait"); },
     error: error,
-    timeout: timeout,
+    timeout: ajaxtimeout,
     retries: retries,
   });
 }
@@ -197,7 +206,7 @@ function refresh(url, id) {
     success: success,
     complete: function() { getrequest = null; },
     error: error,
-    timeout: timeout,
+    timeout: ajaxtimeout,
     retries: retries,
   })
 }
