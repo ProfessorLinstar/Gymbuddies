@@ -361,3 +361,36 @@ def matchedtable():
                            netid=netid,
                            matchusers=zip(matches, users),
                            length=length)
+
+@bp.route("/historytable", methods=("GET", "POST"))
+def historytable():
+    """HTML for matches history table"""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    # if request.method == "POST":
+    #     requestid = int(request.form.get("requestid", "0"))
+    #     action = request.form.get("action")
+
+    #     if action == "terminate":
+    #         database.request.terminate(requestid)
+    #     else:
+    #         print(f"Action not found! {action = }")
+
+    # elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+    #     return ""
+
+    print("historytable refreshed!")
+
+    g.user = database.user.get_user(netid)  # can access this in jinja template with {{ g.user }}
+    matches = database.request.get_terminated(netid)
+    print("matches", matches)
+    users = [m.srcnetid if netid != m.srcnetid else m.destnetid for m in matches]
+    users = [database.user.get_user(u) for u in users]
+    length = len(matches)
+
+    return render_template("historytable.html",
+                           netid=netid,
+                           historyusers=zip(matches, users),
+                           length=length)
