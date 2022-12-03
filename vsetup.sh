@@ -7,8 +7,7 @@ if [[ ! -f "${activate_path}" ]]; then
   exit 1
 fi
 
-pattern=""
-pattern+="deactivate () {"
+pattern="deactivate () {"
 
 replace=""
 replace+="deactivate () {  # vsetup\n"
@@ -17,6 +16,9 @@ replace+="    alias connect=''\n"
 replace+="    unalias initialize\n"
 replace+="    unalias connect\n"
 replace+="    unset DATABASE_URL\n"
+replace+="    unset TWILIO_ACCOUNT_SID\n"
+replace+="    unset TWILIO_ACCOUNT_TOKEN\n"
+replace+="    unset TWILIO_SMS_NUMBER\n"
 replace+="    if [ -n \"\${_OLD_PYTHONPATH:-}\" ] ; then\n"
 replace+="        PYTHONPATH=\"\${_OLD_PYTHONPATH:-}\"\n"
 replace+="        export PYTHONPATH\n"
@@ -25,8 +27,7 @@ replace+="    fi\n"
 
 sed "s@^${pattern}\$@${replace}@" "${activate_path}" > temp && mv temp "${activate_path}"
 
-pattern=""
-pattern+="export VIRTUAL_ENV"
+pattern="export VIRTUAL_ENV"
 
 replace=""
 replace+="export VIRTUAL_ENV  # vsetup\n"
@@ -39,6 +40,15 @@ replace+="PYTHONPATH=\"\$VIRTUAL_ENV/lib/python3.10/site-packages\"\n"
 replace+="export PYTHONPATH\n"
 replace+="\n"
 replace+="DATABASE_URL=\"\"\n"
-replace+="export DATABASE_URL"
+replace+="export DATABASE_URL\n"
+replace+="\n"
+replace+="TWILIO_ACCOUNT_SID=\"\"\n"
+replace+="export TWILIO_ACCOUNT_SID\n"
+replace+="\n"
+replace+="TWILIO_ACCOUNT_TOKEN=\"\"\n"
+replace+="export TWILIO_ACCOUNT_TOKEN\n"
+replace+="\n"
+replace+="TWILIO_SMS_NUMBER=\"\"\n"
+replace+="export TWILIO_SMS_NUMBER\n"
 
 sed "s@^${pattern}\$@${replace}@" "${activate_path}" > temp && mv temp "${activate_path}"
