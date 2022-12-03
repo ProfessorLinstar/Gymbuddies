@@ -323,7 +323,7 @@ def schedule_to_modifyevents(schedule: List[int], requests: List[int]) -> List[L
     end is exclusive."""
     assert len(schedule) == NUM_WEEK_BLOCKS
 
-    blocks: List[List[TimeBlock, str]] = [[]]
+    blocks: List[List[Any]] = [[]]
     for t, status in enumerate(schedule):
         if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
             blocks[-1].append([TimeBlock(t), requests[t]])
@@ -339,7 +339,7 @@ def schedule_to_modifyevents(schedule: List[int], requests: List[int]) -> List[L
     return blocks
 
 
-def schedule_to_readable(schedule: List[int]) -> List[str]:
+def schedule_to_readable(schedule: List[int | ScheduleStatus]) -> List[str]:
     """Converts schedule into a list of readable strings."""
     return [
         f"{s.to_readable()}-{e.to_readable(time_only=True)}"
