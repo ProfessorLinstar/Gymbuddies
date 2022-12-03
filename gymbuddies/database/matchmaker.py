@@ -15,6 +15,7 @@ RETURN_NUMBER: int = 5 # number of users returned by find_matches
 LEVEL_WEIGHT: float = 0.5 # weight of level to compatability score
 INTERESTS_WEIGHT: float = 1 / NUMBER_INTERESTS # weight of interests to compatability score
 SCHEDULE_WEIGHT: float = 1 # weight of schedule intersection to compatability score
+BLOCKS_IN_AN_HOUR: int = 12 # number of blocks in an hour. Used for total intersection checking
 
 def find_matches(netid: str) -> List[str]:
     """run algorithm to find top matches for user <netid>"""
@@ -157,17 +158,20 @@ def find_matches(netid: str) -> List[str]:
     # update user compatability scores based on schedule intersection
     main_user_schedule: List[int] | None = db_schedule.get_schedule(netid)
     assert main_user_schedule is not None
-    schedule_score: float = 0
     for user in randusers:
+        schedule_score: int = 0
         user_schedule: List[int] | None = db_schedule.get_schedule(user.netid)
         assert user_schedule is not None
-        for i in range(len(user_schedule)):
-            if (main_user_schedule[i] == db.ScheduleStatus.AVAILABLE) and (user_schedule[i] == db.ScheduleStatus.AVAILABLE):
-                print(user_schedule[i])
-                print(main_user_schedule[i])
-                schedule_score += 1
+        i = 0
+        while i + (BLOCKS_IN_AN_HOUR - 1) < len(user_schedule):
+            flag = True
+            for j in range(i, i + BLOCKS_IN_AN_HOUR):
+                if not ((main_user_schedule[j] == db.ScheduleStatus.AVAILABLE) and (user_schedule[j] == db.ScheduleStatus.AVAILABLE)):
+                    flag = False
+            if flag:
+                schedule_score += BLOCKS_IN_AN_HOUR
+            i += BLOCKS_IN_AN_HOUR
         # do a hard filter where there are no schedule interactions
-        print(f"SCHEDULE SCORE = {schedule_score} for {user.netid}")
         if schedule_score == 0:
             del user_compatabilities[user.netid]
         else:
