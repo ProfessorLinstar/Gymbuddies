@@ -17,8 +17,7 @@
 
 // }
 
-ajaxtimeout = 3000;
-const retries = 3;
+ajaxtimeout = 10000;
 
 let lastrefreshed = 0;
 let request = null;
@@ -158,12 +157,10 @@ function success(response) {
   console.log("success: no update required.");
 }
 
-// used as the 'error' property of an ajax request argument. Requires
-// 'retries' and 'timeout' properties to be provided, initialized to
-// the global constants, respectively.
+// used as the 'error' property of an ajax request argument.
 function error(xhr, textStatus, errorThrown) {
   console.log(xhr, textStatus, errorThrown);
-  if (textStatus == "timeout" && --this.retries > 0) {
+  if (textStatus == "timeout") {
     ajaxtimeout *= 2;
     console.log("doubled ajaxtimeout to ", ajaxtimeout, this);
   } else if (textStatus != "abort") {
@@ -187,7 +184,6 @@ function act(url, id, requestid, action) {
     complete: function() { postrequest = null; $("body").removeClass("wait"); },
     error: error,
     timeout: ajaxtimeout,
-    retries: retries,
   });
 }
 
@@ -206,8 +202,29 @@ function refresh(url, id) {
     complete: function() { getrequest = null; },
     error: error,
     timeout: ajaxtimeout,
-    retries: retries,
   })
+}
+
+function refreshMultiple(url_ids) {
+  console.log("url_ids: ", url_ids)
+  for (const [url, id] of url_ids) {
+    console.log("url_id", url, id)
+    if (getrequest != null || postrequest != null) {
+      console.log("getrequest/postrequest detected!");
+      return;
+    }
+
+    getrequest = $.ajax({
+      type: "GET",
+      data: { "lastrefreshed": lastrefreshed },
+      url: url,
+      id: id,
+      success: success,
+      complete: function() { getrequest = null; },
+      error: error,
+      timeout: ajaxtimeout,
+    })
+  }
 }
 
 

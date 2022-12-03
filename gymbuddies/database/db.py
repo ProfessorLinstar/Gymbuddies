@@ -304,8 +304,8 @@ def schedule_to_matchevents(schedule: List[int],
     for t, status in enumerate(schedule):
         # print(matchNames[t])
         if blocks[-1] and (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0 or
-                           blocks[-1][0][1] != match_names[t]):
-            blocks[-1].append((TimeBlock(t), match_names[t]))
+                           match_names[t]):
+            blocks[-1].append((TimeBlock(t), blocks[-1][0][1]))
             blocks.append([])
         if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
             blocks[-1].append((TimeBlock(t), match_names[t]))
@@ -329,7 +329,7 @@ def schedule_to_modifyevents(schedule: List[int],
     for t, status in enumerate(schedule):
         if blocks[-1] and (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0 or
                            blocks[-1][0][1] != requests[t]):
-            blocks[-1].append((TimeBlock(t), requests[t]))
+            blocks[-1].append((TimeBlock(t), blocks[-1][0][1]))
             blocks.append([])
         if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
             blocks[-1].append((TimeBlock(t), requests[t]))
