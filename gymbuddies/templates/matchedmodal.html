@@ -53,7 +53,7 @@
       <div class="row">
         <input id = "modifyRequest" type="hidden" name="destnetid" value="{{ user.netid }}"></input>
         <input id = "requestId" type ="hidden" name="requestid" value="{{requestid}}"></input>
-        <button id="requestButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent" onClick="makeRequest()" >Modify Request</button>
+        <button id="requestButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent" onClick="modifyMatch()" >Modify Request</button>
       </div>
     </div>
   </div>
@@ -66,7 +66,7 @@
 <script>
   // from buddies.html
 // Submits a request when "Match" button is pressed
-function makeRequest() {
+function modifyMatch() {
   const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
   let destnetid = $('#modifyRequest').val();
   let requestid = $('#requestId').val();
@@ -77,17 +77,17 @@ function makeRequest() {
 
   $.ajax({
     type: 'POST',
-    url: '/matching/incomingmodal',
+    url: '/matching/matchedmodal',
     data: { "destnetid": destnetid, "jsoncalendar": JSON.stringify(calendar), "requestid":requestid },
     error: function(xhr, textstatus, errorthrown) {
       console.log(xhr, textstatus, errorthrown)
     }
   })
-  $("#Popup").modal("hide");
+  $("#modifyMatchPopup").modal("hide");
 }
 
   function setup() {
-    $('#requestButton').on('click', makeRequest);
+    $('#requestButton').on('click', modifyMatch);
 
     $("#day-schedule").dayScheduleSelector({
       days: [0, 1, 2, 3, 4, 5, 6],

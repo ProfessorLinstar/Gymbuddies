@@ -361,3 +361,64 @@ def matchedtable():
                            netid=netid,
                            matchusers=zip(matches, users),
                            length=length)
+
+@bp.route("/matchedmodal", methods=["GET","POST"])
+def matchedmodal():
+    """Modal for modifying matches."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    print("processing a modifying match request!")
+
+    if request.method == "POST":
+        requestid = int(request.form["requestid"])
+        print("modifying this one:", request.form["jsoncalendar"])
+        schedule = common.json_to_schedule(request.form["jsoncalendar"])
+
+        database.request.modifymatch(requestid, netid, schedule)
+        # return redirect(url_for("matching.outgoing"))
+        print("inside matchedmodal POST")
+        return ""
+
+    # TODO: handle errors when database is not available
+    # requests = database.request.get_active_incoming(netid)
+    requestid = request.args.get("requestid", "0")
+    
+    req = database.request.get_request(int(requestid))
+
+    srcuser = database.user.get_user(req.srcnetid)
+    if srcuser.netid != netid:
+        destuser = srcuser
+        srcuser = database.user.get_user(req.destnetid)
+    else:
+        destuser = database.user.get_user(req.destnetid)
+    
+    # jsoncalendar = common.schedule_to_json(req.schedule)
+    # requested schedule
+    requested = [0] * db.NUM_WEEK_BLOCKS
+    reqSchedule = req.schedule
+    destuserSchedule = destuser.schedule 
+    srcuserSchedule = srcuser.schedule
+    # will hold combination of request and user schedule  
+    combinedSchedule = [0] * db.NUM_WEEK_BLOCKS
+    for i in range(len(combinedSchedule)):
+        if srcuserSchedule[i] ==4 and destuserSchedule[i] == 4:
+            combinedSchedule[i] = 4
+        if reqSchedule[i] == 4:
+            requested[i] = 1
+
+    level = db.Level(srcuser.level).to_readable()
+    interests = db.interests_to_readable(srcuser.interests)
+
+    print(f"returning card with info for match {requestid = }")
+    jsoncalendar = common.schedule_to_jsonmodify(combinedSchedule, requested)
+
+    return render_template("matchedmodal.html",
+                           netid=netid,
+                           req=req,
+                           user=destuser,
+                           jsoncalendar=jsoncalendar,
+                           level=level,
+                           interests=interests,
+                           requestid = requestid)

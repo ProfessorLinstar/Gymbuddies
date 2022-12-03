@@ -201,3 +201,28 @@ function refresh(url, id) {
     retries: retries,
   })
 }
+
+
+// from matched.html
+function fillMatchedCard(response) {
+  console.log("got a response");
+  $('#modifyPopup').html(response);
+}
+
+
+function getMatchedCard(requestid, url) {
+  if (getrequest != null) {
+    console.log("aborting other getrequests!");
+    getrequest.abort();
+  }
+
+  getrequest = $.ajax({
+    type: 'GET',
+    data: { "requestid": requestid },
+    url: url,
+    success: fillMatchedCard,
+    complete: function() { getrequest = null; },
+    error: function() { console.log("getMatchedCard failed!"); },
+    timeout: timeout,
+  });
+}

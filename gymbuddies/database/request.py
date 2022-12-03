@@ -362,6 +362,28 @@ def modify(requestid: int,
     request = _get(session, requestid)
     new(request.destnetid, request.srcnetid, schedule, session=session, prev=request)
 
+@db.session_decorator(commit=True)
+def modifymatch(requestid: int, netid: str,
+           schedule: List[db.ScheduleStatus | int],
+           *,
+           session: Optional[Session] = None) -> None:
+    """Modifies match times."""
+    assert session is not None
+
+    print("trying to modify with this schedule: ", db.schedule_to_readable(schedule))
+
+    request = _get(session, requestid)
+    
+    destuser
+    srcuser = db.user.get_user(request.srcnetid)
+    if srcuser != netid:
+        destuser = srcuser
+        srcuser = netid
+    else:
+        destuser =netid
+    
+    new(srcuser, destuser, schedule, session=session, prev=request)
+
 
 @db.session_decorator(commit=True)
 def delete_all(netid: str, *, session: Optional[Session] = None) -> None:
