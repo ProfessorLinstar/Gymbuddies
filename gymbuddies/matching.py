@@ -7,9 +7,7 @@
 from typing import Dict, Any, List
 from flask import Blueprint
 from flask import render_template, redirect, url_for
-from flask import session, g, request, abort
-from sqlalchemy.exc import OperationalError
-from werkzeug.exceptions import HTTPException
+from flask import session, g, request
 from .error import NoLoginError
 from . import common
 from . import database
@@ -36,6 +34,7 @@ def findabuddy():
         if sendsms.SEND_SMS:
             number = database.user.get_contact(destnetid)
             success = sendsms.sendsms("1" + number, sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", netid))
+            print("sent to this number:", number)
             print(success)
         # return redirect(url_for("matching.outgoing"))
         print("inside findabuddy POST")
@@ -378,6 +377,67 @@ def matchedtable():
                            matchusers=zip(matches, users),
                            length=length)
 
+@bp.route("/matchedmodal", methods=["GET","POST"])
+def matchedmodal():
+    """Modal for modifying matches."""
+    print("processing a modifying match request!")
+
+    netid: str = session.get("netid", "")
+    if not netid:
+        raise NoLoginError
+
+    if request.method == "POST":
+        requestid = int(request.form["requestid"])
+        print("modifying this one:", request.form["jsoncalendar"])
+        schedule = common.json_to_schedule(request.form["jsoncalendar"])
+
+        database.request.modifymatch(requestid, netid, schedule)
+        # return redirect(url_for("matching.outgoing"))
+        print("inside matchedmodal POST")
+        return ""
+
+    # TODO: handle errors when database is not available
+    # requests = database.request.get_active_incoming(netid)
+    requestid = request.args.get("requestid", "0")
+    
+    req = database.request.get_request(int(requestid))
+
+    srcuser = database.user.get_user(req.srcnetid)
+    if srcuser.netid != netid:
+        destuser = srcuser
+        srcuser = database.user.get_user(req.destnetid)
+    else:
+        destuser = database.user.get_user(req.destnetid)
+    
+    # jsoncalendar = common.schedule_to_json(req.schedule)
+    # requested schedule
+    requested = [0] * db.NUM_WEEK_BLOCKS
+    reqSchedule = req.schedule
+    destuserSchedule = destuser.schedule 
+    srcuserSchedule = srcuser.schedule
+    # will hold combination of request and user schedule  
+    combinedSchedule = [0] * db.NUM_WEEK_BLOCKS
+    for i in range(len(combinedSchedule)):
+        if srcuserSchedule[i] ==4 and destuserSchedule[i] == 4:
+            combinedSchedule[i] = 4
+        if reqSchedule[i] == 4:
+            requested[i] = 1
+
+    level = db.Level(srcuser.level).to_readable()
+    interests = db.interests_to_readable(srcuser.interests)
+
+    print(f"returning card with info for match {requestid = }")
+    jsoncalendar = common.schedule_to_jsonmodify(combinedSchedule, requested)
+
+    return render_template("matchedmodal.html",
+                           netid=netid,
+                           req=req,
+                           user=destuser,
+                           jsoncalendar=jsoncalendar,
+                           level=level,
+                           interests=interests,
+                           requestid = requestid)
+
 @bp.route("/historytable", methods=("GET", "POST"))
 def historytable():
     """HTML for matches history table"""
@@ -385,17 +445,8 @@ def historytable():
     if not netid:
         return redirect(url_for("auth.login"))
 
-    # if request.method == "POST":
-    #     requestid = int(request.form.get("requestid", "0"))
-    #     action = request.form.get("action")
-
-    #     if action == "terminate":
-    #         database.request.terminate(requestid)
-    #     else:
-    #         print(f"Action not found! {action = }")
-
-    # elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
-    #     return ""
+    if common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
 
     print("historytable refreshed!")
 
