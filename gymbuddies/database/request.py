@@ -169,7 +169,7 @@ def get_terminated(netid: str, *, session: Optional[Session] = None) -> List[db.
     return session.query(db.Request).filter(
         (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
         db.Request.status == db.RequestStatus.TERMINATED).order_by(
-            db.Request.finalizedtimestamp.desc()).limit(LIMIT).all()
+            db.Request.deletetimestamp.desc()).limit(LIMIT).all()
 
 
 @db.session_decorator(commit=False)
@@ -316,6 +316,7 @@ def _reject(session: Session, request: db.MappedRequest) -> None:
         raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.PENDING)
 
     request.status = db.RequestStatus.REJECTED
+    request.deletetimestamp = datetime.now(timezone.utc)
 
     # Update user lastupdated timestamp
     db_user.update(request.srcnetid, session=session)
@@ -342,6 +343,7 @@ def _terminate(session: Session, request: db.MappedRequest) -> None:
                                            session=session)
 
     request.status = db.RequestStatus.TERMINATED
+    request.deletetimestamp = datetime.now(timezone.utc)
 
 
 def _deactivate(session: Session, request: db.MappedRequest) -> None:

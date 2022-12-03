@@ -17,8 +17,7 @@
 
 // }
 
-ajaxtimeout = 3000;
-const retries = 3;
+ajaxtimeout = 10000;
 
 let lastrefreshed = 0;
 let request = null;
@@ -120,33 +119,6 @@ function getCard(requestid, url) {
   });
 }
 
-function listRequests(response) {
-  if (response) {
-    lastrefreshed = Date.now();
-    $('#requestTable').html(response);
-    console.log("making an update now!", Date.now())
-  }
-}
-
-// from matched.html
-// generates list of matches
-function listMatches(response) {
-  if (response) {
-    lastrefreshed = Date.now();
-    $('#matchesTable').html(response);
-    console.log("making an update now!", Date.now())
-  }
-}
-
-// generates history of matches
-function listHistory(response) {
-  if (response) {
-    lastrefreshed = Date.now();
-    $('#historyTable').html(response);
-    console.log("making an update now!", Date.now())
-  }
-}
-
 // used as the 'success' property of an ajax request argument. Requires an
 // 'id' property to be provided to indicate where to write the response.
 function success(response) {
@@ -158,12 +130,10 @@ function success(response) {
   console.log("success: no update required.");
 }
 
-// used as the 'error' property of an ajax request argument. Requires
-// 'retries' and 'timeout' properties to be provided, initialized to
-// the global constants, respectively.
+// used as the 'error' property of an ajax request argument.
 function error(xhr, textStatus, errorThrown) {
   console.log(xhr, textStatus, errorThrown);
-  if (textStatus == "timeout" && --this.retries > 0) {
+  if (textStatus == "timeout") {
     ajaxtimeout *= 2;
     console.log("doubled ajaxtimeout to ", ajaxtimeout, this);
   } else if (textStatus != "abort") {
@@ -187,7 +157,6 @@ function act(url, id, requestid, action) {
     complete: function() { postrequest = null; $("body").removeClass("wait"); },
     error: error,
     timeout: ajaxtimeout,
-    retries: retries,
   });
 }
 
@@ -206,7 +175,40 @@ function refresh(url, id) {
     complete: function() { getrequest = null; },
     error: error,
     timeout: ajaxtimeout,
-    retries: retries,
+  })
+}
+
+function refreshMultiple(url_ids, index, lastrefreshedlocal) {
+  if (index === undefined) {
+    index = 0;
+  }
+  if (lastrefreshedlocal === undefined) {
+    lastrefreshedlocal = lastrefreshed
+  }
+
+  const [url, id] = url_ids[index];
+
+  console.log("url_id, index", url, id, index)
+  if (index == 0 && getrequest != null || postrequest != null) {
+    console.log("getrequest/postrequest detected!");
+    return;
+  }
+
+  getrequest = $.ajax({
+    type: "GET",
+    data: { "lastrefreshed": lastrefreshedlocal },
+    url: url,
+    id: id,
+    success: success,
+    complete: function() {
+      if (++index == url_ids.length) {
+        getrequest = null;
+      } else {
+        refreshMultiple(url_ids, index, lastrefreshedlocal);
+      }
+    },
+    error: error,
+    timeout: ajaxtimeout,
   })
 }
 
