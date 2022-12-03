@@ -19,7 +19,7 @@ def update_schedule(netid: str,
                     schedule: List[int],
                     *,
                     session: Optional[Session] = None,
-                    update_user: bool = True) -> bool:
+                    update_user: bool = True) -> None:
     """Updates either Availability, Pending, or Matched to be set for a certain time block.
     In the case that the attribute was already set, False is returned. status should
     be a ScheduleStatus enum value"""
@@ -44,8 +44,6 @@ def update_schedule(netid: str,
     if update_user:
         db_user.update(netid, session=session, schedule=schedule, update_schedule=False)
 
-    return True
-
 
 @db.session_decorator(commit=True)
 def add_schedule_status(
@@ -59,9 +57,7 @@ def add_schedule_status(
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is marked for the corresponding TimeBlock. If False, then the element is ignored."""
 
-    schedule: Optional[List[int]] = db_user.get_schedule(netid, session=session)
-    if schedule is None:
-        raise db_user.UserNotFound(netid=netid)
+    schedule: List[int] = db_user.get_schedule(netid, session=session)
 
     for i, m in enumerate(marked):
         if m:
@@ -82,10 +78,7 @@ def remove_schedule_status(
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is unmarked for the corresponding TimeBlock. if False, then the element is ignored."""
 
-    schedule: Optional[List[int]] = db_user.get_schedule(netid, session=session)
-    if schedule is None:
-        raise db_user.UserNotFound(netid=netid)
-
+    schedule: List[int] = db_user.get_schedule(netid, session=session)
     for i, m in enumerate(marked):
         if m:
             schedule[i] &= ~status

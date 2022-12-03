@@ -1,7 +1,7 @@
 """Gymbuddies Flask web application."""
 import os
 from flask import Flask
-from . import home, master, auth, matching
+from . import home, master, auth, matching, error
 from . import database
 from .database import db
 
@@ -16,6 +16,7 @@ def create_app():
     app.register_blueprint(master.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(matching.bp)
+    app.register_blueprint(error.bp)
 
     app.jinja_env.globals.update(database=database, db=db)
 

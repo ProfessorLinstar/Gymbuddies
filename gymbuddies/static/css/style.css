@@ -2,8 +2,16 @@
   width: 100%;
   min-width: 400px;
   table-layout: fixed;
+  /* border-collapse: separate */
 }
 
+/* table {
+  table-layout: fixed;
+} */
+
+/* .time-label td {
+
+} */
 .schedule-rows td {
   height: 30px;
   margin: 1px;
@@ -16,7 +24,12 @@
 }
 
 td {
+  text-align: center;
   border: 10px white;
+}
+
+td p {
+  color: white;
 }
 
 .schedule-rows td:first-child {

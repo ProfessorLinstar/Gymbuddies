@@ -2,12 +2,10 @@
 
 import functools
 import os
-import sys
-import traceback
 
 from datetime import datetime
 from enum import Enum, IntFlag
-from typing import Tuple, Callable, ParamSpec, TypeVar, Optional, Dict, List, Any
+from typing import Tuple, Callable, ParamSpec, TypeVar, Dict, List, Any
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
@@ -34,7 +32,7 @@ engine = create_engine(DATABASE_URL)
 
 
 # TODO: return exception to client
-def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, Optional[R]]]:
+def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
        func(..., *, session: Session=None, x, y, ..., **kwargs) -> R,
@@ -50,26 +48,19 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
     function decorated by '@session_decorator(commit=True)'. Because of this, it is recommended that
     any such function use 'commit=True' instead of manually calling 'session.commit'."""
 
-    def decorator(func: Callable[P, R]) -> Callable[P, Optional[R]]:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
 
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Optional[R]:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             if "session" in kwargs:  # A session can be provided manually
-                return func(*args, **kwargs)  # propogate exception to outer session
+                return func(*args, **kwargs)
 
-            try:
-
-                with Session(engine) as session:
-                    kwargs["session"] = session
-                    result = func(*args, **kwargs)
-                    if commit:
-                        session.commit()
-                return result
-
-            except Exception:
-                traceback.print_exc(file=sys.stderr)
-
-            return None
+            with Session(engine) as session:
+                kwargs["session"] = session
+                result = func(*args, **kwargs)
+                if commit:
+                    session.commit()
+            return result
 
         return wrapper
 
@@ -202,7 +193,7 @@ class TimeBlock(int):
     @classmethod
     def from_daytime(cls, day: int, time: int) -> "TimeBlock":
         """Converts a (day, time) tuple to a TimeBlock. 'day' is an integer from 0-6, corresponding
-        to Monday, ..., Sunday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
+        to Sunday, ..., Saturday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
         00:00-00:05, ..., 23:55-24:00."""
         return cls(day * NUM_DAY_BLOCKS + time)
 
@@ -219,11 +210,13 @@ class TimeBlock(int):
     def time_str(self) -> str:
         """Converts the time of day for a TimeBlock to a datetime."""
         _, time = self.day_time()
-        return datetime.strptime(f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}", "%H:%M").strftime("%H:%M")
+        return datetime.strptime(
+            f"{time // NUM_HOUR_BLOCKS}:{BLOCK_LENGTH * (time % NUM_HOUR_BLOCKS)}",
+            "%H:%M").strftime("%H:%M")
 
     def day_time(self) -> Tuple[int, int]:
         """Converts a TimeBlock to a (day, time) tuple. 'day' is an integer from 0-6, corresponding
-        to Monday, ..., Sunday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
+        to Sunday, ..., Saturday. 'time' is an integer from 0-NUM_DAY_BLOCKS, corresponding to
         00:00-00:05, ..., 23:55-24:00."""
         return divmod(self, NUM_DAY_BLOCKS)
 
@@ -278,7 +271,6 @@ def interests_to_readable(interests: Dict[str, bool]):
     """Converts an interests dictionary to a readable format."""
     return ", ".join(k for k, v in interests.items() if v)
 
-
 def schedule_to_events(schedule: List[int]) -> List[List[TimeBlock]]:
     """Converts a schedule into a string representation as a comma separated list of events. Events
     are in the format (start, end), where start and end are timeblocks, and start is inclusive while
@@ -292,6 +284,27 @@ def schedule_to_events(schedule: List[int]) -> List[List[TimeBlock]]:
             blocks.append([])
         if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
             blocks[-1].append(TimeBlock(t))
+
+    if blocks[-1]:
+        blocks[-1].append(TimeBlock(len(schedule)))
+    else:
+        blocks.pop()
+
+    return blocks
+
+def schedule_to_matchevents(schedule: List[int], matchNames: List[str]) -> List[List[TimeBlock]]:
+    """Converts a schedule into a string representation as a comma separated list of events. Events
+    are in the format (start, end), where start and end are timeblocks, and start is inclusive while
+    end is exclusive."""
+    assert len(schedule) == NUM_WEEK_BLOCKS
+
+    blocks: List[List[TimeBlock, str]] = [[]]
+    for t, status in enumerate(schedule):
+        if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
+            blocks[-1].append([TimeBlock(t), matchNames[t]])
+            blocks.append([])
+        if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
+            blocks[-1].append([TimeBlock(t), matchNames[t]])
 
     if blocks[-1]:
         blocks[-1].append(TimeBlock(len(schedule)))

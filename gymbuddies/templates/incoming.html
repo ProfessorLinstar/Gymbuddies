@@ -1,0 +1,49 @@
+{% extends 'layout.html' %} {% block title %}Incoming Requests{% endblock %} 
+{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %} 
+  {% block classfind %}<a class="nav-link" href="{{ url_for('matching.findabuddy') }}">{% endblock %} 
+  {% block classreq %}<a class="nav-link active" href="{{ url_for('matching.incoming') }}">{% endblock %} 
+  {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %} 
+  {% block classprof %}<a class="nav-link" href="{{ url_for('home.profile') }}">{% endblock %} 
+  {% block classmast %}<a class="nav-link" href="{{ url_for('master.show') }}">{% endblock %}
+  {% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Incoming Requests</li>
+{% endblock %}
+{% block pagename_large %}Incoming Requests{%endblock %}
+
+{% block content %}
+<div class="modal fade bd-example-modal-xl" id="Popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+      <span id="userPopup"></span>
+      <!-- <div class="modal-footer"> -->
+      <!--   <button type="button" class="btn btn-secondary" onclick="closeCard()">Close</button> -->
+      <!-- </div> -->
+    </div>
+</div>
+<div class="row">
+  <div class="col-12 mb-4">
+    <div class="card">
+      <div class="card-header pb-0 px-3">
+        <h6 class="mb-0">Incoming Requests</h6>
+      </div>
+      <div class="card-body pt-4 p-3">
+        <span id="requestTable"></span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="../static/js/ajax.js"></script>
+<script>
+  function setup() {
+    refreshWrapper = function() { refresh("{{ url_for('matching.incomingtable') }}", "#requestTable"); };
+    refreshWrapper();
+    window.setInterval(refreshWrapper, 1000);
+
+    $("#Popup").on("hide.bs.modal", function() {
+      $("#userPopup").html("");
+    });
+  }
+  $('document').ready(setup);
+</script>
+{% endblock %}

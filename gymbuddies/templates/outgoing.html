@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 {% block title %}Outgoing Requests{% endblock %}
-{% block classdash %}<a class="nav-link" href="../home">{% endblock %}
-  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.search') }}">{% endblock %}
-  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.pending') }}">{% endblock %}
+{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
+  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
+  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.incoming') }}">{% endblock %}
   {% block classreqa %}<a class="nav-link active" href="{{ url_for('matching.outgoing') }}">{% endblock %}
   {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
   {% block classprof %}<a class="nav-link " href="{{ url_for('home.profile') }}">{% endblock %}
@@ -26,53 +26,12 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
-  let lastrefreshed = 0;
-  let getrequest = null;
-  let postrequest = null;
-
-  function listOutgoing(response) {
-    if (response) { // if response is empty, then no update is necessary
-      lastrefreshed = Date.now();
-      $('#outgoingTable').html(response);
-    }
-  }
-
-
-  function reject(requestid) {
-    if (postrequest != null)
-      return
-
-   $("body").addClass("wait");
-    postrequest = $.ajax(
-      {
-        type: 'POST',
-        data: {"requestid": requestid, "action": "reject"},
-        url: '/matching/outgoingtable',
-        success: listOutgoing,
-        complete: function () { postrequest = null; $("body").removeClass("wait"); },
-        timeout: 3000,
-      }
-    );
-  }
-
-  function refreshOutgoing() {
-    if (getrequest != null || postrequest != null)
-      getrequest.abort();
-
-    getrequest = $.ajax({
-      type: 'GET',
-      data: {"lastrefreshed": lastrefreshed},
-      url: '/matching/outgoingtable',
-      success: listOutgoing,
-      getrequest: function() { getrequest = null; },
-      timeout: 3000,
-    });
-  }
-
   function setup() {
-    refreshOutgoing();
-    window.setInterval(refreshOutgoing, 1000);
+    refreshWrapper = function() { refresh("{{ url_for('matching.outgoingtable') }}", "#outgoingTable"); };
+    refreshWrapper()
+    window.setInterval(refreshWrapper, 1000);
   }
   $('document').ready(setup);
 </script>

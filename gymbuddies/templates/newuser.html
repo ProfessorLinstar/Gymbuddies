@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="apple-icon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>New User Creation</title>
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <!-- CSS Files -->
+  <link id="pagestyle" href="../static/css/argon-dashboard.css" rel="stylesheet" />
+  {% block links %}
+    <!-- our style sheet-->
+    <link
+      rel="stylesheet"
+      href="../static/css/styles.css"
+    />
+    <!-- font importing -->
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    {% endblock %}
+  </head>
+</head>
+<body class="g-sidenav-show   bg-gray-100">
+  <section id = "login-background" class="vh-100">
+    <div class="container-fluid py-5 h-100">
+      
+        
+          <div class="card" style="border-radius: 1rem;">
+                <div class="card-body p-4 p-lg-5 text-black">
+                  <form action="{{ url_for('home.profile') }}" method="post">
+                  <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="d-flex" style="justify-content:center;">
+                      <img src="../static/pictures/biglogo.png" width="40%" alt="GymBuddies logo">
+                    </div>
+  
+                    <h5 class="fw-normal mb-3 pb-3" style="letter-spacing:1px;text-align:center;">Welcome to Gymbuddies!</h5>
+                    <p style="letter-spacing:1px;text-align:center"> Please fill out your profile below to start matching with a gym buddy! Once you're done, press "Next".</p>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="card">
+                        <div class="card-header pb-0 pt-3 bg-transparent">
+                          <h6 class="text-capitalize">Create Profile</h6>
+                        </div>
+                        <div class="card-body">
+                          <p class="text-uppercase text-sm">User Information</p>
+                          <div class="row">
+                            <label for="name" class="form-control-label">Net Id: </label>  <p style="font-size:13 !important">{{netid}}</p>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="name" class="form-control-label">Name</label>
+                                <p class="text-xs">(as you want it to appear on people's feeds)</p>
+                                <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  required >
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label for="contact" class="form-control-label">Contact</label>
+                                <p class="text-xs">(will be shared with your buddy when you match) </p>
+                                <input name="contact" id="contact" class="form-control" type="email" value="{{netid}}@princeton.edu"  required>
+                              </div>
+                            </div>
+                          </div>
+                          <hr class="horizontal dark">
+                          <p class="text-uppercase text-sm">Information</p>
+                          <div class="row">
+                            <div class="col-md-12">
+                              <div class="form-group">
+                                <label for="bio" class="form-control-label">Bio</label>
+                                <p class="text-xs">Write a short bio introducing yourself!</p>
+                                <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}"  required>
+                              </div>
+                            </div>
+                          </div>
+                          <div class = "row pb-3">
+                            <div class = "col md-4">
+                              <label for="level">Level</label>
+                              <select name="level" id="cars" class="form-control" placeholder="Level">
+                                <option id="level0" value="0" {{ "selected" if (user.level == 0 ) else "" }}>Beginner</option>
+                                <option id="level1" value="1" {{ "selected" if (user.level == 1 ) else "" }}>Intermediate</option>
+                                <option id="level2" value="2" {{ "selected" if (user.level == 2 ) else "" }}>Advanced</option>
+                              </select>
+                            </div>
+                            
+                          </div>
+                
+                          <div class="row">
+                            <div class="form-group">
+                              <label for="match-availability" class="form-control-label">Match Availability</label>
+                              <p class="text-xs">"Open" enables you to match with others. Toggle off if you do not want to send nor receive match requests. </p>
+                                <div class="form-check form-switch">
+                                  <input class="form-check-input" type="checkbox" name = "open" id="open" {{ "checked" if user.open else "" }}>
+                                  <label class="form-check-label" for="open">Open</label>
+                              </div>
+                            </div>
+                
+                          </div>
+                          <div class="row">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="interests" class="form-control-label">Interests</label>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="Gaining Mass"
+                                    name="interests"
+                                    value="Gaining Mass" {{ "checked" if user.interests.get("Gaining Mass") else "" }}>
+                                    <label class="custom-control-label" for="Gaining Mass" >Gaining Mass</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="Losing Weight"
+                                    name="interests"
+                                    value="Losing Weight"{{ "checked" if user.interests.get("Losing Weight" ) else "" }} >
+                                    <label class="custom-control-label" for="Losing Weight" >Losing Weight</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="Cardiovascular Fitness"
+                                    name="interests"
+                                    value="Cardiovascular Fitness" {{ "checked" if user.interests.get("Cardiovascular Fitness" ) else "" }}>
+                                    <label class="custom-control-label" for="Cardiovascular Fitness" >Cardiovascular Fitness</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="Upper Body"
+                                    name="interests"
+                                    value="Upper Body"{{ "checked" if user.interests.get("Upper Body" ) else "" }}>
+                                    <label class="custom-control-label" for="Upper Body" >Upper Body</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="Lower Body"
+                                    name="interests"
+                                    value="Lower Body" {{ "checked" if user.interests.get("Lower Body" ) else "" }}>
+                                    <label class="custom-control-label" for="Lower Body" >Lower Body</label>
+                                  </div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="gender" class="form-control-label">Gender</label>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="radio" class="custom-control-input" id="nonbinary"
+                                    name="gender"
+                                    value="2" {{ "checked" if (user.gender == 2 ) else "" }}>
+                                    <label class="custom-control-label" for="nonbinary">Non-Binary</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="radio" class="custom-control-input" id="male"
+                                    name="gender"
+                                    value="0" {{ "checked" if (user.gender == 0 ) else "" }}>
+                                    <label class="custom-control-label" for="male">Male</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="radio" class="custom-control-input" id="female"
+                                    name="gender"
+                                    value="1" {{ "checked" if (user.gender == 1 ) else "" }}>
+                                    <label class="custom-control-label" for="female">Female</label>
+                                  </div>
+                              </div>
+                            </div>
+                          </div>
+                          <hr class="horizontal dark">
+                          <p class="text-uppercase text-sm">Match Preferences</p>
+                          <div class = "row">
+                            <div class = "col md-4">
+                              <label for = "levelpreference">Buddy's Level</label>
+                              <select required class="form-control" placeholder="Level" name="levelpreference">
+                                <option id="level0" value="0" {{ "selected" if (user.levelpreference == 0 ) else "" }}> Equal </option>
+                                <option id="level1" value="1" {{ "selected" if (user.levelpreference ==1 ) else "" }}>Less than or Equal to</option>
+                                <option id="level2"  value="2" {{ "selected" if (user.levelpreference ==2 ) else "" }}>Greater than or Equal to</option>
+                                <option id="level3"  value="3" {{ "selected" if (user.levelpreference ==3 ) else "" }}>All</option>
+                              </select>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                                <label for="gender" class="form-control-label">Gender Preference</label>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" id ="okbinary" name="okbinary" class="custom-control-input" {{ "checked" if user.okbinary else "" }}>
+                                    <label class="custom-control-label" for="okbinary">Non-Binary</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" id ="okmale" name="okmale" class="custom-control-input" {{ "checked" if user.okmale else "" }}>
+                                    <label class="custom-control-label" for="okmale">Male</label>
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" id ="okfemale" name="okfemale" class="custom-control-input" {{ "checked" if user.okfemale else "" }}>
+                                    <label class="custom-control-label" for="okfemale">Female</label>
+                                  </div>
+                              </div>
+                            </div>
+                          </div>
+                
+                          <hr class="horizontal dark">
+                          <p class="text-uppercase text-sm">Additional Information</p>
+                          <div class="row">
+                            <div class="col-md-12">
+                              <div class="form-group">
+                                <label for="example-text-input" class="form-control-label">Additional Information</label>
+                                <p class="text-xs">Please list any other information that would be helpful. (e.g. injuries, workout schedules, 1RMs) </p>
+                                <input class="form-control" type="text" name="addinfo" value="{{ user.addinfo }}">
+                              </div>
+                            </div>
+                          </div>
+                        <!-- <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button> -->
+                        <!-- </form> -->
+                        </div> <!-- end of card body-->
+                      </div> <!-- end of card-->
+                    </div> <!-- end of profiile column-->
+
+                    <!-- Calendar -->
+                    <div class="col-md-6">
+                      <div class="card card-profile scrolling-wrapper">
+                        <div class="card-header pb-0 pt-3 bg-transparent">
+                          <h6 class="text-capitalize">Availability</h6>
+                          <p class="text-xs">Please select your availability by clicking a box to activate a time and then dragging up or down to select more times. When selected, a box will become blue. Your potential buddy will be able to select times from your availability to request a match.</p>
+                        </div>
+                        <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->
+                        <div class="card-body p-3">
+                          <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+                          <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+                            <!--- <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> --->
+                          <style>
+                            body {  background-color:#ECF0F1; }
+                          </style>
+                
+                          <div id="day-schedule"></div>
+                          <br>
+                          <!-- <div class="col-md-6">
+                            <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
+                          </div> -->
+                           
+                        </div> <!-- end of calendar card body-->
+                      </div>  <!-- end of calendar card-->
+                        <!-- </form> -->
+                    </div><!-- end of calendar column-->
+                  </div><!-- end of row containing profile + calendar -->
+                  <!-- </form> -->
+                  <div class="d-flex pt-1 mt-4 justify-content-center">
+                    <button class="btn btn-lg btn-primary" type="submit" name="update" value="schedule" id="updateCalendar">Next</button>
+                  </div>
+                  </form>
+                </div> <!-- end of the encompassing card body with all 3 things-->
+
+          </div> <!-- end of the encompassing card with all 3 things-->
+    </div><!-- end of the container-->
+  </section>
+  <script src="../static/js/calprofile.js"></script>
+  <script>
+    function setup() {
+  
+      $("#day-schedule").dayScheduleSelector({
+        days: [0, 1, 2, 3, 4, 5, 6],
+        interval: 60,
+        startTime: '06:00',
+        endTime: '24:00'
+      });
+      const calendar = '{{ jsoncalendar|safe }}'
+      const parsed = JSON.parse(calendar)
+      console.log(calendar, parsed)
+  
+      $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
+      $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
+        console.log(selected);
+      })
+      $('#updateCalendar').click( function() {
+        const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+        
+        $("body").addClass("wait");
+        $.ajax({
+          type:'POST',
+          url:'/profile',
+          data: {"update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
+          success: function(response) {
+            let lastupdated = new Date()
+            $.ajax({
+              type:'GET',
+              url:'/profileupdated',
+              data: {"lastupdated":lastupdated},
+              success: function(response) {
+                $('#lastUpdated').html(response);
+              }
+            })
+          },
+          complete: function(response) {
+            $("body").removeClass("wait");
+          }
+        })
+      });
+    }
+  
+    $("document").ready(setup);
+  
+  </script>
+</body>
+</html>
+
+
+
+
+

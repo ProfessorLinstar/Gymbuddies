@@ -6,25 +6,39 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import func
 from . import db
 from . import schedule as db_schedule
+from . import request as db_request
 
 
 class UserAlreadyExists(Exception):
     """Exception raised in API call if attempting to create a user with a netid already in the
     database."""
 
+    netid: str
+
     def __init__(self, netid: str):
+        self.netid = netid
         super().__init__(f"User with netid '{netid}' already exists.")
+
+
+class InvalidNetid(Exception):
+    """Exception raised in API call if user required but not found in database."""
+
+    def __init__(self):
+        super().__init__("Invalid netid. Netid must consist of 1 or more alphanumeric characters.")
 
 
 class UserNotFound(Exception):
     """Exception raised in API call if user required but not found in database."""
 
+    netid: str
+
     def __init__(self, netid: str):
+        self.netid = netid
         super().__init__(f"User with netid '{netid}' not found in the database.")
 
 
 @db.session_decorator(commit=True)
-def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
+def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> None:
     """Attempts to create a user with netid and a profile provided by **kwargs. Does nothing if the
     user already exists."""
     assert session is not None
@@ -32,12 +46,13 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> bool:
     if exists(netid, session=session):
         raise UserAlreadyExists(netid)
 
+    if not netid:
+        raise InvalidNetid
+
     profile: Dict[str, Any] = _default_profile()
     user = db.User(netid=netid)
     _update_user(session, user, **(profile | kwargs))
     session.add(user)
-
-    return True
 
 
 @db.session_decorator(commit=True)
@@ -106,7 +121,6 @@ def _update_user(session: Session,
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         setattr(user, k, v)
     user.lastupdated = datetime.now(timezone.utc)
-    print(f"{user.lastupdated = } was updated! time was {user.lastupdated.strftime('%HH:%MM')}")
 
     if update_schedule and kwargs.get("schedule") is not None:
         db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
@@ -114,19 +128,19 @@ def _update_user(session: Session,
 
 # TODO: terminate/delete all requests related to netid
 @db.session_decorator(commit=True)
-def delete(netid: str, *, session: Optional[Session] = None) -> bool:
+def delete(netid: str, *, session: Optional[Session] = None) -> None:
     """Attempts to remove a user from the database, removing all related entries and references.
     Does nothing if the user does not exist."""
     assert session is not None
 
-    user = get_user(netid, session=session)
-    session.delete(user)
-
-    return True
+    db_request.delete_all(netid)
+    db_schedule.update_schedule(netid, [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
+                                session=session)
+    session.delete(get_user(netid, session=session))
 
 
 @db.session_decorator(commit=False)
-def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[db.MappedUser]]:
+def get_users(*criterions, session: Optional[Session] = None) -> List[db.MappedUser]:
     """Attempts to return a list of all users satisfying a particular criterion."""
     assert session is not None
     return session.query(db.User).filter(*criterions).all()
@@ -135,7 +149,7 @@ def get_users(*criterions, session: Optional[Session] = None) -> Optional[List[d
 @db.session_decorator(commit=False)
 def get_rand_users(number: int,
                    netid: str,
-                   session: Optional[Session] = None) -> Optional[List[db.MappedUser]]:
+                   session: Optional[Session] = None) -> List[db.MappedUser]:
     """Attempts to return a <number> random sample of users, from which <userid> is not a user"""
     assert session is not None
     rows = session.query(db.User).filter(db.User.netid != netid).order_by(func.random()).all()
@@ -172,7 +186,7 @@ def _get_column(session: Session, netid: str, column: Column) -> Any:
 
 
 @db.session_decorator(commit=False)
-def get_name(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_name(netid: str, *, session: Optional[Session] = None) -> str:
     """Attempts to return the name of a user with netid 'netid'. Raises an error if the user does
     not exist."""
     assert session is not None
@@ -180,7 +194,7 @@ def get_name(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
 
 
 @db.session_decorator(commit=False)
-def get_contact(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_contact(netid: str, *, session: Optional[Session] = None) -> str:
     """Attempts to return the additional info of a user with netid 'netid'. Raises an error if the
     user does not exist."""
     assert session is not None
@@ -188,7 +202,7 @@ def get_contact(netid: str, *, session: Optional[Session] = None) -> Optional[st
 
 
 @db.session_decorator(commit=False)
-def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[db.Level]:
+def get_level(netid: str, *, session: Optional[Session] = None) -> db.Level:
     """Attempts to return the level of a user with netid 'netid'. Raises an error if the user does
     not exist."""
     assert session is not None
@@ -196,7 +210,7 @@ def get_level(netid: str, *, session: Optional[Session] = None) -> Optional[db.L
 
 
 @db.session_decorator(commit=False)
-def get_level_str(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_level_str(netid: str, *, session: Optional[Session] = None) -> str:
     """Attempts to return the level of a user as a string. Raises an error if the user does not
     exist."""
     assert session is not None
@@ -204,7 +218,7 @@ def get_level_str(netid: str, *, session: Optional[Session] = None) -> Optional[
 
 
 @db.session_decorator(commit=False)
-def get_bio(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_bio(netid: str, *, session: Optional[Session] = None) -> str:
     """Attempts to return the bio of a user with netid 'netid'. Raises an error if the user does not
     exist."""
     assert session is not None
@@ -212,14 +226,14 @@ def get_bio(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
 
 
 @db.session_decorator(commit=False)
-def get_levelpreference(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
+def get_levelpreference(netid: str, *, session: Optional[Session] = None) -> int:
     """Attemps to return the level preference of a user."""
     assert session is not None
     return _get_column(session, netid, db.User.levelpreference)
 
 
 @db.session_decorator(commit=False)
-def get_addinfo(netid: str, *, session: Optional[Session] = None) -> Optional[str]:
+def get_addinfo(netid: str, *, session: Optional[Session] = None) -> str:
     """Attempts to return the additional info of a user with netid 'netid'. Raises an error if the
     user does not exist."""
     assert session is not None
@@ -227,7 +241,7 @@ def get_addinfo(netid: str, *, session: Optional[Session] = None) -> Optional[st
 
 
 @db.session_decorator(commit=False)
-def get_interests(netid: str, *, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+def get_interests(netid: str, *, session: Optional[Session] = None) -> Dict[str, Any]:
     """Attempts to return the interests of a user with netid 'netid'. Raises an error if the user
     does not exist."""
     assert session is not None
@@ -244,7 +258,7 @@ def get_interests_string(netid: str, *, session: Optional[Session] = None) -> st
 
 
 @db.session_decorator(commit=False)
-def get_schedule(netid: str, *, session: Optional[Session] = None) -> Optional[List[int]]:
+def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
     """Attempts to return the schedule of a user with netid 'netid'. Raises an error if the user
     does not exist."""
     assert session is not None
@@ -252,7 +266,7 @@ def get_schedule(netid: str, *, session: Optional[Session] = None) -> Optional[L
 
 
 @db.session_decorator(commit=False)
-def get_open(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+def get_open(netid: str, *, session: Optional[Session] = None) -> bool:
     """Attempts to return whether or not a user with netid 'netid' is open for matching. Raises an
     error if the user does not exist."""
     assert session is not None
@@ -260,7 +274,7 @@ def get_open(netid: str, *, session: Optional[Session] = None) -> Optional[bool]
 
 
 @db.session_decorator(commit=False)
-def get_gender(netid: str, *, session: Optional[Session] = None) -> Optional[int]:
+def get_gender(netid: str, *, session: Optional[Session] = None) -> int:
     """Attempts to return whether or not a user with netid 'netid' is open for matching. Raises an
     error if the user does not exist."""
     assert session is not None
@@ -268,7 +282,7 @@ def get_gender(netid: str, *, session: Optional[Session] = None) -> Optional[int
 
 
 @db.session_decorator(commit=False)
-def get_okmale(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+def get_okmale(netid: str, *, session: Optional[Session] = None) -> bool:
     """Attempts to return whether or not a user with netid 'netid' is ok matching male. Raises an
     error if the user does not exist."""
     assert session is not None
@@ -276,7 +290,7 @@ def get_okmale(netid: str, *, session: Optional[Session] = None) -> Optional[boo
 
 
 @db.session_decorator(commit=False)
-def get_okfemale(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+def get_okfemale(netid: str, *, session: Optional[Session] = None) -> bool:
     """Attempts to return whether or not a user with netid 'netid' is ok matching female. Raises an
     error if the user does not exist."""
     assert session is not None
@@ -284,7 +298,7 @@ def get_okfemale(netid: str, *, session: Optional[Session] = None) -> Optional[b
 
 
 @db.session_decorator(commit=False)
-def get_okbinary(netid: str, *, session: Optional[Session] = None) -> Optional[bool]:
+def get_okbinary(netid: str, *, session: Optional[Session] = None) -> bool:
     """Attempts to return whether or not a user with netid 'netid' is ok matching nonbinary.
     Raises an error if the user does not exist."""
     assert session is not None
@@ -292,7 +306,7 @@ def get_okbinary(netid: str, *, session: Optional[Session] = None) -> Optional[b
 
 
 @db.session_decorator(commit=False)
-def get_settings(netid: str, *, session: Optional[Session] = None) -> Optional[Dict[str, Any]]:
+def get_settings(netid: str, *, session: Optional[Session] = None) -> Dict[str, Any]:
     """Attempts to return the settings of a user with netid 'netid'. Raises an error if the user
     does not exist."""
     assert session is not None
@@ -300,7 +314,7 @@ def get_settings(netid: str, *, session: Optional[Session] = None) -> Optional[D
 
 
 @db.session_decorator(commit=False)
-def get_lastupdated(netid: str, *, session: Optional[Session] = None) -> Optional[datetime]:
+def get_lastupdated(netid: str, *, session: Optional[Session] = None) -> datetime:
     """Attempts to return the lastupdated of a user with netid 'netid'. Raises an error if the user
     does not exist."""
     assert session is not None

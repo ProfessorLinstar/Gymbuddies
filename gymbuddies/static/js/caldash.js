@@ -198,11 +198,17 @@
   DayScheduleSelector.prototype.deserialize = function (schedule) {
     var plugin = this, i;
     $.each(schedule, function(d, ds) {
+      console.log("testing", d, ds)
       var $slots = plugin.$el.find('.time-slot[data-day="' + d + '"]');
       $.each(ds, function(_, s) {
         for (i = 0; i < $slots.length; i++) {
+          console.log("info", $slots.eq(i).data('time'), s)
           if ($slots.eq(i).data('time') >= s[1]) { break; }
-          if ($slots.eq(i).data('time') >= s[0]) { plugin.select($slots.eq(i)); }
+          if ($slots.eq(i).data('time') >= s[0]) { 
+            plugin.select($slots.eq(i)); 
+            $slots.eq(i).append('<p>' + s[2] + '</p>');
+            
+            }
         }
       })
     });

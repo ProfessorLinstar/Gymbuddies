@@ -12,7 +12,9 @@ disable=multiple-statements,
         too-many-branches,
         singleton-comparison,
         too-many-locals,
-        redundant-keyword-arg
+        redundant-keyword-arg,
+        inconsistent-return-statements,
+        no-else-return
 
 [FORMAT]
 max-line-length=100
