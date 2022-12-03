@@ -4,6 +4,8 @@
   3. Matches
 """
 
+from datetime import datetime, timezone
+
 from typing import Dict, Any, List
 from flask import Blueprint
 from flask import render_template, redirect, url_for
@@ -171,6 +173,7 @@ def incomingtable():
             database.request.reject(requestid)
         elif action == "accept":
             database.request.finalize(requestid)
+            print("finalization finished at", datetime.now(timezone.utc))
             # ADD SMS MESSAGING HERE
             if sendsms.SEND_SMS:
                 srcnetid = database.request.get_srcnetid(requestid)
@@ -362,9 +365,14 @@ def matchedtable():
             # ADD SMS MESSAGING HERE
             if sendsms.SEND_SMS:
                 destnetid = database.request.get_destnetid(requestid)
-                number = database.user.get_contact(destnetid)
-                success = sendsms.sendsms("1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid))
-                print(success)
+                if destnetid != netid:
+                    number = database.user.get_contact(destnetid)
+                    success = sendsms.sendsms("1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid))
+                    print(success)
+                else:
+                    srcnetid = database.request.get_srcnetid(requestid)
+                    number = database.user.get_contact(srcnetid)
+                    success = sendsms.sendsms("1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid))
 
         else:
             print(f"Action not found! {action = }")

@@ -119,33 +119,6 @@ function getCard(requestid, url) {
   });
 }
 
-function listRequests(response) {
-  if (response) {
-    lastrefreshed = Date.now();
-    $('#requestTable').html(response);
-    console.log("making an update now!", Date.now())
-  }
-}
-
-// from matched.html
-// generates list of matches
-function listMatches(response) {
-  if (response) {
-    lastrefreshed = Date.now();
-    $('#matchesTable').html(response);
-    console.log("making an update now!", Date.now())
-  }
-}
-
-// generates history of matches
-function listHistory(response) {
-  if (response) {
-    lastrefreshed = Date.now();
-    $('#historyTable').html(response);
-    console.log("making an update now!", Date.now())
-  }
-}
-
 // used as the 'success' property of an ajax request argument. Requires an
 // 'id' property to be provided to indicate where to write the response.
 function success(response) {
@@ -205,26 +178,38 @@ function refresh(url, id) {
   })
 }
 
-function refreshMultiple(url_ids) {
-  console.log("url_ids: ", url_ids)
-  for (const [url, id] of url_ids) {
-    console.log("url_id", url, id)
-    if (getrequest != null || postrequest != null) {
-      console.log("getrequest/postrequest detected!");
-      return;
-    }
-
-    getrequest = $.ajax({
-      type: "GET",
-      data: { "lastrefreshed": lastrefreshed },
-      url: url,
-      id: id,
-      success: success,
-      complete: function() { getrequest = null; },
-      error: error,
-      timeout: ajaxtimeout,
-    })
+function refreshMultiple(url_ids, index, lastrefreshedlocal) {
+  if (index === undefined) {
+    index = 0;
   }
+  if (lastrefreshedlocal === undefined) {
+    lastrefreshedlocal = lastrefreshed
+  }
+
+  const [url, id] = url_ids[index];
+
+  console.log("url_id, index", url, id, index)
+  if (index == 0 && getrequest != null || postrequest != null) {
+    console.log("getrequest/postrequest detected!");
+    return;
+  }
+
+  getrequest = $.ajax({
+    type: "GET",
+    data: { "lastrefreshed": lastrefreshedlocal },
+    url: url,
+    id: id,
+    success: success,
+    complete: function() {
+      if (++index == url_ids.length) {
+        getrequest = null;
+      } else {
+        refreshMultiple(url_ids, index, lastrefreshedlocal);
+      }
+    },
+    error: error,
+    timeout: ajaxtimeout,
+  })
 }
 
 

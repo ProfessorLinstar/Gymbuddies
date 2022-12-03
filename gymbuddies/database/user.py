@@ -123,12 +123,12 @@ def _update_user(session: Session,
         print("updating this: ", k, v)
         setattr(user, k, v)
     user.lastupdated = datetime.now(timezone.utc)
+    print("user.lastupdated:", user.lastupdated.timestamp())
 
     if update_schedule and kwargs.get("schedule") is not None:
         db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
 
 
-# TODO: terminate/delete all requests related to netid
 @db.session_decorator(commit=True)
 def delete(netid: str, *, session: Optional[Session] = None) -> None:
     """Attempts to remove a user from the database, removing all related entries and references.
