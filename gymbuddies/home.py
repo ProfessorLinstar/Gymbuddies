@@ -8,9 +8,9 @@ from flask import render_template, redirect, url_for
 from . import common
 from . import database
 from .database import db
+from . import sendsms
 
 bp = Blueprint("home", __name__, url_prefix="")
-
 
 @bp.route("/")
 def index():
@@ -85,7 +85,7 @@ def profile():
         submit: str = request.form.get("update", "")
         prof: Dict[str, Any] = common.form_to_profile(submit)
         prof.update(netid=netid)
-        assert database.user.update(**prof)
+        database.user.update(**prof)
 
     user = database.user.get_user(netid)
 
@@ -139,7 +139,7 @@ def settings():
         submit: str = request.form.get("update", "")
         prof: Dict[str, Any] = common.form_to_profile(submit)
         prof.update(netid=netid)
-        assert database.user.update(**prof)
+        database.user.update(**prof)
 
     user = database.user.get_user(netid)
 

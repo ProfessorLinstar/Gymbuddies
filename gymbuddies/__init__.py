@@ -4,12 +4,13 @@ from flask import Flask
 from . import home, master, auth, matching, error
 from . import database
 from .database import db
-
+from . import extension
 
 def create_app():
     """Creates the Gymbuddies Flask application."""
 
     app = Flask(__name__)
+    extension.mail.init_app(app)
     app.config.from_mapping(SECRET_KEY=os.getenv("FLASK_SECRET_KEY", "dev"))
 
     app.register_blueprint(home.bp)

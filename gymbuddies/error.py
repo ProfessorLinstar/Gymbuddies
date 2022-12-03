@@ -13,6 +13,14 @@ from . import database
 bp = Blueprint("error", __name__, url_prefix="")
 
 
+class NoLoginError(Exception):
+    """Exception raised in a data request if no user is currently logged in."""
+
+    def __init__(self):
+        super().__init__("No user is logged in.")
+
+
+
 @bp.app_errorhandler(database.request.RequestNotFound)
 def request_not_found(_):
     """Application error handler for when attempting to access a request that does not exist."""

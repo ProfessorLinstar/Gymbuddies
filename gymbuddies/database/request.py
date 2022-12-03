@@ -203,7 +203,7 @@ def _get_column(session: Session, requestid: int, column: Column) -> Any:
 @db.session_decorator(commit=True)
 def new(srcnetid: str,
         destnetid: str,
-        schedule: List[db.ScheduleStatus],
+        schedule: List[int | db.ScheduleStatus],
         *,
         session: Optional[Session] = None,
         prev: Optional[db.MappedRequest] = None) -> None:
@@ -229,10 +229,7 @@ def new(srcnetid: str,
     prevrequestid: int = 0
     if prev is not None:
         prevrequestid = prev.requestid
-        if prev.status == db.RequestStatus.PENDING:
-            prev.status = db.RequestStatus.REJECTED
-        elif prev.status == db.RequestStatus.FINALIZED:
-            prev.status = db.RequestStatus.TERMINATED
+        _deactivate(session, prev)
 
     elif get_active_pair(srcnetid, destnetid, session=session):
         raise RequestAlreadyExists(srcnetid, destnetid)
@@ -248,6 +245,8 @@ def new(srcnetid: str,
     # Update user lastupdated timestamp by doing an empty update
     db_user.update(srcnetid, session=session)
     db_user.update(destnetid, session=session)
+
+    print("Created a request with this schedule: ", db.schedule_to_readable(schedule))
 
 
 @db.session_decorator(commit=True)

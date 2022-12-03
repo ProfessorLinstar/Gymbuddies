@@ -10,6 +10,7 @@ from flask import render_template, redirect, url_for
 from flask import session, g, request, abort
 from sqlalchemy.exc import OperationalError
 from werkzeug.exceptions import HTTPException
+from .error import NoLoginError
 from . import common
 from . import database
 from .database import db
@@ -155,7 +156,7 @@ def incomingtable():
 
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        raise NoLoginError
 
     if request.method == "POST":
         requestid = int(request.form.get("requestid", "0"))
@@ -230,14 +231,11 @@ def incomingmodal():
     print("processing an incoming modal request!")
 
     if request.method == "POST":
-        # first delete their incoming request
-        requestid = request.form["requestid"]
-        database.request.reject(requestid)
-        # make a new request
-        destnetid = request.form["destnetid"]
+        requestid = int(request.form["requestid"])
+        print("modifying this one:", request.form["jsoncalendar"])
         schedule = common.json_to_schedule(request.form["jsoncalendar"])
 
-        database.request.new(netid, destnetid, schedule)
+        database.request.modify(requestid, schedule)
         # return redirect(url_for("matching.outgoing"))
         print("inside incomingmodal POST")
         return ""
