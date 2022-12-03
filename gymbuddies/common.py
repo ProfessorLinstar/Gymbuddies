@@ -28,6 +28,9 @@ def fill_match_schedule(context: Dict[str, Any], schedule: List[int], matchNames
     """Checks the master schedule boxes according to the provided 'schedule'."""
     context["jsoncalendar"] = schedule_to_jsonmatches(schedule, matchNames)
 
+def fill_modify_schedule(context: Dict[str, Any], schedule: List[int], requests: List[int]) -> None:
+    """Checks the master schedule boxes according to the provided 'schedule'."""
+    context["jsoncalendar"] = schedule_to_jsonmodify(schedule, requests)
 
 def schedule_to_calendar(schedule: List[int]) -> List[List[str]]:
     """Makes a calendar list from a schedule, to be inserted into 'calendar.html'. boxes according
@@ -66,6 +69,7 @@ def json_to_schedule(calendar: str) -> List[db.ScheduleStatus]:
 
     schedule = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
     decoded: Dict[str, List[List[str]]] = json.loads(calendar)
+    print(decoded)
     for day, events in decoded.items():
         for s, e in events:
             for i in range(str_to_timeblock(day, s), str_to_timeblock(day, e)):
@@ -113,6 +117,35 @@ def schedule_to_jsonmatches(schedule: List[int], matchNames: List[str]) -> str:
         start, end = [t[0].time_str() for t in event]
         jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
         print(jsoncalendar, "jsoncalendar")
+
+    return json.dumps(jsoncalendar)
+
+
+#schedule should be available
+def schedule_to_jsonmodify(schedule: List[int], requests: List[int]) -> str:
+    """Converts a schedule into stringified json representation appropriate for the artsy
+    calendar."""
+    jsoncalendar: Dict[int, List[List[str]]] = {i: [] for i in range(len(db.DAY_NAMES))}
+
+    # blocks: List[List[TimeBlock]] = [[]]
+    # for t, status in enumerate(schedule):
+    #     if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
+    #         blocks[-1].append(TimeBlock(t))
+    #         blocks.append([])
+    #     if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
+    #         blocks[-1].append(TimeBlock(t))
+
+    # if blocks[-1]:
+    #     blocks[-1].append(TimeBlock(len(schedule)))
+    # else:
+    #     blocks.pop()
+
+    # return blocks
+
+    for event in db.schedule_to_modifyevents(schedule, requests):
+        day, _ = event[0][0].day_time()
+        start, end = [t[0].time_str() for t in event]
+        jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
 
     return json.dumps(jsoncalendar)
 
