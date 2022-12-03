@@ -49,42 +49,43 @@
 </div>
 
 <!-- Card where matches show up-->
-    <div class="row">
-      <div class="col-12 mb-4">
-        <div class="card">
-          <div class="card-header pb-0">
-            <h6>Completed</h6>
-          </div>
-          <div class="card-body px-0 pt-0 pb-2">
-            <span id="matchesTable"></span>
-          </div>
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6>Completed</h6>
+        </div>
+        <div class="card-body px-0 pt-0 pb-2">
+          <span id="matchesTable"></span>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-12 mb-4">
-        <div class="card">
-          <div class="card-header pb-0">
-            <h6>Past Matches</h6>
-          </div>
-          <div class="card-body px-0 pt-0 pb-2">
-            <span id="historyTable"></span>
-          </div>
+  </div>
+  <div class="row">
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div class="card-header pb-0">
+          <h6>Past Matches</h6>
+        </div>
+        <div class="card-body px-0 pt-0 pb-2">
+          <span id="historyTable"></span>
         </div>
       </div>
     </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="../static/js/ajax.js"></script>
 <script>
   function setup() {
-    refreshWrapper = function() {
-      refreshMultiple([
-        ["{{ url_for('matching.matchedtable') }}", "#matchesTable"],
-        ["{{ url_for('matching.historytable') }}", "#historyTable"],
-      ]);
-    }; 
+    refreshWrapper = function() { refresh("{{ url_for('matching.matchedtable') }}", "#matchesTable"); };
+    // refreshWrapper = function() {
+    //   refreshMultiple([
+    //     ["{{ url_for('matching.matchedtable') }}", "#matchesTable"],
+    //     ["{{ url_for('matching.historytable') }}", "#historyTable"],
+    //   ]);
+    // }; 
     refreshWrapper();
     window.setInterval(refreshWrapper, 1000);
 
