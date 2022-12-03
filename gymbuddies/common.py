@@ -1,7 +1,5 @@
 """Common methods for routing modules."""
 import json
-import sys
-import traceback
 from typing import Dict, Any, List
 
 from flask import request
@@ -91,7 +89,7 @@ def schedule_to_json(schedule: List[int]) -> str:
     return json.dumps(jsoncalendar)
 
 #schedule should be available
-def schedule_to_jsonmatches(schedule: List[int], matchNames: List[str]) -> str:
+def schedule_to_jsonmatches(schedule: List[int], match_names: List[str]) -> str:
     """Converts a schedule into stringified json representation appropriate for the artsy
     calendar."""
     jsoncalendar: Dict[int, List[List[str]]] = {i: [] for i in range(len(db.DAY_NAMES))}
@@ -111,7 +109,7 @@ def schedule_to_jsonmatches(schedule: List[int], matchNames: List[str]) -> str:
 
     # return blocks
 
-    for event in db.schedule_to_matchevents(schedule, matchNames):
+    for event in db.schedule_to_matchevents(schedule, match_names):
         print("event", event, "\n")
         day, _ = event[0][0].day_time()
         start, end = [t[0].time_str() for t in event]
@@ -145,7 +143,7 @@ def schedule_to_jsonmodify(schedule: List[int], requests: List[int]) -> str:
     for event in db.schedule_to_modifyevents(schedule, requests):
         day, _ = event[0][0].day_time()
         start, end = [t[0].time_str() for t in event]
-        jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
+        jsoncalendar[day].append([start, end if end != "00:00" else "24:00", str(event[0][1])])
 
     print("schedule_to_jsonmodify:", jsoncalendar)
     return json.dumps(jsoncalendar)

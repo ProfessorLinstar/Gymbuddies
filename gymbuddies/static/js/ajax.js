@@ -17,7 +17,7 @@
 
 // }
 
-const ajaxtimeout = 3000;
+ajaxtimeout = 3000;
 const retries = 3;
 
 let lastrefreshed = 0;
@@ -164,9 +164,8 @@ function success(response) {
 function error(xhr, textStatus, errorThrown) {
   console.log(xhr, textStatus, errorThrown);
   if (textStatus == "timeout" && --this.retries > 0) {
-    this.timeout *= 2;
-    $.ajax(this);
-    console.log("retrying after timeout! doubled timeout to ", this.timeout);
+    ajaxtimeout *= 2;
+    console.log("doubled ajaxtimeout to ", ajaxtimeout, this);
   } else if (textStatus != "abort") {
     $("#errorPopup").modal("show");
   }
@@ -232,6 +231,6 @@ function getMatchedCard(requestid, url) {
     success: fillMatchedCard,
     complete: function() { getrequest = null; },
     error: function() { console.log("getMatchedCard failed!"); },
-    timeout: timeout,
+    timeout: ajaxtimeout,
   });
 }

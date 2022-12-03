@@ -7,9 +7,7 @@
 from typing import Dict, Any, List
 from flask import Blueprint
 from flask import render_template, redirect, url_for
-from flask import session, g, request, abort
-from sqlalchemy.exc import OperationalError
-from werkzeug.exceptions import HTTPException
+from flask import session, g, request
 from .error import NoLoginError
 from . import common
 from . import database
@@ -36,6 +34,7 @@ def findabuddy():
         if sendsms.SEND_SMS:
             number = database.user.get_contact(destnetid)
             success = sendsms.sendsms("1" + number, sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", netid))
+            print("sent to this number:", number)
             print(success)
         # return redirect(url_for("matching.outgoing"))
         print("inside findabuddy POST")
@@ -383,6 +382,10 @@ def matchedmodal():
     """Modal for modifying matches."""
     print("processing a modifying match request!")
 
+    netid: str = session.get("netid", "")
+    if not netid:
+        raise NoLoginError
+
     if request.method == "POST":
         requestid = int(request.form["requestid"])
         print("modifying this one:", request.form["jsoncalendar"])
@@ -442,17 +445,8 @@ def historytable():
     if not netid:
         return redirect(url_for("auth.login"))
 
-    # if request.method == "POST":
-    #     requestid = int(request.form.get("requestid", "0"))
-    #     action = request.form.get("action")
-
-    #     if action == "terminate":
-    #         database.request.terminate(requestid)
-    #     else:
-    #         print(f"Action not found! {action = }")
-
-    # elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
-    #     return ""
+    if common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
 
     print("historytable refreshed!")
 

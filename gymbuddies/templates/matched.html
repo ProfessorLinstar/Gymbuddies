@@ -83,17 +83,13 @@
     refreshWrapper();
     window.setInterval(refreshWrapper, 1000);
 
-    $("#modifyMatchPopup").on("hide.bs.modal", function() {
-      $("#modifyPopup").html("");
-    });
-
-    // what is this?
-    $("#toggleOld").click(
-
-    )
     refreshWrapper2 =  function() {refresh("{{ url_for('matching.historytable') }}", "#historyTable");};
     refreshWrapper2();
     window.setInterval(refreshWrapper2, 1000);
+
+    $("#modifyMatchPopup").on("hide.bs.modal", function() {
+      $("#modifyPopup").html("");
+    });
   }
   $('document').ready(setup);
 </script>

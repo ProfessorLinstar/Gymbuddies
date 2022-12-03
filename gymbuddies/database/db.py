@@ -31,7 +31,6 @@ DAY_NAMES = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "
 engine = create_engine(DATABASE_URL)
 
 
-# TODO: return exception to client
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Decorator factory for initializing a connection with the DATABASE_URL and returning a
     session. To use this decoration, a function must have a signature of the form
@@ -272,7 +271,7 @@ def interests_to_readable(interests: Dict[str, bool]):
     return ", ".join(k for k, v in interests.items() if v)
 
 
-def schedule_to_events(schedule: List[int]) -> List[List[TimeBlock]]:
+def schedule_to_events(schedule: List[int] | List[ScheduleStatus]) -> List[List[TimeBlock]]:
     """Converts a schedule into a string representation as a comma separated list of events. Events
     are in the format (start, end), where start and end are timeblocks, and start is inclusive while
     end is exclusive."""
@@ -343,7 +342,7 @@ def schedule_to_modifyevents(schedule: List[int],
     return blocks
 
 
-def schedule_to_readable(schedule: List[int | ScheduleStatus]) -> List[str]:
+def schedule_to_readable(schedule: List[ScheduleStatus] | List[int]) -> List[str]:
     """Converts schedule into a list of readable strings."""
     return [
         f"{s.to_readable()}-{e.to_readable(time_only=True)}"

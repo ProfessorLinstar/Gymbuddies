@@ -7,6 +7,8 @@ from . import db
 from . import user as db_user
 from . import schedule as db_schedule
 
+LIMIT = 10
+
 
 class RequestAlreadyExists(Exception):
     """Exception raised in API call if attempting to create multiple active requests."""
@@ -166,7 +168,8 @@ def get_terminated(netid: str, *, session: Optional[Session] = None) -> List[db.
     assert session is not None
     return session.query(db.Request).filter(
         (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
-        db.Request.status != db.RequestStatus.FINALIZED).all()
+        db.Request.status == db.RequestStatus.TERMINATED).order_by(
+            db.Request.finalizedtimestamp.desc()).limit(LIMIT).all()
 
 
 @db.session_decorator(commit=False)
@@ -234,7 +237,7 @@ def _get_column(session: Session, requestid: int, column: Column) -> Any:
 @db.session_decorator(commit=True)
 def new(srcnetid: str,
         destnetid: str,
-        schedule: List[int | db.ScheduleStatus],
+        schedule: List[int] | List[db.ScheduleStatus],
         *,
         session: Optional[Session] = None,
         prev: Optional[db.MappedRequest] = None) -> None:
@@ -351,7 +354,7 @@ def _deactivate(session: Session, request: db.MappedRequest) -> None:
 
 @db.session_decorator(commit=True)
 def modify(requestid: int,
-           schedule: List[db.ScheduleStatus | int],
+           schedule: List[db.ScheduleStatus] | List[int],
            *,
            session: Optional[Session] = None) -> None:
     """Modifies active (pending or matching) request. Switches direction of request."""
@@ -364,7 +367,7 @@ def modify(requestid: int,
 
 @db.session_decorator(commit=True)
 def modifymatch(requestid: int, netid: str,
-           schedule: List[db.ScheduleStatus | int],
+           schedule: List[db.ScheduleStatus] | List[int],
            *,
            session: Optional[Session] = None) -> None:
     """Modifies match times."""
@@ -373,15 +376,14 @@ def modifymatch(requestid: int, netid: str,
     print("trying to modify with this schedule: ", db.schedule_to_readable(schedule))
 
     request = _get(session, requestid)
-    
-    destuser
-    srcuser = db.user.get_user(request.srcnetid)
+
+    srcuser = db_user.get_user(request.srcnetid)
     if srcuser != netid:
         destuser = srcuser
         srcuser = netid
     else:
         destuser =netid
-    
+
     new(srcuser, destuser, schedule, session=session, prev=request)
 
 
