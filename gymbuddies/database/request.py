@@ -67,6 +67,7 @@ def get_inactive_outgoing(srcnetid: str, *, session: Optional[Session] = None) -
                                             db.Request.status != db.RequestStatus.PENDING).order_by(
                                                 db.Request.maketimestamp.desc()).all()
 
+
 @db.session_decorator(commit=False)
 def get_active_outgoing(srcnetid: str, *, session: Optional[Session] = None) -> List[Any]:
     """Attempts to return a list of the active outgoing requests for a user with netid 'destnetid',
@@ -87,6 +88,7 @@ def get_inactive_incoming(destnetid: str, *, session: Optional[Session] = None) 
     return session.query(db.Request).filter(db.Request.destnetid == destnetid,
                                             db.Request.status != db.RequestStatus.PENDING).order_by(
                                                 db.Request.maketimestamp.desc()).all()
+
 
 @db.session_decorator(commit=False)
 def get_active_incoming(destnetid: str, *, session: Optional[Session] = None) -> List[Any]:
@@ -156,6 +158,15 @@ def get_matches(netid: str, *, session: Optional[Session] = None) -> List[db.Map
     return session.query(db.Request).filter(
         (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
         db.Request.status == db.RequestStatus.FINALIZED).all()
+
+
+@db.session_decorator(commit=False)
+def get_terminated(netid: str, *, session: Optional[Session] = None) -> List[db.MappedRequest]:
+    """ get a list of matches associated with a user"""
+    assert session is not None
+    return session.query(db.Request).filter(
+        (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
+        db.Request.status != db.RequestStatus.FINALIZED).all()
 
 
 @db.session_decorator(commit=False)
