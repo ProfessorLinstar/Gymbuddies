@@ -206,11 +206,15 @@
           if ($slots.eq(i).data('time') >= s[1]) { break; }
           if ($slots.eq(i).data('time') >= s[0]) { 
             let start = s[0]
-            start = start.replace(/:/g, "")
-            start = start.replace(/0/g, "")
+            start = start.replace(/:00/g, "")
+            if (start[0] == "0") {
+              start = start.slice(1)
+            }
             let end = s[1]
-            end = end.replace(/:/g, "")
-            end = end.replace(/0/g, "")
+            end = end.replace(/:00/g, "")
+            if (end[0] == "0") {
+              end = end.slice(1)
+            }
             console.log(start, end)
             plugin.select($slots.eq(i)); 
             let matchName = s[2]
