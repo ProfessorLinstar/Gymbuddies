@@ -48,6 +48,8 @@ def findabuddy():
         matches = session.get("matches", None)
         index = session.get("index", None)
 
+    no_matches = False
+    
     # TODO: handle if g.user is None (e.g. if user is deleted but matches are preserved)
     # TODO: when no more matches -- index out of bound error
     # generate "no more matches message"
@@ -63,7 +65,7 @@ def findabuddy():
     interests = database.user.get_interests_string(netid)
     # grab schedule
     context: Dict[str, Any] = {}
-    no_matches = False
+    
     common.fill_schedule(context, g.user.schedule)
     return render_template("findabuddy.html",
                            no_matches=no_matches,
