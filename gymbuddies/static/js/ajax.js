@@ -158,7 +158,7 @@ function error(xhr, textStatus, errorThrown) {
     this.timeout *= 2;
     $.ajax(this);
     console.log("retrying after timeout! doubled timeout to ", this.timeout);
-  } else {
+  } else if (textStatus != "abort") {
     $("#errorPopup").modal("show");
   }
 }
