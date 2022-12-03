@@ -205,10 +205,16 @@
           console.log("info", $slots.eq(i).data('time'), s)
           if ($slots.eq(i).data('time') >= s[1]) { break; }
           if ($slots.eq(i).data('time') >= s[0]) { 
+            let start = s[0]
+            let end = s[1]
             plugin.select($slots.eq(i)); 
+            let matchName = s[2]
             if ($slots.eq(i).data('time') == s[0]) { 
-            console.log("Hello", s[2])
-            $slots.eq(i).append(s[2] + " " +  s[0] + "-" + s[1]);
+              console.log("Hello", s[2])
+              if (s[2].length > 11) {
+                matchName = s[2].slice(0, 4) + "..."
+              }
+              $slots.eq(i).append(matchName + " " +  start + "-" + end);
             }
           }
         }
