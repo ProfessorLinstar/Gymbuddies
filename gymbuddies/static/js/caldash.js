@@ -208,7 +208,7 @@
             plugin.select($slots.eq(i)); 
             if ($slots.eq(i).data('time') == s[0]) { 
             console.log("Hello", s[2])
-            $slots.eq(i).append("<a>" + s[2] + '\n' + s[0] + "-" + s[1] + "</a>");
+            $slots.eq(i).append(s[2] + " " +  s[0] + "-" + s[1]);
             }
           }
         }
