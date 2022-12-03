@@ -211,8 +211,8 @@
             let matchName = s[2]
             if ($slots.eq(i).data('time') == s[0]) { 
               console.log("Hello", s[2])
-              if (s[2].length > 11) {
-                matchName = s[2].slice(0, 4) + "..."
+              if (s[2].length > 8) {
+                matchName = s[2].slice(0, 3) + "..."
               }
               $slots.eq(i).append(matchName + " " +  start + "-" + end);
             }
