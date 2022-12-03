@@ -8,9 +8,9 @@ from . import schedule as db_schedule
 from . import db
 from . import request
 
-# TODO: IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
-NUMBER_INTERESTS: int = 10 # TODO: find a way for this value not to be hardcoded
-RANDOM_NUMBER: int = 20 # number of users queried in random selection
+# IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
+NUMBER_INTERESTS: int = 10 # find a way for this value not to be hardcoded
+RANDOM_NUMBER: int = 25 # number of users queried in random selection
 RETURN_NUMBER: int = 5 # number of users returned by find_matches
 LEVEL_WEIGHT: float = 0.5 # weight of level to compatability score
 INTERESTS_WEIGHT: float = 1 / NUMBER_INTERESTS # weight of interests to compatability score
@@ -77,7 +77,7 @@ def find_matches(netid: str) -> List[str]:
         elif user.gender == db.Gender.NONBINARY:
             if not main_user.okbinary:
                 randusers.remove(user)
-                continue;
+                continue
         # hard filter if mainuser is not compatible with user's preferences
         if main_user.gender == db.Gender.MALE:
             if not user.okmale:
@@ -93,11 +93,11 @@ def find_matches(netid: str) -> List[str]:
                 continue
 
     # if there are not enough users left after the hard filters, return whoever is available
-    if len(randusers) <= RETURN_NUMBER:
-        matches: List[str] = []
-        for user in randusers:
-            matches.append(user.netid)
-        return matches
+    # if len(randusers) <= RETURN_NUMBER:
+    #    matches: List[str] = []
+    #    for user in randusers:
+    #         matches.append(user.netid)
+    #   return matches
 
     # record user compatability scores based on user levels and level preferences
     user_compatabilities: Dict[str, float] = {}
@@ -162,16 +162,28 @@ def find_matches(netid: str) -> List[str]:
         user_schedule: List[int] | None = db_schedule.get_schedule(user.netid)
         assert user_schedule is not None
         for i in range(len(user_schedule)):
-            if main_user_schedule[i] & db.ScheduleStatus.AVAILABLE == 1 \
-            and user_schedule[i] & db.ScheduleStatus.AVAILABLE == 1:
+            if (main_user_schedule[i] == db.ScheduleStatus.AVAILABLE) and (user_schedule[i] == db.ScheduleStatus.AVAILABLE):
+                print(user_schedule[i])
+                print(main_user_schedule[i])
                 schedule_score += 1
-            user_compatabilities[user.netid] += (
-                schedule_score / db.NUM_WEEK_BLOCKS) * SCHEDULE_WEIGHT
+        # do a hard filter where there are no schedule interactions
+        print(f"SCHEDULE SCORE = {schedule_score} for {user.netid}")
+        if schedule_score == 0:
+            del user_compatabilities[user.netid]
+        else:
+            # continue with matchmaking ranking algorithm
+            user_compatabilities[user.netid] += (schedule_score / db.NUM_WEEK_BLOCKS) * SCHEDULE_WEIGHT
 
 
     # return users with the highest compatabilties to the main user
     compatabilities = sorted(user_compatabilities.items(), key = lambda x: x[1], reverse = True)
     matches: List[str] = []
+    # if there are not enough users remaining, return everyone you can
+    if len(compatabilities) <= RETURN_NUMBER:
+        for i in range(len(compatabilities)):
+            matches.append(compatabilities[i][0])
+        return matches
+
     for i in range(RETURN_NUMBER):
         matches.append(compatabilities[i][0])
     return matches
