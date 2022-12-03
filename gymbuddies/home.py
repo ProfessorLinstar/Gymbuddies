@@ -8,9 +8,9 @@ from flask import render_template, redirect, url_for
 from . import common
 from . import database
 from .database import db
+from . import sendsms
 
 bp = Blueprint("home", __name__, url_prefix="")
-
 
 @bp.route("/")
 def index():
@@ -57,7 +57,7 @@ def dashboard():
 
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
-    print("schedule", matchSchedule)
+    # print("schedule", matchSchedule)
     # print("names", matchNames)
     context: Dict[str, Any] = {}
     common.fill_match_schedule(context, matchSchedule, matchNames)
