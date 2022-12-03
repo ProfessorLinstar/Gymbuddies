@@ -7,7 +7,7 @@ SEND_SMS = True
 
 NEW_REQUEST_MESSAGE = "Hello from Gymbuddies. You have recieved a new match request from $netid$!"
 
-FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, you have finalized your match with $netid$!"
+FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, your match with $netid$! has been finalized"
 
 MATCH_TERMINATE_MESSAGE = "Hello from Gymbuddies. Your match with $netid$ has been cancelled"
 
