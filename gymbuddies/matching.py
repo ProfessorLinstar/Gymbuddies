@@ -35,7 +35,7 @@ def findabuddy():
         # ADD SMS MESSAGING HERE
         if sendsms.SEND_SMS:
             number = database.user.get_contact(destnetid)
-            sendsms.sendsms(number, sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", netid))
+            sendsms.sendsms("1" + number, sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", netid))
         # return redirect(url_for("matching.outgoing"))
         print("inside findabuddy POST")
         return ""
