@@ -59,6 +59,7 @@
 
     $.each(generateDates(start, end, interval), function (i, d) {
       var daysInARow = $.map(new Array(days.length), function (_, i) {
+        
         return '<td class="time-slot" data-time="' + hhmm(d) + '" data-day="' + days[i] + '"></td>'
       }).join();
 
@@ -74,6 +75,7 @@
     return !!this.$selectingStart;
   }
 
+  DayScheduleSelector.prototype.initialize = function ($slot) { $slot.attr('data-initial', 'selected'); }
   DayScheduleSelector.prototype.select = function ($slot) { $slot.attr('data-selected', 'selected'); }
   DayScheduleSelector.prototype.deselect = function ($slot) { $slot.removeAttr('data-selected'); }
 
@@ -96,47 +98,46 @@
   }
 
   DayScheduleSelector.prototype.attachEvents = function () {
-    // var plugin = this
-    //   , options = this.options
-    //   , $slots;
+    var plugin = this
+      , options = this.options
+      , $slots;
 
-    // this.$el.on('click', '.time-slot', function () {
-    //   var day = $(this).data('day');
-    //   if (!plugin.isSelecting()) {  // if we are not in selecting mode
-    //     if (isSlotSelected($(this))) { plugin.deselect($(this)); }
-    //     else {  // then start selecting
-    //       plugin.$selectingStart = $(this);
-    //       $(this).attr('data-selecting', 'selecting');
-    //       plugin.$el.find('.time-slot').attr('data-disabled', 'disabled');
-    //       plugin.$el.find('.time-slot[data-day="' + day + '"]').removeAttr('data-disabled');
-    //     }
-    //   } else {  // if we are in selecting mode
-    //     if (day == plugin.$selectingStart.data('day')) {  // if clicking on the same day column
-    //       // then end of selection
-    //       plugin.$el.find('.time-slot[data-day="' + day + '"]').filter('[data-selecting]')
-    //         .attr('data-selected', 'selected').removeAttr('data-selecting');
-    //       plugin.$el.find('.time-slot').removeAttr('data-disabled');
-    //       plugin.$el.trigger('selected.artsy.dayScheduleSelector', [getSelection(plugin, plugin.$selectingStart, $(this))]);
-    //       plugin.$selectingStart = null;
-    //     }
-    //   }
-    // });
+    this.$el.on('click', '.time-slot', function () {
+      var day = $(this).data('day');
+      if (!plugin.isSelecting()) {  // if we are not in selecting mode
+        if (!$(this).is("[data-initial]")) return; //non-touchable fields
+        if (isSlotSelected($(this))) { plugin.deselect($(this)); }
+        else {  // then start selecting
+          plugin.$selectingStart = $(this);
+          $(this).attr('data-selecting', 'selecting');
+          plugin.$el.find('.time-slot').attr('data-disabled', 'disabled');
+          plugin.$el.find('.time-slot[data-day="' + day + '"]').removeAttr('data-disabled');
+        }
+      } else {  // if we are in selecting mode
+        // then end of selection
+        plugin.$el.find('.time-slot[data-day="' + day + '"]').filter('[data-selecting]')
+          .attr('data-selected', 'selected').removeAttr('data-selecting');
+        plugin.$el.find('.time-slot').removeAttr('data-disabled');
+        if (day == plugin.$selectingStart.data('day')) {  // if clicking on the same day column
+          plugin.$el.trigger('selected.artsy.dayScheduleSelector', [getSelection(plugin, plugin.$selectingStart, $(this))]);
+        }
+        plugin.$selectingStart = null;
+      }
+    });
 
-    // this.$el.on('mouseover', '.time-slot', function () {
-    //   var $slots, day, start, end, temp;
-    //   if (plugin.isSelecting()) {  // if we are in selecting mode
-    //     day = plugin.$selectingStart.data('day');
-    //     $slots = plugin.$el.find('.time-slot[data-day="' + day + '"]');
-    //     $slots.filter('[data-selecting]').removeAttr('data-selecting');
-    //     start = $slots.index(plugin.$selectingStart);
-    //     end = $slots.index(this);
-    //     if (end < 0) return;  // not hovering on the same column
-    //     if (start > end) { temp = start; start = end; end = temp; }
-    //     $slots.slice(start, end + 1).attr('data-selecting', 'selecting');
-    //   }
-    // });
-
-    this.$el.find(".schedule-rows").find("td").css("cursor", "auto")
+    this.$el.on('mouseover', '.time-slot', function () {
+      var $slots, day, start, end, temp;
+      if (plugin.isSelecting()) {  // if we are in selecting mode
+        day = plugin.$selectingStart.data('day');
+        $slots = plugin.$el.find('.time-slot[data-day="' + day + '"]');
+        $slots.filter('[data-selecting]').removeAttr('data-selecting');
+        start = $slots.index(plugin.$selectingStart);
+        end = $slots.index(this);
+        if (end < 0) return;  // not hovering on the same column
+        if (start > end) { temp = start; start = end; end = temp; }
+        $slots.slice(start, end + 1).filter("[data-initial]").attr('data-selecting', 'selecting');
+      }
+    });
   };
 
   /**
@@ -198,19 +199,15 @@
   DayScheduleSelector.prototype.deserialize = function (schedule) {
     var plugin = this, i;
     $.each(schedule, function(d, ds) {
-      console.log("testing", d, ds)
       var $slots = plugin.$el.find('.time-slot[data-day="' + d + '"]');
       $.each(ds, function(_, s) {
         for (i = 0; i < $slots.length; i++) {
-          console.log("info", $slots.eq(i).data('time'), s)
           if ($slots.eq(i).data('time') >= s[1]) { break; }
           if ($slots.eq(i).data('time') >= s[0]) { 
-            plugin.select($slots.eq(i)); 
-            if ($slots.eq(i).data('time') == s[0]) { 
-            console.log("Hello", s[2])
-            $slots.eq(i).append("<a>" + s[2] + '\n' + s[0] + "-" + s[1] + "</a>");
-            }
-          }
+            plugin.initialize($slots.eq(i));
+            if (s[2] == 1) {
+              plugin.select($slots.eq(i)); 
+            }  } // set events to initialize
         }
       })
     });
@@ -260,7 +257,7 @@
   }
 
   /**
-   * Convert a Date object to time in H format with am/pm
+   * Convert a Date object to time in H:mm format with am/pm
    * @private
    * @returns {String} Time in H:mm format with am/pm, e.g. '9:30am'
    */
@@ -270,7 +267,6 @@
     hours = hours % 12;
     return (hours != 0 ? hours : 12) + ' ' + ampm;
   }
-
 
   /**
    * Convert a Date object to time in HH:mm format

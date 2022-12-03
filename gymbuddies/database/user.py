@@ -60,7 +60,7 @@ def update(netid: str,
            *,
            session: Optional[Session] = None,
            update_schedule: bool = True,
-           **kwargs) -> bool:
+           **kwargs) -> None:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
@@ -68,7 +68,6 @@ def update(netid: str,
                  get_user(netid, session=session),
                  update_schedule=update_schedule,
                  **kwargs)
-    return True
 
 
 def _default_profile() -> Dict[str, Any]:

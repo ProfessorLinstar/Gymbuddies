@@ -15,8 +15,8 @@
 .schedule-rows td {
   height: 30px;
   margin: 1px;
-  --padding: 1px;
-  padding: var(--padding);
+  /* --padding: 1px;
+  padding: var(--padding); */
   background-color: #FFFFFF;
   cursor: pointer;
   border: 1px black;
@@ -25,7 +25,8 @@
 
 td {
   text-align: center;
-  border: 10px white;
+  /* border: 10px white; */
+  color: white;
 }
 
 td p {
@@ -35,10 +36,10 @@ td p {
 .schedule-rows td:first-child {
   background-color: transparent;
   text-align: right;
-
-  position: relative;
+  color: #808080;
+  /* position: relative;
   top: -15px;
-  right: 10px;
+  right: 10px; */
 }
 
 .schedule-header th {

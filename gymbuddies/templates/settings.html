@@ -1,0 +1,97 @@
+<!--
+=========================================================
+* Argon Dashboard 2 - v2.0.4
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/argon-dashboard
+* Copyright 2022 Creative Tim (https://www.creative-tim.com)
+* Licensed under MIT (https://www.creative-tim.com/license)
+* Coded by Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+{% extends 'layout.html' %}
+{% block title %}Profile{% endblock %}
+{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
+{% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
+{% block classreq %}<a class="nav-link" href="{{ url_for('matching.incoming') }}">{% endblock %}
+{% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
+{% block classprof %}<a class="nav-link" href="{{ url_for('home.profile') }}">{% endblock %}
+{% block classsett %}<a class="nav-link active" href="{{ url_for('home.settings') }}">{% endblock %}
+{% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
+{% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Account</li>{% endblock %}
+{% block pagename_large %}Settings{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+
+  <div class="row">
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header pb-0 pt-3 bg-transparent">
+          <h6 class="text-capitalize">Settings</h6>
+        </div>
+        <div class="card-body">
+          <form action="{{ url_for('home.profile') }}" method="post">
+          <p class="text-uppercase text-sm">Notifications</p>
+          <div class="row">
+              <div class="form-group">
+                <label for="notifications" class="form-control-label">Email Notifications</label>
+                <p class="text-xs">Receive updates by email when someone requests a match or accepts one.</p>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name = "notifications" id="notifications">
+                  <label class="form-check-label" for="noifications">Receive alerts</label>
+                </div>
+              </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label for="email" class="form-control-label">Email:</label>
+              <p class="text-xs">(from Profile)</p>
+              <input name="email" id="email" class="form-control" type="text" value="{{ user.contact }}" readonly>
+            </div>
+          </div>
+          <br>
+          <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button>
+        <!-- </form> -->
+          <!-- <hr class="horizontal dark"> -->
+          
+        </div>
+      </div>
+    </div>
+         
+    <!-- Calendar -->
+    <div class="col-md-6">
+      <div class="card card-profile scrolling-wrapper">
+        <div class="card-header pb-0 pt-3 bg-transparent">
+          <h6 class="text-capitalize">Blocked</h6>
+              <p class="text-xs">You will not be able to see, request, nor match with the following people:</p>
+        </div>
+        <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->
+          <div class="card-body p-3">
+            <div>hi</div>
+            <span id="blockedTable"></span>
+          </div>
+        <!-- </form> -->
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts%}
+<script src="../static/js/ajax.js"></script>
+<script>
+  function setup() {
+    refreshWrapper = function() { refresh("{{ url_for('home.blockedtable') }}", "#blockedTable"); };
+    refreshWrapper();
+    window.setInterval(refreshWrapper, 1000);
+  }
+  $('document').ready(setup);
+</script>
+
+{% endblock %}

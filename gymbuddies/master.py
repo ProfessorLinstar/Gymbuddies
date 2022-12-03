@@ -10,6 +10,7 @@ from flask import request
 from . import database
 from .database import db
 
+
 TEXTWIDTH = 72
 
 bp = Blueprint("master", __name__, url_prefix="/master")
