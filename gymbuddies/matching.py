@@ -6,9 +6,10 @@
 
 from typing import Dict, Any, List
 from flask import Blueprint
-from flask import render_template, redirect, url_for, request
-from flask import session, g, request
-from typing import List
+from flask import render_template, redirect, url_for
+from flask import session, g, request, abort
+from sqlalchemy.exc import OperationalError
+from werkzeug.exceptions import HTTPException
 from . import common
 from . import database
 from .database import db
@@ -79,7 +80,7 @@ def findabuddy():
 
 @bp.route("/buddies", methods=["GET"])
 def buddies():
-    # get the current user in the session
+    """get the current user in the session"""
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))
@@ -151,6 +152,7 @@ def incoming():
 @bp.route("/incomingtable", methods=("GET", "POST"))
 def incomingtable():
     """Table for incoming requests."""
+
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("auth.login"))

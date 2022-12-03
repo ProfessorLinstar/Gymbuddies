@@ -206,9 +206,11 @@
           if ($slots.eq(i).data('time') >= s[1]) { break; }
           if ($slots.eq(i).data('time') >= s[0]) { 
             plugin.select($slots.eq(i)); 
-            $slots.eq(i).append('<p>' + s[2] + '</p>');
-            
+            if ($slots.eq(i).data('time') == s[0]) { 
+            console.log("Hello", s[2])
+            $slots.eq(i).append("<a>" + s[2] + '\n' + s[0] + "-" + s[1] + "</a>");
             }
+          }
         }
       })
     });

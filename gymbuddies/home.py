@@ -2,7 +2,7 @@
 import json
 from typing import Any, Dict
 from flask import Blueprint
-from flask import session
+from flask import session, g
 from flask import request
 from flask import render_template, redirect, url_for
 from . import common
@@ -47,7 +47,7 @@ def dashboard():
             requestName = database.user.get_name(match.srcnetid)
         for i in range(len(matchNames)):
             # print(matchNames[i].AVAILABLE)
-            if (match.schedule[i] == 4):
+            if (match.schedule[i] == 4 and match.schedule[i-1] != 4 and match.schedule[i+1] == 4):
                 # print("triggered")
                 matchNames[i] = requestName
         #print("row", len(match.schedule))
@@ -57,7 +57,7 @@ def dashboard():
     # matches = database.schedule.get_matched_schedule(netid)
     # matchSchedules = common.schedule_to_json(matches)
     print("schedule", matchSchedule)
-    # print("names", matchNames)
+    print("names", matchNames)
     context: Dict[str, Any] = {}
     common.fill_match_schedule(context, matchSchedule, matchNames)
     # json.dumps(matchNames)
@@ -114,7 +114,8 @@ def newuser():
     if request.method == "POST":
         prof: Dict[str, Any] = common.form_to_entireprofile()
         prof.update(netid=netid)
-        assert database.user.update(**prof)
+        database.user.update(**prof)
+        return redirect(url_for("home.profile"))
 
     user = database.user.get_user(netid)
 

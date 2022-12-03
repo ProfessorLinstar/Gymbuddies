@@ -112,9 +112,11 @@ def schedule_to_jsonmatches(schedule: List[int], matchNames: List[str]) -> str:
     # return blocks
 
     for event in db.schedule_to_matchevents(schedule, matchNames):
+        print("event", event, "\n")
         day, _ = event[0][0].day_time()
         start, end = [t[0].time_str() for t in event]
         jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
+        print(jsoncalendar, "jsoncalendar")
 
     return json.dumps(jsoncalendar)
 
@@ -173,15 +175,13 @@ def form_to_entireprofile() -> Dict[str, Any]:
 
     prof: Dict[str, Any] = {}
 
-    # if category == "information":
     prof.update({k: v for k, v in request.form.items() if k in db.User.__table__.columns})
     prof["interests"] = {v: True for v in request.form.getlist("interests")}
     prof.pop("schedule", None)
 
     for bool_key in ("open", "okmale", "okfemale", "okbinary"):
-            prof[bool_key] = bool_key in prof
+        prof[bool_key] = bool_key in prof
 
-    # elif category == "schedule":
     prof["schedule"] = json_to_schedule(request.form.get("jsoncalendar", ""))
 
     return prof
