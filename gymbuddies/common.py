@@ -147,6 +147,7 @@ def schedule_to_jsonmodify(schedule: List[int], requests: List[int]) -> str:
         start, end = [t[0].time_str() for t in event]
         jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
 
+    print("schedule_to_jsonmodify:", jsoncalendar)
     return json.dumps(jsoncalendar)
 
 
