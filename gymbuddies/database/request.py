@@ -58,6 +58,17 @@ class RequestStatusMismatch(Exception):
 
 
 @db.session_decorator(commit=False)
+def get_inactive_outgoing(srcnetid: str, *, session: Optional[Session] = None) -> List[Any]:
+    """Attempts to return a list of the active outgoing requests for a user with netid 'destnetid',
+    sorted in order with respect to the request's make timestamp, newest first. If 'destnetid' does
+    not exist in the database, returns an empty list."""
+    assert session is not None
+    return session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
+                                            db.Request.status != db.RequestStatus.PENDING).order_by(
+                                                db.Request.maketimestamp.desc()).all()
+
+
+@db.session_decorator(commit=False)
 def get_active_outgoing(srcnetid: str, *, session: Optional[Session] = None) -> List[Any]:
     """Attempts to return a list of the active outgoing requests for a user with netid 'destnetid',
     sorted in order with respect to the request's make timestamp, newest first. If 'destnetid' does
@@ -65,6 +76,17 @@ def get_active_outgoing(srcnetid: str, *, session: Optional[Session] = None) -> 
     assert session is not None
     return session.query(db.Request).filter(db.Request.srcnetid == srcnetid,
                                             db.Request.status == db.RequestStatus.PENDING).order_by(
+                                                db.Request.maketimestamp.desc()).all()
+
+
+@db.session_decorator(commit=False)
+def get_inactive_incoming(destnetid: str, *, session: Optional[Session] = None) -> List[Any]:
+    """Attempts to return a list of the active incoming requests for a user with netid 'srcnetid',
+    sorted in order with respect to the request's make timestamp, newest first. If 'srcnetid' does
+    not exist in the database, returns an empty list."""
+    assert session is not None
+    return session.query(db.Request).filter(db.Request.destnetid == destnetid,
+                                            db.Request.status != db.RequestStatus.PENDING).order_by(
                                                 db.Request.maketimestamp.desc()).all()
 
 
@@ -136,6 +158,15 @@ def get_matches(netid: str, *, session: Optional[Session] = None) -> List[db.Map
     return session.query(db.Request).filter(
         (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
         db.Request.status == db.RequestStatus.FINALIZED).all()
+
+
+@db.session_decorator(commit=False)
+def get_terminated(netid: str, *, session: Optional[Session] = None) -> List[db.MappedRequest]:
+    """ get a list of matches associated with a user"""
+    assert session is not None
+    return session.query(db.Request).filter(
+        (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
+        db.Request.status != db.RequestStatus.FINALIZED).all()
 
 
 @db.session_decorator(commit=False)
@@ -320,11 +351,14 @@ def _deactivate(session: Session, request: db.MappedRequest) -> None:
 
 @db.session_decorator(commit=True)
 def modify(requestid: int,
-           schedule: List[db.ScheduleStatus],
+           schedule: List[db.ScheduleStatus | int],
            *,
            session: Optional[Session] = None) -> None:
     """Modifies active (pending or matching) request. Switches direction of request."""
     assert session is not None
+
+    print("trying to modify with this schedule: ", db.schedule_to_readable(schedule))
+
     request = _get(session, requestid)
     new(request.destnetid, request.srcnetid, schedule, session=session, prev=request)
 
