@@ -300,6 +300,7 @@ def schedule_to_matchevents(schedule: List[int], matchNames: List[str]) -> List[
 
     blocks: List[List[TimeBlock, str]] = [[]]
     for t, status in enumerate(schedule):
+        # print(matchNames[t])
         if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
             blocks[-1].append([TimeBlock(t), matchNames[t]])
             blocks.append([])
