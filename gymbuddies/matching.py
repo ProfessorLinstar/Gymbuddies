@@ -13,6 +13,7 @@ from werkzeug.exceptions import HTTPException
 from .error import NoLoginError
 from . import common
 from . import database
+from . import sendsms
 from .database import db
 
 bp = Blueprint("matching", __name__, url_prefix="/matching")
@@ -31,6 +32,10 @@ def findabuddy():
 
         session["index"] += 1
         database.request.new(netid, destnetid, schedule)
+        # ADD OUTGOING SMS MESSAGE HERE
+        if sendsms.SEND_SMS:
+            number = database.user.get_contact(destnetid)
+            sendsms.sendsms(number, sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", destnetid))
         # return redirect(url_for("matching.outgoing"))
         print("inside findabuddy POST")
         return ""
@@ -166,6 +171,14 @@ def incomingtable():
             database.request.reject(requestid)
         elif action == "accept":
             database.request.finalize(requestid)
+            # ADD SMS MESSAGING HERE
+            if sendsms.SEND_SMS:
+                srcnetid = database.request.get_srcnetid(requestid)
+                src_number = database.user.get_contact(srcnetid)
+                sendsms.sendsms("1" + src_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", srcnetid))
+                destnetid = database.request.get_destnetid(requestid)
+                dest_number = database.user.get_contact(destnetid)
+                sendsms.sendsms("1" + dest_number, sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", destnetid))
         else:
             print(f"Action not found! {action = }")
 

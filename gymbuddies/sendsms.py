@@ -3,9 +3,15 @@
 import os
 from twilio.rest import Client
 
-def sendsms(number: int, message: str) -> bool:
+SEND_SMS = False
+
+NEW_REQUEST_MESSAGE = "Hello from Gymbuddies. You have recieved a new match request from $netid$!"
+
+FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, you have finalized your math with $netid$!"
+
+def sendsms(number: str, message: str) -> bool:
     """sends sms message. Makes sure that the number is valid"""
-    numberstr = "+" + str(number)
+    numberstr = "+" + number
     if len(numberstr) != 12:
         return False
     print(numberstr[1])
