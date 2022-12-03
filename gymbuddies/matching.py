@@ -359,6 +359,13 @@ def matchedtable():
 
         if action == "terminate":
             database.request.terminate(requestid)
+            # ADD SMS MESSAGING HERE
+            if sendsms.SEND_SMS:
+                destnetid = database.request.get_destnetid(requestid)
+                number = database.user.get_contact(destnetid)
+                success = sendsms.sendsms("1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid))
+                print(success)
+
         else:
             print(f"Action not found! {action = }")
 
