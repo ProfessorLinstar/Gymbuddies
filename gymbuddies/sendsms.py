@@ -12,6 +12,7 @@ FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, you have fin
 def sendsms(number: str, message: str) -> bool:
     """sends sms message. Makes sure that the number is valid"""
     numberstr = "+" + number
+    print("got here 0")
     if len(numberstr) != 12:
         return False
     print("got here 1")
