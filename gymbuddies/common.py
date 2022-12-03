@@ -147,6 +147,7 @@ def schedule_to_jsonmodify(schedule: List[int], requests: List[int]) -> str:
         start, end = [t[0].time_str() for t in event]
         jsoncalendar[day].append([start, end if end != "00:00" else "24:00", event[0][1]])
 
+    print("schedule_to_jsonmodify:", jsoncalendar)
     return json.dumps(jsoncalendar)
 
 
@@ -163,6 +164,8 @@ def form_to_profile(category: str) -> Dict[str, Any]:
 
         for bool_key in ("open", "okmale", "okfemale", "okbinary"):
             prof[bool_key] = bool_key in prof
+
+        print("form_to_profile: got this contact: ", prof["contact"])
 
     elif category == "schedule":
         prof["schedule"] = json_to_schedule(request.form.get("jsoncalendar", ""))

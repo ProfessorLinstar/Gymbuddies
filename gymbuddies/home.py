@@ -1,5 +1,4 @@
 """Home page blueprint."""
-import json
 from typing import Any, Dict
 from flask import Blueprint
 from flask import session, g
@@ -8,7 +7,6 @@ from flask import render_template, redirect, url_for
 from . import common
 from . import database
 from .database import db
-from . import sendsms
 
 bp = Blueprint("home", __name__, url_prefix="")
 
