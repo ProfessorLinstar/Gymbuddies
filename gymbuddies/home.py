@@ -2,7 +2,7 @@
 import json
 from typing import Any, Dict
 from flask import Blueprint
-from flask import session
+from flask import session, g
 from flask import request
 from flask import render_template, redirect, url_for
 from . import common
@@ -115,7 +115,8 @@ def newuser():
     if request.method == "POST":
         prof: Dict[str, Any] = common.form_to_entireprofile()
         prof.update(netid=netid)
-        assert database.user.update(**prof)
+        database.user.update(**prof)
+        return redirect(url_for("home.profile"))
 
     user = database.user.get_user(netid)
 

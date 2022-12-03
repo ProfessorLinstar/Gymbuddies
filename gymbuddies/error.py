@@ -26,8 +26,8 @@ def user_not_found(ex: database.user.UserNotFound):
 
     if ex.netid == session.get("netid", ""):
         session.clear()
-        return render_template("401.html"), 401
-    return render_template("410.html"), 410
+        return render_template("popups/401.html"), 401
+    return render_template("popups/410.html"), 410
 
 
 @bp.app_errorhandler(Exception)
@@ -39,4 +39,4 @@ def internal_server_error(ex):
 
     traceback.print_exception(ex, file=sys.stderr)
     print("unexpected error occurred!")
-    return render_template("500.html", ex=ex), 500
+    return render_template("popups/500.html", ex=ex), 500
