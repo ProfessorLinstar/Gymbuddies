@@ -122,7 +122,12 @@ def _update_user(session: Session,
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         print("updating this: ", k, v)
         setattr(user, k, v)
-    user.lastupdated = datetime.now(timezone.utc)
+
+    def postaction():
+        user.lastupdated = datetime.now(timezone.utc)
+    session.info["postactions"].append(postaction)
+    # user.lastupdated = datetime.now(timezone.utc)
+
     print("user.lastupdated:", user.lastupdated.timestamp())
 
     if update_schedule and kwargs.get("schedule") is not None:

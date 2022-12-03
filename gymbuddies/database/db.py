@@ -55,10 +55,17 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
                 return func(*args, **kwargs)
 
             with Session(engine) as session:
+                session.info["postactions"] = []
                 kwargs["session"] = session
                 result = func(*args, **kwargs)
+
                 if commit:
                     session.commit()
+                if session.info["postactions"]:
+                    for post_action in session.info["postactions"]:
+                        post_action()
+                    session.commit()
+
             return result
 
         return wrapper

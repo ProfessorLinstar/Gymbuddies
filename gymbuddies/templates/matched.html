@@ -79,13 +79,12 @@
 <script src="../static/js/ajax.js"></script>
 <script>
   function setup() {
-    refreshWrapper = function() { refresh("{{ url_for('matching.matchedtable') }}", "#matchesTable"); };
-    // refreshWrapper = function() {
-    //   refreshMultiple([
-    //     ["{{ url_for('matching.matchedtable') }}", "#matchesTable"],
-    //     ["{{ url_for('matching.historytable') }}", "#historyTable"],
-    //   ]);
-    // }; 
+    refreshWrapper = function() {
+      refreshMultiple([
+        ["{{ url_for('matching.matchedtable') }}", "#matchesTable"],
+        ["{{ url_for('matching.historytable') }}", "#historyTable"],
+      ]);
+    }; 
     refreshWrapper();
     window.setInterval(refreshWrapper, 1000);
 
