@@ -212,6 +212,24 @@
 
     <div class="container-fluid py-4">
 
+      <div class="modal fade bd-example-modal-lg" id="errorPopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-md" role="document">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Error</h5>
+            </div>
+
+            <div class="modal-body">
+              <div class="card-body">
+                Oops! An error occurred. Please refresh. <span id="errorPopupSpan"></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       {% block content %}{% endblock %}
       <!-- footer -->
       <footer class="footer pt-3  ">

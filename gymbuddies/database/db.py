@@ -271,6 +271,7 @@ def interests_to_readable(interests: Dict[str, bool]):
     """Converts an interests dictionary to a readable format."""
     return ", ".join(k for k, v in interests.items() if v)
 
+
 def schedule_to_events(schedule: List[int]) -> List[List[TimeBlock]]:
     """Converts a schedule into a string representation as a comma separated list of events. Events
     are in the format (start, end), where start and end are timeblocks, and start is inclusive while
@@ -292,23 +293,25 @@ def schedule_to_events(schedule: List[int]) -> List[List[TimeBlock]]:
 
     return blocks
 
-def schedule_to_matchevents(schedule: List[int], matchNames: List[str]) -> List[List[TimeBlock]]:
+
+def schedule_to_matchevents(schedule: List[int],
+                            match_names: List[str]) -> List[List[Tuple[TimeBlock, str]]]:
     """Converts a schedule into a string representation as a comma separated list of events. Events
     are in the format (start, end), where start and end are timeblocks, and start is inclusive while
     end is exclusive."""
     assert len(schedule) == NUM_WEEK_BLOCKS
 
-    blocks: List[List[TimeBlock, str]] = [[]]
+    blocks: List[List[Tuple[TimeBlock, str]]] = [[]]
     for t, status in enumerate(schedule):
         # print(matchNames[t])
         if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
-            blocks[-1].append([TimeBlock(t), matchNames[t]])
+            blocks[-1].append((TimeBlock(t), match_names[t]))
             blocks.append([])
         if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
-            blocks[-1].append([TimeBlock(t), matchNames[t]])
+            blocks[-1].append((TimeBlock(t), match_names[t]))
 
     if blocks[-1]:
-        blocks[-1].append(TimeBlock(len(schedule)))
+        blocks[-1].append((TimeBlock(len(schedule)), match_names[-1]))
     else:
         blocks.pop()
 
@@ -316,6 +319,7 @@ def schedule_to_matchevents(schedule: List[int], matchNames: List[str]) -> List[
 
 
 def schedule_to_readable(schedule: List[int]) -> List[str]:
+    """Converts schedule into a list of readable strings."""
     return [
         f"{s.to_readable()}-{e.to_readable(time_only=True)}"
         for s, e in schedule_to_events(schedule)
