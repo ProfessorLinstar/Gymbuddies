@@ -50,15 +50,43 @@
         </div>
 
       </div>
+      <div class="row">
+        <input id = "modifyRequest" type="hidden" name="destnetid" value="{{ user.netid }}"></input>
+        <input id = "requestId" type ="hidden" name="requestid" value="{{requestid}}"></input>
+        <button id="requestButton closeButton" type="button" class="btn btn-primary btn-sm close" data-toggle="modal" data-dismiss="modal" data-target="#requestSent" onClick="makeRequest()" aria-label="Close">Modify Request</button>
+      </div>
     </div>
   </div>
 
 </div>
 
 <link rel="stylesheet" type="text/css" href="../static/css/style.css">
-<script src="../static/js/calincoming.js"></script>
+<script src="../static/js/ajax.js"></script>
+<script src="../static/js/calmodify.js"></script>
 <script>
+  // from buddies.html
+// Submits a request when "Match" button is pressed
+function makeRequest() {
+  const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+  let destnetid = $('#modifyRequest').val();
+  let requestid = $('#requestId').val();
+  // let sessionindex = $('#indexInput').val();
+  console.log(destnetid)
+  if (request != null)
+    request.abort();
+
+  $.ajax({
+    type: 'POST',
+    url: '/matching/incomingmodal',
+    data: { "destnetid": destnetid, "jsoncalendar": JSON.stringify(calendar), "requestid":requestid },
+    error: function(xhr, textstatus, errorthrown) {
+      console.log(xhr, textstatus, errorthrown)
+    }
+  })
+}
+
   function setup() {
+    $('#requestButton').on('click', makeRequest);
 
     $("#day-schedule").dayScheduleSelector({
       days: [0, 1, 2, 3, 4, 5, 6],

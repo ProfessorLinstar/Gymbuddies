@@ -67,6 +67,7 @@ def findabuddy():
     context: Dict[str, Any] = {}
     
     common.fill_schedule(context, g.user.schedule)
+
     return render_template("findabuddy.html",
                            no_matches=no_matches,
                            netid=netid,
@@ -113,9 +114,20 @@ def buddies():
     level = database.db.Level(g.user.level)
     level = level.to_readable()
     interests = database.user.get_interests_string(netid)
+    
+
+    destuserSchedule = g.user.schedule
+    srcuser =  database.user.get_user(netid)
+    srcuserSchedule = srcuser.schedule
+    # will hold combination of request and user schedule 
+    combinedSchedule = [0] * db.NUM_WEEK_BLOCKS
+    for i in range(len(combinedSchedule)):
+        if srcuserSchedule[i] ==4 and destuserSchedule[i] == 4:
+            combinedSchedule[i] = 4
+
     # grab schedule
     context: Dict[str, Any] = {}
-    common.fill_schedule(context, g.user.schedule)
+    common.fill_schedule(context, combinedSchedule)
     
     return render_template("buddies.html",
                            no_matches=no_matches,
@@ -176,7 +188,37 @@ def incomingtable():
                            interests=interests)
 
 
-@bp.route("/incomingmodal", methods=["GET"])
+
+# def incomingmodal():
+#     """Modal for incoming requests."""
+#     netid: str = session.get("netid", "")
+#     if not netid:
+#         return redirect(url_for("auth.login"))
+
+#     print("processing an incoming modal request!")
+
+#     # TODO: handle errors when database is not available
+#     # requests = database.request.get_active_incoming(netid)
+#     requestid = request.args.get("requestid", "0")
+#     req = database.request.get_request(int(requestid))
+
+#     user = database.user.get_user(req.srcnetid)
+#     # create schedule with combined...current events show up gray?
+#     jsoncalendar = common.schedule_to_json(req.schedule)
+#     level = db.Level(user.level).to_readable()
+#     interests = db.interests_to_readable(user.interests)
+
+#     print(f"returning card with info for request {requestid = }")
+
+#     return render_template("incomingmodal.html",
+#                            netid=netid,
+#                            req=req,
+#                            user=user,
+#                            jsoncalendar=jsoncalendar,
+#                            level=level,
+#                            interests=interests)
+
+@bp.route("/incomingmodal", methods=["GET","POST"])
 def incomingmodal():
     """Modal for incoming requests."""
     netid: str = session.get("netid", "")
@@ -185,26 +227,56 @@ def incomingmodal():
 
     print("processing an incoming modal request!")
 
+    if request.method == "POST":
+        # first delete their incoming request
+        requestid = request.form["requestid"]
+        database.request.reject(requestid)
+        # make a new request
+        destnetid = request.form["destnetid"]
+        schedule = common.json_to_schedule(request.form["jsoncalendar"])
+
+        database.request.new(netid, destnetid, schedule)
+        # return redirect(url_for("matching.outgoing"))
+        print("inside incomingmodal POST")
+        return ""
+
     # TODO: handle errors when database is not available
     # requests = database.request.get_active_incoming(netid)
     requestid = request.args.get("requestid", "0")
+    
     req = database.request.get_request(int(requestid))
 
-    user = database.user.get_user(req.srcnetid)
-    # create schedule with combined...current events show up gray?
-    jsoncalendar = common.schedule_to_json(req.schedule)
-    level = db.Level(user.level).to_readable()
-    interests = db.interests_to_readable(user.interests)
+    srcuser = database.user.get_user(req.srcnetid)
+    destuser = database.user.get_user(netid)
+    
+    # jsoncalendar = common.schedule_to_json(req.schedule)
+    # requested schedule
+    requested = [0] * db.NUM_WEEK_BLOCKS
+    reqSchedule = req.schedule
+    destuserSchedule = destuser.schedule 
+    srcuserSchedule = srcuser.schedule
+    # will hold combination of request and user schedule 
+    combinedSchedule = [0] * db.NUM_WEEK_BLOCKS
+    for i in range(len(combinedSchedule)):
+        if srcuserSchedule[i] ==4 and destuserSchedule[i] == 4:
+            combinedSchedule[i] = 4
+        if reqSchedule[i] == 4:
+            requested[i] = 1
+
+    level = db.Level(srcuser.level).to_readable()
+    interests = db.interests_to_readable(srcuser.interests)
 
     print(f"returning card with info for request {requestid = }")
+    jsoncalendar = common.schedule_to_jsonmodify(combinedSchedule, requested)
 
     return render_template("incomingmodal.html",
                            netid=netid,
                            req=req,
-                           user=user,
+                           user=srcuser,
                            jsoncalendar=jsoncalendar,
                            level=level,
-                           interests=interests)
+                           interests=interests,
+                           requestid = requestid)
 
 
 @bp.route("/outgoing", methods=["GET"])

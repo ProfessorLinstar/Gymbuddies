@@ -34,11 +34,10 @@ def dashboard():
 
     # context: Dict[str, Any] = {}
     # common.fill_schedule(context, user.schedule)
-    # ADD BACK FOR MATCHES CALENDAR!!!!
     matches = database.request.get_matches(netid)  #should return a list of requests?
     matchSchedule = [0] * db.NUM_WEEK_BLOCKS
     requestName = ""
-    matchNames = [""] * 2016
+    matchNames = [""] * db.NUM_WEEK_BLOCKS
     for match in matches:
         # matchNames = match.schedule.copy()
         # requestName = database.user.get_name(match.destnetid)
