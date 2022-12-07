@@ -330,11 +330,13 @@ def get_lastupdated(netid: str, *, session: Optional[Session] = None) -> datetim
     assert session is not None
     return _get_column(session, netid, db.User.lastupdated)
 
+
 @db.session_decorator(commit=False)
 def get_blocked(netid: str, *, session: Optional[Session] = None) -> List[str]:
     """returns list of all users who have been blocked by this user"""
     assert Session is not None
     return _get_column(session, netid, db.User.blocked)
+
 
 @db.session_decorator(commit=False)
 def is_blocked(netid: str, delnetid: str, *, session: Optional[Session] = None) -> bool:
@@ -347,14 +349,42 @@ def is_blocked(netid: str, delnetid: str, *, session: Optional[Session] = None) 
 def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) -> None:
     """blocks this user. They can no longer appear on find a buddy and cannot send requests to you, nor accept request"""
     assert Session is not None
-    blocked = _get_column(session, netid, db.User.blocked)
-    if delnetid not in blocked:
+    user = get_user(netid, session=session)
+    blocked = user.blocked
+    if delnetid not in blocked and exists(netid):
         blocked.append(delnetid)
+
 
 @db.session_decorator(commit=True)
 def unblock_user(netid: str, delnetid: str, *, session: Optional[Session] = None) -> None:
     """unblocks this user. Now they should be able to appear on find a buddy, rend requests to you, and accept requests"""
     assert Session is not None
-    blocked = _get_column(session, netid, db.User.blocked)
+    user = get_user(netid, session=session)
+    blocked = user.blocked
     if delnetid in blocked:
         blocked.remove(delnetid)
+
+
+@db.session_decorator(commit=True)
+def recieve_notification_on(netid: str, *, session: Optional[Session] = None) -> None:
+    """turn on notifications for this user"""
+    assert Session is not None
+    user = get_user(netid, session=session)
+    user.settings["notifications"] = True
+    
+
+@db.session_decorator(commit=True)
+def recieve_notification_off(netid: str, *, session: Optional[Session] = None) -> None:
+    """turn off notifications for this user"""
+    assert Session is not None
+    user = get_user(netid, session=session)
+    user.settings["notifications"] = False
+
+
+@db.session_decorator(commit=False)
+def get_notification_status(netid: str, *, session: Optional[Session] = None) -> None:
+    """get the notification status for this user. on or off"""
+    assert Session is not None
+    user = get_user(netid, session=session)
+    return user.settings.get("notifications", False)
+    

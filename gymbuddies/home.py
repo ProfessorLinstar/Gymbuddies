@@ -136,18 +136,28 @@ def settings():
 
     user = database.user.get_user(netid)
 
-    if request.method == "POST":
-        submit: str = request.form.get("update", "")
-        prof: Dict[str, Any] = common.form_to_profile(submit)
-        prof.update(netid=netid)
-        database.user.update(**prof)
+    if request.method == "POST" and request.form.get("update", "") == "true":
+        # submit: str = request.form.get("update", "")
+        # prof: Dict[str, Any] = common.form_to_profile(submit)
+        # prof.update(netid=netid)
+        # database.user.update(**prof)
+        if request.form.get("notifications") == "on":
+            database.user.recieve_notification_on(netid)
+        else:
+            database.user.recieve_notification_off(netid)
 
-    user = database.user.get_user(netid)
+        print(request.form.get("blockinghere", 0) != "")
+
+    if request.method == "POST" and request.form.get("blockinghere", "") == "true":
+        blocknetid = request.form.get("netid")
+        database.user.block_user(netid, blocknetid)
 
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
 
-    return render_template("settings.html", netid=netid, user=user, **context)
+    notification = database.user.get_notification_status(netid)
+
+    return render_template("settings.html", netid=netid, user=user, notification=notification, **context)
 
 @bp.route("/blockedtable", methods=["GET", "POST"])
 def blockedtable():
@@ -157,14 +167,15 @@ def blockedtable():
         return redirect(url_for("auth.login"))
 
     if request.method == "POST":
-        requestid = int(request.form.get("requestid", "0"))
-        action = request.form.get("action")
+        # requestid = int(request.form.get("requestid", "0"))
+        # action = request.form.get("action")
 
-        if action == "terminate":
-            # INSERT function to unblock
-            database.request.terminate(requestid)
-        else:
-            print(f"Action not found! {action = }")
+        # if action == "terminate":
+        #     # INSERT function to unblock
+        #     database.request.terminate(requestid)
+        # else:
+        #     print(f"Action not found! {action = }")
+        pass
 
     elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
         return ""

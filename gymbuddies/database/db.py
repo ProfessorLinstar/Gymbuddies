@@ -10,7 +10,7 @@ from typing import Tuple, Callable, ParamSpec, TypeVar, Dict, List, Any
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.ext.mutable import MutableList, MutableDict
 from sqlalchemy.orm import Session
 
 P = ParamSpec('P')
@@ -379,7 +379,7 @@ class User(BASE):
     okfemale = Column(Boolean)  # is user ok being matched with female users
     okbinary = Column(Boolean)  # is user ok being matched with nonbinary users
 
-    settings = Column(PickleType)  # Notification and account settings
+    settings = Column(MutableDict.as_mutable(PickleType))  # Notification and account settings
     lastupdated = Column(PickleType)  # timestamp for last related database update
 
     blocked = Column(MutableList.as_mutable(PickleType)) # list of users who are blocked for this user
