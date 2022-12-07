@@ -156,9 +156,19 @@ def settings():
         session["matches"] = database.matchmaker.find_matches(netid)
         session["index"] = 0
 
-        # update the database incoming and outgoing requests based on the block
-
-        # update your current matches based on the block
+        # update the database requests and matches based on the block
+        active_outgoing = database.request.get_active_outgoing(netid)
+        for arequest in active_outgoing:
+            if arequest.destnetid == blocknetid:
+                database.request.reject(arequest.requestid)
+        active_incoming = database.request.get_active_incoming(netid)
+        for arequest in active_incoming:
+            if arequest.srcnetid == blocknetid:
+                database.request.reject(arequest.requestid)
+        matches = database.request.get_matches(netid)
+        for match in matches:
+            if match.srcnetid == blocknetid or match.destnetid == blocknetid:
+                database.request.terminate(match.requestid)
 
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
