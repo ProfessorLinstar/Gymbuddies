@@ -1,22 +1,3 @@
-// dashboard setup
-// function dashsetup() {
-//   $("#day-schedule").dayScheduleSelector({
-//     days: [0, 1, 2, 3, 4, 5, 6],
-//     interval: 60,
-//     startTime: '06:00',
-//     endTime: '24:00'
-//   });
-//   const calendar = '{{ jsoncalendar|safe }}'
-//   const parsed = JSON.parse(calendar)
-//   console.log(calendar, parsed)
-
-//   $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
-//   $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
-//     console.log(selected);
-//   })
-
-// }
-
 let ajaxtimeout = 10000;
 let refreshinterval = 1000;
 
