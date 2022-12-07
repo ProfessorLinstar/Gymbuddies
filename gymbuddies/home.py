@@ -7,6 +7,7 @@ from flask import render_template, redirect, url_for
 from . import common
 from . import database
 from .database import db
+from multiprocessing import Process
 
 bp = Blueprint("home", __name__, url_prefix="")
 
@@ -157,18 +158,8 @@ def settings():
         session["index"] = 0
 
         # update the database requests and matches based on the block
-        active_outgoing = database.request.get_active_outgoing(netid)
-        for arequest in active_outgoing:
-            if arequest.destnetid == blocknetid:
-                database.request.reject(arequest.requestid)
-        active_incoming = database.request.get_active_incoming(netid)
-        for arequest in active_incoming:
-            if arequest.srcnetid == blocknetid:
-                database.request.reject(arequest.requestid)
-        matches = database.request.get_matches(netid)
-        for match in matches:
-            if match.srcnetid == blocknetid or match.destnetid == blocknetid:
-                database.request.terminate(match.requestid)
+        p = Process(target=update_requests_matches, args=(netid, blocknetid))
+        p.start()
 
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
@@ -176,6 +167,20 @@ def settings():
     notification = database.user.get_notification_status(netid)
 
     return render_template("settings.html", netid=netid, user=user, notification=notification, **context)
+
+def update_requests_matches(netid, blocknetid):
+    active_outgoing = database.request.get_active_outgoing(netid)
+    for arequest in active_outgoing:
+        if arequest.destnetid == blocknetid:
+            database.request.reject(arequest.requestid)
+    active_incoming = database.request.get_active_incoming(netid)
+    for arequest in active_incoming:
+        if arequest.srcnetid == blocknetid:
+            database.request.reject(arequest.requestid)
+    matches = database.request.get_matches(netid)
+    for match in matches:
+        if match.srcnetid == blocknetid or match.destnetid == blocknetid:
+            database.request.terminate(match.requestid)
 
 @bp.route("/blockedtable", methods=["GET", "POST"])
 def blockedtable():
