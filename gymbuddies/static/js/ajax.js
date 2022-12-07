@@ -17,9 +17,11 @@
 
 // }
 
-ajaxtimeout = 10000;
+let ajaxtimeout = 10000;
+let refreshinterval = 1000;
 
 let lastrefreshed = 0;
+let refreshing = false;
 let request = null;
 let getrequest = null;
 let postrequest = null;
@@ -84,15 +86,13 @@ function getBuddies() {
 
 
   $("body").addClass("wait");
-  request = $.ajax(
-    {
+  request = $.ajax({
       type: 'GET',
       data: { "index": sessionindex },
       url: '/matching/buddies',
       success: listBuddies,
       complete: function() { $("body").removeClass("wait"); },
-    }
-  );
+  });
 }
 
 // from incoming.html
@@ -105,7 +105,6 @@ function fillCard(response) {
 function getCard(requestid, url) {
   if (getrequest != null) {
     console.log("aborting other getrequests!");
-    getrequest.abort();
   }
 
   getrequest = $.ajax({
@@ -121,11 +120,12 @@ function getCard(requestid, url) {
 
 // used as the 'success' property of an ajax request argument. Requires an
 // 'id' property to be provided to indicate where to write the response.
-function success(response) {
+function refresh(response, id, updatelastrefreshed) {
   if (response) {
-    lastrefreshed = Date.now();
-    $(this.id).html(response);
-    console.log("making an update now!");
+    if (updatelastrefreshed) lastrefreshed = Date.now();
+    console.log("refresh is", refresh);
+    $(id).html(response);
+    console.log("making an update now for", id, "at time", new Date(Date.now()));
   }
   console.log("success: no update required.");
 }
@@ -135,7 +135,7 @@ function error(xhr, textStatus, errorThrown) {
   console.log(xhr, textStatus, errorThrown);
   if (textStatus == "timeout") {
     ajaxtimeout *= 2;
-    console.log("doubled ajaxtimeout to ", ajaxtimeout, this);
+    console.log("doubled ajaxtimeout to ", ajaxtimeout);
   } else if (textStatus != "abort") {
     $("#errorPopup").modal("show");
   }
@@ -152,87 +152,51 @@ function act(url, id, requestid, action) {
     type: "POST",
     data: { "requestid": requestid, "action": action },
     url: url,
-    id: id,
-    success: success,
+    success: function(response) { refresh(response, id, false); },
     complete: function() { postrequest = null; $("body").removeClass("wait"); },
     error: error,
     timeout: ajaxtimeout,
   });
 }
 
-function refresh(url, id) {
-  if (getrequest != null || postrequest != null) {
-    console.log("getrequest/postrequest detected!");
+function refreshMultiple(url_ids) {
+  const responses = [];
+  let successes = 0;
+  let completed = 0;
+
+  console.log("url_id", url_ids)
+  if (refreshing) {
+    console.log("refresh detected!");
     return;
   }
+  refreshing = true;
 
-  getrequest = $.ajax({
-    type: "GET",
-    data: { "lastrefreshed": lastrefreshed },
-    url: url,
-    id: id,
-    success: success,
-    complete: function() { getrequest = null; },
-    error: error,
-    timeout: ajaxtimeout,
-  })
+  
+  for (let i = 0; i < url_ids.length; i++) {
+    const url = url_ids[i][0];
+    getrequest = $.ajax({
+      type: "GET",
+      data: { "lastrefreshed": lastrefreshed },
+      url: url,
+      success: function(response) {
+        responses[i] = response;
+        if (++successes == url_ids.length) {
+          for (let j = 0; j < responses.length; j++)
+            refresh(responses[j], url_ids[j][1], j == responses.length - 1)
+        }
+      },
+      complete: function() {
+        if (++completed == url_ids.length) refreshing = false;
+      },
+      error: error,
+      timeout: ajaxtimeout,
+    })
+  }
+
 }
 
-function refreshMultiple(url_ids, index, lastrefreshedlocal) {
-  if (index === undefined) {
-    index = 0;
-  }
-  if (lastrefreshedlocal === undefined) {
-    lastrefreshedlocal = lastrefreshed
-  }
-
-  const [url, id] = url_ids[index];
-
-  console.log("url_id, index", url, id, index)
-  if (index == 0 && getrequest != null || postrequest != null) {
-    console.log("getrequest/postrequest detected!");
-    return;
-  }
-
-  getrequest = $.ajax({
-    type: "GET",
-    data: { "lastrefreshed": lastrefreshedlocal },
-    url: url,
-    id: id,
-    success: success,
-    complete: function() {
-      if (++index == url_ids.length) {
-        getrequest = null;
-      } else {
-        refreshMultiple(url_ids, index, lastrefreshedlocal);
-      }
-    },
-    error: error,
-    timeout: ajaxtimeout,
-  })
-}
-
-
-// from matched.html
-function fillMatchedCard(response) {
-  console.log("got a response");
-  $('#modifyPopup').html(response);
-}
-
-
-function getMatchedCard(requestid, url) {
-  if (getrequest != null) {
-    console.log("aborting other getrequests!");
-    getrequest.abort();
-  }
-
-  getrequest = $.ajax({
-    type: 'GET',
-    data: { "requestid": requestid },
-    url: url,
-    success: fillMatchedCard,
-    complete: function() { getrequest = null; },
-    error: function() { console.log("getMatchedCard failed!"); },
-    timeout: ajaxtimeout,
-  });
+function setup_refresh(url_ids) {
+  refreshWrapper = function() { refreshMultiple(url_ids); };
+  refreshWrapper();
+  window.setInterval(refreshWrapper, refreshinterval)
 }

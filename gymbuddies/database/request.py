@@ -295,7 +295,10 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> None:
     request.status = db.RequestStatus.FINALIZED
 
     for netid in (request.srcnetid, request.destnetid):
-        db_schedule.add_schedule_status(netid, request.schedule, db.ScheduleStatus.MATCHED)
+        db_schedule.add_schedule_status(netid,
+                                        request.schedule,
+                                        db.ScheduleStatus.MATCHED,
+                                        session=session)
         for active in get_active_single(netid, session=session):
             if active.requestid == request.requestid:
                 continue
@@ -367,11 +370,13 @@ def modify(requestid: int,
     request = _get(session, requestid)
     new(request.destnetid, request.srcnetid, schedule, session=session, prev=request)
 
+
 @db.session_decorator(commit=True)
-def modifymatch(requestid: int, netid: str,
-           schedule: List[db.ScheduleStatus] | List[int],
-           *,
-           session: Optional[Session] = None) -> None:
+def modifymatch(requestid: int,
+                netid: str,
+                schedule: List[db.ScheduleStatus] | List[int],
+                *,
+                session: Optional[Session] = None) -> None:
     """Modifies match times."""
     assert session is not None
 
@@ -384,7 +389,7 @@ def modifymatch(requestid: int, netid: str,
         destuser = srcuser
         srcuser = netid
     else:
-        destuser =netid
+        destuser = netid
 
     new(srcuser, destuser, schedule, session=session, prev=request)
 

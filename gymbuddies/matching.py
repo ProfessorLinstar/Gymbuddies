@@ -173,7 +173,7 @@ def incomingtable():
             database.request.reject(requestid)
         elif action == "accept":
             database.request.finalize(requestid)
-            print("finalization finished at", datetime.now(timezone.utc).timestamp())
+            print("finalization finished at", datetime.now(timezone.utc))
             # ADD SMS MESSAGING HERE
             if sendsms.SEND_SMS:
                 srcnetid = database.request.get_srcnetid(requestid)

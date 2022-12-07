@@ -87,9 +87,9 @@
 <script src="../static/js/ajax.js"></script>
 <script>
   function setup() {
-    refreshWrapper = function() { refresh("{{ url_for('home.blockedtable') }}", "#blockedTable"); };
-    refreshWrapper();
-    window.setInterval(refreshWrapper, 1000);
+    setup_refresh([
+      ["{{ url_for('home.blockedtable') }}", "#blockedTable"],
+    ]);
   }
   $('document').ready(setup);
 </script>

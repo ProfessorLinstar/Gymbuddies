@@ -3,7 +3,7 @@
 import os
 from twilio.rest import Client
 
-SEND_SMS = True
+SEND_SMS = False
 
 NEW_REQUEST_MESSAGE = "Hello from Gymbuddies. You have recieved a new match request from $netid$!"
 

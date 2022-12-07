@@ -81,9 +81,9 @@
 <script src="../static/js/ajax.js"></script>
 <script>
   function setup() {
-    refreshWrapper = function() { refresh("{{ url_for('matching.incomingtable') }}", "#requestTable"); };
-    refreshWrapper();
-    window.setInterval(refreshWrapper, 1000);
+    setup_refresh([
+      ["{{ url_for('matching.incomingtable') }}", "#requestTable"],
+    ]);
 
     $("#Popup").on("hide.bs.modal", function() {
       $("#userPopup").html("");
