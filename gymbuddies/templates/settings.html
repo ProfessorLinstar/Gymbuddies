@@ -112,7 +112,7 @@
 </div>
 {% endblock %}
 {% block scripts%}
-<script src="../static/js/ajax.js"></script>
+<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
   function setup() {
     setup_refresh([

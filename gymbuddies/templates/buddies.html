@@ -1,3 +1,6 @@
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+<link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+
 {% if no_matches: %}
   <div class="row text-align:center">
     <h6 class="text-capitalize">No more matches :( </h6>
@@ -20,89 +23,68 @@
 {% else %}
 <p><em> To match: select times out of the gray boxes and click "Match" to request them. Selected times will appear in blue.</em></p>
 <div class="row">
-  <div class="col-md-6">
-    <!-- Person's Schedule -->
-    <!-- Calendar -->
-        <!-- <div class="col-md-6"> --->
-          <div class="card card-profile scrolling-wrapper">
-            <div class="card-header pb-0 pt-3 bg-transparent">
-              <h6 class="text-capitalize">Availability</h6>
-            </div>
-            <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->
-              <div class="card-body p-3">
-                <link rel="stylesheet" type="text/css" href="../static/css/style.css">
-                <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
-                <!--- <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> --->
-                <style>
-                  body {background-color:#ECF0F1; }
-                </style>
 
-                <div id="day-schedule"></div>
-              </div>
-            <!-- </form> -->
-          </div>
-        <!--- </div> --->
-      <link rel="stylesheet" type="text/css" href="../static/css/style.css">
-      <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
-      <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-      <style>
-      /* body { font-family:'roboto'; background-color:#ECF0F1; } */
-      </style>
-        <div id="day-schedule"></div>
-          <!-- console.log("SERIALIZE", $("#day-schedule").data('artsy.dayScheduleSelector').serialize())})($); -->
-      </body>
-    </main>
-  </div>
   <div class="col-md-6">
-    <!-- Person's Profile Card -->
+
+    <div class="card card-profile scrolling-wrapper">
+      <div class="card-header pb-0 pt-3 bg-transparent">
+        <h6 class="text-capitalize">Availability</h6>
+      </div>
+      <div class="card-body p-3">
+        <style> body {background-color:#ECF0F1; } </style>
+        <div id="day-schedule"></div>
+      </div>
+    </div>
+
+    <div id="day-schedule"></div>
+
+  </div>
+
+  <div class="col-md-6">
     <div class="card z-index-2 h-90">
       <div class="card-header pb-0 pt-3 bg-transparent">
-          <h6 class="text-capitalize">Profile</h6>
-      <div class="card-body pt-2">
-        <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
-        <p class="card-title h5 d-block text-darker">
-          {{ g.user.name }}
-        </p>
-        <p class="card-description mb-4">
-          <br>
-          Bio: {{ g.user.bio }}
-        </p>
-        <p class="card-description mb-4">
-          Level: {{ level }}
-        </p>
-        <p class="card-description mb-4">
-          Interests: {{ interests }}
-        </p>
-        <p class="card-description mb-4">
-          Additional Information: {{ g.user.addinfo }}
-        </p>
-        <input id="indexInput" type="hidden" name="index" value="{{ session.get('index') }}"></input>
-        <input id = "matchRequest" type="hidden" name="destnetid" value="{{ g.user.netid }}"></input>
+
+        <h6 class="text-capitalize">Profile</h6>
+
+        <div class="card-body pt-2">
+          <p class="card-title h5 d-block text-darker">
+            {{ g.user.name }}
+          </p>
+          <p class="card-description mb-4">
+            <br>
+            Bio: {{ g.user.bio }}
+          </p>
+          <p class="card-description mb-4">
+            Level: {{ level }}
+          </p>
+          <p class="card-description mb-4">
+            Interests: {{ interests }}
+          </p>
+          <p class="card-description mb-4">
+            Additional Information: {{ g.user.addinfo }}
+          </p>
+          <input id="indexInput" type="hidden" name="index" value="{{ session.get('index') }}"></input>
+          <input id = "matchRequest" type="hidden" name="destnetid" value="{{ g.user.netid }}"></input>
+        </div>
+
       </div>
     </div>
   </div>
+
 </div>
+
 <br>
+
 <div class="row mt-4">
   <div class="col-md-6 text-sm-right">
-              <!-- <form action="{{url_for('matching.findabuddy')}}" method="post">  -->
-                  <!-- <button class="btn btn-primary btn-sm">Match</button> -->
-                  <!-- <input id = "matchRequest" type="hidden" name="destnetid" value="{{ g.user.netid }}"></input>
-                  <input id="indexInput" type="hidden" name="index" value="{{ session.get('index') }}"></input> -->
     <button id="matchButton" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#requestSent" onClick="makeMatch()">Match</button>
-                  
-              <!-- </form>  -->
   </div>
   <div class="col-md-6 text-sm-left">
-                <!--<form action="{{url_for('matching.findabuddy')}}" method="get">-->
-                  <!-- Pass button -->
     <button id="passButton" class="btn btn-primary btn-sm" type="button" onClick="getBuddies()">Pass</button>
-            
-                <!--</form>-->
   </div>
 </div>
-<script src="../static/js/calfind.js"></script>
-<script src="../static/js/ajax.js"></script>
+
+<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
 <script>
 
   function setup() {
@@ -111,13 +93,14 @@
       days: [0, 1, 2, 3, 4, 5, 6],
       interval: 60,
       startTime: '06:00',
-      endTime: '24:00'
+      endTime: '24:00',
+      interactive: true,
     });
     const calendar = '{{ jsoncalendar|safe }}'
     const parsed = JSON.parse(calendar)
     console.log(calendar, parsed)
 
-    $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
+    $("#day-schedule").data("artsy.dayScheduleSelector").deserializeBuddies(parsed);
     $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
       console.log(selected);
     })

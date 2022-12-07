@@ -48,13 +48,13 @@
             Hello, {{ user.name }}
           </a>
           <p class="card-description mb-4">
-            Gender: {{ gender }} 
+            Gender: {{ gender }}
           </p>
           <p class="card-description mb-4">
             Bio: {{ user.bio }}
           </p>
           <p class="card-description mb-4">
-            Contact: {{ user.contact }} 
+            Contact: {{ user.contact }}
           </p>
           <p class="card-description mb-4">
             Level: {{ level }}
@@ -63,7 +63,7 @@
             Interests: {{ interests }}
           </p>
           <p class="card-description mb-4">
-            Additional Information: {{ user.addinfo }} 
+            Additional Information: {{ user.addinfo }}
           </p>
         </div>
 
@@ -73,29 +73,31 @@
 
 </div>
 {% endblock %}
-{% block scripts %}
-<link rel="stylesheet" type="text/css" href="../static/css/style.css">
-<script src="../static/js/caldash.js"></script>
-<script>
-  function setup() {
-    $("#day-schedule").dayScheduleSelector({
-      days: [0, 1, 2, 3, 4, 5, 6],
-      interval: 60,
-      startTime: '06:00',
-      endTime: '24:00'
-    });
-    const calendar = '{{ jsoncalendar|safe }}'
-    const parsed = JSON.parse(calendar)
-    console.log(calendar, parsed)
-    $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
-    $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
-      console.log(selected);
-    })
-    
-  }
 
-  $("document").ready(setup)
-</script>
-        
+{% block scripts %}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+  <script>
+    function setup() {
+      $("#day-schedule").dayScheduleSelector({
+        days: [0, 1, 2, 3, 4, 5, 6],
+        interval: 60,
+        startTime: '06:00',
+        endTime: '24:00',
+        interactive: false,
+      });
+
+      const calendar = '{{ jsoncalendar|safe }}'
+      const parsed = JSON.parse(calendar)
+      console.log(calendar, parsed)
+      $("#day-schedule").data("artsy.dayScheduleSelector").deserializeDashboard(parsed);
+      $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
+        console.log(selected);
+      })
+
+    }
+
+    $("document").ready(setup)
+  </script>
 {% endblock %}
 

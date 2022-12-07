@@ -78,7 +78,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="../static/js/ajax.js"></script>
+<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
   function setup() {
     setup_refresh([
@@ -88,10 +88,6 @@
     $("#Popup").on("hide.bs.modal", function() {
       $("#userPopup").html("");
     });
-
-    $("#toggleOld").click(
-
-    )
 
   }
   $('document').ready(setup);

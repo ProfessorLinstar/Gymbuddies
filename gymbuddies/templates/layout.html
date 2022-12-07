@@ -41,11 +41,8 @@
   <link id="pagestyle" href="../static/css/argon-dashboard.css" rel="stylesheet" />
   {% block links %}
     <!-- our style sheet-->
-    <link
-      rel="stylesheet"
-      href="../static/css/styles.css"
-    />
-    {% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  {% endblock %}
   </head>
 </head>
 

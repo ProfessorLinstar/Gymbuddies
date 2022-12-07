@@ -218,7 +218,7 @@
                         </div>
                         <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->
                         <div class="card-body p-3">
-                          <link rel="stylesheet" type="text/css" href="../static/css/style.css">
+                          <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
                           <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
                             <!--- <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> --->
                           <style>
@@ -247,7 +247,7 @@
     </div><!-- end of the container-->
   </section>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="../static/js/calprofile.js"></script>
+  <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
   <script>
     function setup() {
 
@@ -255,13 +255,14 @@
         days: [0, 1, 2, 3, 4, 5, 6],
         interval: 60,
         startTime: '06:00',
-        endTime: '24:00'
+        endTime: '24:00',
+        interactive: true,
       });
       const calendar = '{{ jsoncalendar|safe }}'
       const parsed = JSON.parse(calendar)
       console.log(calendar, parsed)
 
-      $("#day-schedule").data("artsy.dayScheduleSelector").deserialize(parsed);
+      $("#day-schedule").data("artsy.dayScheduleSelector").deserializeProfile(parsed);
       $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
         console.log(selected);
       })
