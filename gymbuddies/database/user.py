@@ -353,7 +353,7 @@ def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) 
     assert session is not None
     user = get_user(netid, session=session)
     blocked = user.blocked
-    if delnetid not in blocked and exists(netid):
+    if delnetid not in blocked and exists(delnetid) and delnetid != netid:
         blocked.append(delnetid)
 
 

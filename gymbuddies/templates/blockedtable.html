@@ -36,11 +36,9 @@
               <!-- Unblock button-->
               <div class="ms-auto text-end">
               <!--<form action="{{ url_for('matching.matched') }}" method="post">-->
-                  <button
-                    class="btn btn-link text-danger text-gradient px-3 mb-0"
-                    type="button"
-                    ><i class="fas fa-user-slash me-2">
-                    </i>Unblock</button>
+                  <button class="btn btn-link text-danger text-gradient px-3 mb-0" type="button" id="unblockButton" onClick="modifyBlocked('{{ user.netid }}')">
+                    <i class="fas fa-user-slash me-2" aria-hidden="true"></i> Unblock</button>
+
               <!--</form>-->
               </div>
             </td>
@@ -51,5 +49,24 @@
 
     </table>
   </div>
+  <script src="../static/js/ajax.js"></script>
 
+  <script>
+    // from buddies.html
+  // Submits a request when "Match" button is pressed
+  function modifyBlocked(delnetid) {
+    // let sessionindex = $('#indexInput').val(); 
+    $.ajax({
+      type: 'POST',
+      url: '/blockedtable',
+      data: {"delnetid": delnetid},
+      success: function(response) {
+        $("#blockedTable").html(response)
+      },
+      error: function(xhr, textstatus, errorthrown) {
+        console.log(xhr, textstatus, errorthrown)
+      }
+    })
+  }
+  </script>
 {% endif %}

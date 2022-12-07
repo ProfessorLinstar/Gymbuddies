@@ -152,6 +152,10 @@ def settings():
         blocknetid = request.form.get("netid")
         database.user.block_user(netid, blocknetid)
 
+        # perform refresh for the find a buddy page after having blocked a user
+        session["matches"] = database.matchmaker.find_matches(netid)
+        session["index"] = 0
+
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
 
@@ -175,7 +179,13 @@ def blockedtable():
         #     database.request.terminate(requestid)
         # else:
         #     print(f"Action not found! {action = }")
-        pass
+        delnetid = request.form.get("delnetid", "")
+        database.user.unblock_user(netid, delnetid)
+        
+        # perform refresh for the find a buddy page after having unblocked a user
+        session["matches"] = database.matchmaker.find_matches(netid)
+        session["index"] = 0
+
 
     elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
         return ""
