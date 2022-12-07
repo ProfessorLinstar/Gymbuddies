@@ -106,6 +106,7 @@ def _default_profile() -> Dict[str, Any]:
         "okbinary":
             True,
         "settings": {},
+        "blocked": []
     }
 
 
@@ -326,3 +327,32 @@ def get_lastupdated(netid: str, *, session: Optional[Session] = None) -> datetim
     does not exist."""
     assert session is not None
     return _get_column(session, netid, db.User.lastupdated)
+
+@db.session_decorator(commit=False)
+def get_blocked(netid: str, *, session: Optional[Session] = None) -> List[str]:
+    """returns list of all users who have been blocked by this user"""
+    assert Session is not None
+    return _get_column(session, netid, db.User.blocked)
+
+@db.session_decorator(commit=False)
+def is_blocked(netid: str, delnetid: str, *, session: Optional[Session] = None) -> bool:
+    """returns whether this user and the other user are blocked"""
+    assert Session is not None
+    blocked = _get_column(session, netid, db.User.blocked)
+    return delnetid in blocked
+
+@db.session_decorator(commit=True)
+def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) -> None:
+    """blocks this user. They can no longer appear on find a buddy and cannot send requests to you, nor accept request"""
+    assert Session is not None
+    blocked = _get_column(session, netid, db.User.blocked)
+    if delnetid not in blocked:
+        blocked.append(delnetid)
+
+@db.session_decorator(commit=True)
+def unblock_user(netid: str, delnetid: str, *, session: Optional[Session] = None) -> None:
+    """unblocks this user. Now they should be able to appear on find a buddy, rend requests to you, and accept requests"""
+    assert Session is not None
+    blocked = _get_column(session, netid, db.User.blocked)
+    if delnetid in blocked:
+        blocked.remove(delnetid)

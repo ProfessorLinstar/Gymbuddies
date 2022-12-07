@@ -15,15 +15,15 @@ bp = Blueprint("error", __name__, url_prefix="")
 
 class NoLoginError(Exception):
     """Exception raised in a data request if no user is currently logged in."""
-
     def __init__(self):
         super().__init__("No user is logged in.")
 
 
 
 @bp.app_errorhandler(database.request.RequestNotFound)
-def request_not_found(_):
+def request_not_found(ex):
     """Application error handler for when attempting to access a request that does not exist."""
+    traceback.print_exception(ex, file=sys.stderr)
     return render_template("error.html"), 410
 
 
@@ -32,6 +32,7 @@ def user_not_found(ex):
     """Application error handler for when attempting to access a user that does not exist. If the
     accessed user is currently logged in, then returns an authentication error code (401).
     Otherwise, returns a deleted-content error code (410)."""
+    traceback.print_exception(ex, file=sys.stderr)
 
     code = 410
     if ex.netid == session.get("netid", ""):
@@ -42,10 +43,11 @@ def user_not_found(ex):
 
 
 @bp.app_errorhandler(OperationalError)
-def sqlalchemy_operational_error(_):
+def sqlalchemy_operational_error(ex):
     """Application error handler for when sqlalchemy throws an operational error. These errors can
     occur randomly, and are generally outside of the client and application's control. Response
     should be to just continue normal function."""
+    traceback.print_exception(ex, file=sys.stderr)
 
     return render_template("error.html"), 404
 

@@ -380,6 +380,8 @@ class User(BASE):
     settings = Column(PickleType)  # Notification and account settings
     lastupdated = Column(PickleType)  # timestamp for last related database update
 
+    blocked = Column(MutableList.as_mutable(String)) # list of users who are blocked for this user
+
 
 class MappedUser(User):
     """An extension of the User class which casts each column to its respective Python type. Enables

@@ -175,13 +175,11 @@ def blockedtable():
     # matches = database.request.get_matches(netid)
 
     # GET BLOCKED!!!! REIMPLEMENT
-    blocked = database.request.get_blocked(netid)
-
-    users = [b.srcnetid if netid != b.srcnetid else b.destnetid for b in blocked]
-    users = [database.user.get_user(u) for u in users]
+    blocked = database.user.get_blocked(netid)
+    users = [database.user.get_user(block) for block in blocked]
     length = len(blocked)
 
     return render_template("blockedtable.html",
                            netid=netid,
-                           blockedusers=zip(blocked, users),
+                           blockedusers=users,
                            length=length)
