@@ -9,6 +9,36 @@ from . import schedule as db_schedule
 from . import request as db_request
 
 
+class UserAlreadyBlocked(Exception):
+    """Exception raised in API call if attempting to block a user with a netid who is already
+    blocked."""
+
+    delnetid: str
+
+    def __init__(self, delnetid: str):
+        self.delnetid = delnetid
+        super().__init__(f"User with netid '{delnetid}' already blocked.")
+
+
+class UserNotBlocked(Exception):
+    """Exception raised in API call if attempting to create a user with a netid already in the
+    database."""
+
+    delnetid: str
+
+    def __init__(self, delnetid: str):
+        self.delnetid = delnetid
+        super().__init__(f"User with netid '{delnetid}' already blocked.")
+
+class UserBlockedIsSelf(Exception):
+    """Exception raise in API call if attempting to block oneself."""
+
+    netid: str
+
+    def __init__(self, netid: str):
+        self.netid = netid
+        super().__init__(f"User with netid '{netid}' cannot block themself.")
+
 class UserAlreadyExists(Exception):
     """Exception raised in API call if attempting to create a user with a netid already in the
     database."""
@@ -127,6 +157,7 @@ def _update_user(session: Session,
     def postaction():
         user.lastupdated = datetime.now(timezone.utc)
         print(f"postaction for user {user.netid}:", user.lastupdated)
+
     session.info["postactions"].append(postaction)
     # user.lastupdated = datetime.now(timezone.utc)
 
@@ -342,8 +373,7 @@ def get_blocked(netid: str, *, session: Optional[Session] = None) -> List[str]:
 def is_blocked(netid: str, delnetid: str, *, session: Optional[Session] = None) -> bool:
     """returns whether this user and the other user are blocked"""
     assert session is not None
-    blocked = _get_column(session, netid, db.User.blocked)
-    return delnetid in blocked
+    return delnetid in _get_column(session, netid, db.User.blocked)
 
 
 @db.session_decorator(commit=True)
@@ -352,9 +382,20 @@ def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) 
     nor accept request"""
     assert session is not None
     user = get_user(netid, session=session)
-    blocked = user.blocked
-    if delnetid not in blocked and exists(delnetid) and delnetid != netid:
-        blocked.append(delnetid)
+
+    if delnetid == netid:
+        raise UserBlockedIsSelf(netid)
+    if delnetid in user.blocked:
+        raise UserAlreadyBlocked(delnetid)
+
+    deluser = get_user(delnetid, session=session)
+    request = db_request.get_active_pair(netid, delnetid)
+    if request is not None:
+        db_request._deactivate(session, request)
+
+    user.blocked.append(delnetid)
+    _update_user(session, user) # trigger update of lastupdated
+    _update_user(session, deluser)
 
 
 @db.session_decorator(commit=True)
@@ -363,9 +404,13 @@ def unblock_user(netid: str, delnetid: str, *, session: Optional[Session] = None
     and accept requests"""
     assert session is not None
     user = get_user(netid, session=session)
-    blocked = user.blocked
-    if delnetid in blocked:
-        blocked.remove(delnetid)
+
+    if delnetid not in user.blocked:
+        raise UserNotBlocked(delnetid)
+
+    user.blocked.remove(delnetid)
+    _update_user(session, user) # trigger update of lastupdated
+    _update_user(session, get_user(delnetid, session=session))
 
 
 @db.session_decorator(commit=True)
@@ -374,7 +419,7 @@ def recieve_notification_on(netid: str, *, session: Optional[Session] = None) ->
     assert session is not None
     user = get_user(netid, session=session)
     user.settings["notifications"] = True
-    
+
 
 @db.session_decorator(commit=True)
 def recieve_notification_off(netid: str, *, session: Optional[Session] = None) -> None:
@@ -390,4 +435,3 @@ def get_notification_status(netid: str, *, session: Optional[Session] = None) ->
     assert session is not None
     user = get_user(netid, session=session)
     return user.settings.get("notifications", False)
-    
