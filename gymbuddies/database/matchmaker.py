@@ -56,6 +56,17 @@ def find_matches(netid: str) -> List[str]:
         if src_user in rand_netids:
             banned_netids.append(src_user)
 
+    # do a hard filter on users that you have blocked
+    blocked_users = db_user.get_blocked(netid)
+    assert blocked_users is not None
+    for blocked_user in blocked_users:
+        if blocked_user in rand_netids:
+            banned_netids.append(blocked_user)
+
+    # TODO: do a hard filter on users that have blocked you
+    # HAVE TO REGENERATE DATABASE WITH NEW LIST TO ALLOW THIS
+
+
     temprandusers = randusers.copy()
     for user in temprandusers:
         # do a hard filter on users that are not open

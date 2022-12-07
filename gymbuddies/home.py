@@ -156,6 +156,10 @@ def settings():
         session["matches"] = database.matchmaker.find_matches(netid)
         session["index"] = 0
 
+        # update the database incoming and outgoing requests based on the block
+
+        # update your current matches based on the block
+
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)
 
