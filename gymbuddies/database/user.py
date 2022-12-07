@@ -335,7 +335,7 @@ def get_lastupdated(netid: str, *, session: Optional[Session] = None) -> datetim
 def get_blocked(netid: str, *, session: Optional[Session] = None) -> List[str]:
     """returns list of all users who have been blocked by this user"""
     assert Session is not None
-    return _get_column(session, netid, db.User.blocked)
+    blocked = _get_column(session, netid, db.User.blocked)
 
 
 @db.session_decorator(commit=False)
@@ -344,6 +344,7 @@ def is_blocked(netid: str, delnetid: str, *, session: Optional[Session] = None) 
     assert Session is not None
     blocked = _get_column(session, netid, db.User.blocked)
     return delnetid in blocked
+
 
 @db.session_decorator(commit=True)
 def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) -> None:
