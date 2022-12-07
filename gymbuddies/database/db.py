@@ -3,7 +3,7 @@
 import functools
 import os
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, IntFlag
 from typing import Tuple, Callable, ParamSpec, TypeVar, Dict, List, Any
 
@@ -61,10 +61,12 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
 
                 if commit:
                     session.commit()
+                    print("commit completed at", datetime.now(timezone.utc))
                 if session.info["postactions"]:
                     for post_action in session.info["postactions"]:
                         post_action()
                     session.commit()
+                    print("performing postactions: ", session.info["postactions"])
 
             return result
 
@@ -380,7 +382,7 @@ class User(BASE):
     settings = Column(PickleType)  # Notification and account settings
     lastupdated = Column(PickleType)  # timestamp for last related database update
 
-    blocked = Column(MutableList.as_mutable(String)) # list of users who are blocked for this user
+    blocked = Column(MutableList.as_mutable(PickleType)) # list of users who are blocked for this user
 
 
 class MappedUser(User):
@@ -400,6 +402,8 @@ class MappedUser(User):
 
     settings: Dict[str, Any]
     lastupdated: datetime
+
+    blocked: List[str]
 
 
 class Request(BASE):

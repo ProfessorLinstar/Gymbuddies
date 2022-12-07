@@ -44,6 +44,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "ejcho": {
             "netid": "ejcho",
@@ -64,6 +65,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "jasono": {
             "netid": "jasono",
@@ -84,6 +86,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "eyc2": {
             "netid": "eyc2",
@@ -104,6 +107,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "jsnow": {
             "netid": "jsnow",
@@ -124,6 +128,7 @@ def users():
             "okfemale": False,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "dtargaryen": {
             "netid": "dtargaryen",
@@ -144,6 +149,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "tlannister": {
             "netid": "tlannister",
@@ -164,6 +170,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "tgreyjoy": {
             "netid": "tgreyjoy",
@@ -184,6 +191,7 @@ def users():
             "okfemale": False,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "astark": {
             "netid": "astark",
@@ -204,6 +212,7 @@ def users():
             "okfemale": False,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "mtyrell": {
             "netid": "mtyrell",
@@ -224,6 +233,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "jbaratheon": {
             "netid": "jbaratheon",
@@ -244,6 +254,7 @@ def users():
             "okfemale": False,
             "okbinary": False,
             "settings": {},
+            "blocked": [],
         },
         "rstark": {
             "netid": "rstark",
@@ -264,6 +275,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "pbaelish": {
             "netid": "pbaelish",
@@ -284,6 +296,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "sstark": {
             "netid": "sstark",
@@ -304,6 +317,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "clannister": {
             "netid": "clannister",
@@ -324,6 +338,7 @@ def users():
             "okfemale": True,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "ltyrell": {
             "netid": "ltyrell",
@@ -344,6 +359,7 @@ def users():
             "okfemale": False,
             "okbinary": True,
             "settings": {},
+            "blocked": [],
         },
         "sbaratheon": {
             "netid": "sbaratheon",
@@ -364,6 +380,7 @@ def users():
             "okfemale": False,
             "okbinary": False,
             "settings": {},
+            "blocked": [],
         },
     }
     for datum in data.values():
@@ -385,16 +402,16 @@ def users():
 def requests():
     """Generates sample requests."""
     data = [
-        {
-            "srcnetid": "andywang",
-            "destnetid": "jasono",
-            "schedule": schedule_from_dayhours((1, 7)),
-        },
-        {
-            "srcnetid": "ejcho",
-            "destnetid": "andywang",
-            "schedule": schedule_from_dayhours((1, 8)),
-        },
+        # {
+        #     "srcnetid": "andywang",
+        #     "destnetid": "jasono",
+        #     "schedule": schedule_from_dayhours((1, 7)),
+        # },
+        # {
+        #     "srcnetid": "ejcho",
+        #     "destnetid": "andywang",
+        #     "schedule": schedule_from_dayhours((1, 8)),
+        # },
     ]
     for request in data:
         database.request.new(request["srcnetid"], request["destnetid"], request["schedule"])

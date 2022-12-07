@@ -126,10 +126,12 @@ def _update_user(session: Session,
 
     def postaction():
         user.lastupdated = datetime.now(timezone.utc)
+        print(f"postaction for user {user.netid}:", user.lastupdated)
     session.info["postactions"].append(postaction)
     # user.lastupdated = datetime.now(timezone.utc)
 
-    print("user.lastupdated:", user.lastupdated.timestamp())
+    if user.lastupdated is not None:
+        print("user.lastupdated:", user.lastupdated.timestamp())
 
     if update_schedule and kwargs.get("schedule") is not None:
         db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
