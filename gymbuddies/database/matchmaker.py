@@ -63,10 +63,6 @@ def find_matches(netid: str) -> List[str]:
         if blocked_user in rand_netids:
             banned_netids.append(blocked_user)
 
-    # TODO: do a hard filter on users that have blocked you
-    # HAVE TO REGENERATE DATABASE WITH NEW LIST TO ALLOW THIS
-
-
     temprandusers = randusers.copy()
     for user in temprandusers:
         # do a hard filter on users that are not open
@@ -183,7 +179,8 @@ def find_matches(netid: str) -> List[str]:
                 schedule_score += BLOCKS_IN_AN_HOUR
             i += BLOCKS_IN_AN_HOUR
         # do a hard filter where there are no schedule interactions
-        if schedule_score == 0:
+        # do a hard filter on users that have blocked you
+        if schedule_score == 0 or (netid in user.blocked):
             del user_compatabilities[user.netid]
         else:
             # continue with matchmaking ranking algorithm
