@@ -1,6 +1,6 @@
 .schedule-table {
   width: 100%;
-  min-width: 400px;
+  min-width: 500px;
   table-layout: fixed;
   border: none;
   border-collapse: collapse;
@@ -32,6 +32,10 @@ td {
   color: white;
   white-space: nowrap;
   border-left: 5px solid #FFFFFF;
+}
+
+.schedule-rows td {
+  font-size: 13px;
 }
 
 .schedule-rows td[data-selected] {

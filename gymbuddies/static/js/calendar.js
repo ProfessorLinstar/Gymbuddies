@@ -89,13 +89,39 @@
    */
   function getSelection(plugin, $a, $b) {
     var $slots, small, large, temp;
-    if (!$a.hasClass('time-slot') || !$b.hasClass('time-slot') ||
-        ($a.data('day') != $b.data('day'))) { return []; }
+    if (!$a.hasClass('time-slot') || !$b.hasClass('time-slot')) { return []; }
+    $slots = plugin.$el.find('.time-slot[data-day="' + $b.data('day') + '"]');
+    large = $slots.index($b);
+
     $slots = plugin.$el.find('.time-slot[data-day="' + $a.data('day') + '"]');
-    small = $slots.index($a); large = $slots.index($b);
+    small = $slots.index($a);
     if (small > large) { temp = small; small = large; large = temp; }
+    console.log("in getSelection: ", small, large);
     return $slots.slice(small, large + 1);
   }
+
+  function getBounds (plugin, $center) {
+    var $slots, index, start, end;
+    $slots = plugin.$el.find('.time-slot[data-day="' + $center.data('day') + '"]');
+    index = $slots.index($center);
+    console.log("center", $center)
+    console.log("slots", $slots)
+    $center.html("")
+    for (end = index+1; end < $slots.length && $slots.eq(end).is('[data-selected]'); end++) {
+      console.log("end is", end)
+      $slots.eq(end).html("")
+    }
+    for (start = index-1; start >= 0 && $slots.eq(start).is('[data-selected]'); start--) {
+      console.log("start is", start)
+      $slots.eq(start).html("")
+    }
+    return [
+      start == index-1 ? null : [$slots.eq(start+1), $slots.eq(index-1)], 
+      end == index+1 ? null : [$slots.eq(index+1), $slots.eq(end-1)]
+    ];
+  }
+
+
 
   DayScheduleSelector.prototype.attachEvents = function () {
     if (!this.options.interactive) {
@@ -105,41 +131,60 @@
 
     var plugin = this
       , options = this.options
-      , $slots;
+      , $start
+      , $end;
 
     this.$el.on('click', '.time-slot', function () {
-      var day = $(this).data('day');
       if (!plugin.isSelecting()) {  // if we are not in selecting mode
-        if (isSlotSelected($(this))) { plugin.deselect($(this)); }
-        else {  // then start selecting
+
+        if (isSlotSelected($(this))) {
+          plugin.deselect($(this));
+          for (const bounds of getBounds(plugin, $(this))) {
+            if (bounds !== null) bounds[0].html(formatSlotTime(...bounds))
+          }
+        } else {  // then start selecting
           plugin.$selectingStart = $(this);
           $(this).attr('data-selecting', 'selecting');
           plugin.$el.find('.time-slot').attr('data-disabled', 'disabled');
-          plugin.$el.find('.time-slot[data-day="' + day + '"]').removeAttr('data-disabled');
+          plugin.$el.find('.time-slot[data-day="' + $(this).data('day') + '"]').removeAttr('data-disabled');
+          $(this).html(formatSlotTime($(this), $(this)));
         }
+
       } else {  // if we are in selecting mode
-        if (day == plugin.$selectingStart.data('day')) {  // if clicking on the same day column
-          // then end of selection
-          plugin.$el.find('.time-slot[data-day="' + day + '"]').filter('[data-selecting]')
-            .attr('data-selected', 'selected').removeAttr('data-selecting');
-          plugin.$el.find('.time-slot').removeAttr('data-disabled');
-          plugin.$el.trigger('selected.artsy.dayScheduleSelector', [getSelection(plugin, plugin.$selectingStart, $(this))]);
-          plugin.$selectingStart = null;
-        }
+
+        plugin.$el.find('.time-slot[data-day="' + plugin.$selectingStart.data('day') + '"]').filter('[data-selecting]')
+          .attr('data-selected', 'selected').removeAttr('data-selecting');
+        plugin.$el.find('.time-slot').removeAttr('data-disabled');
+        plugin.$el.trigger('selected.artsy.dayScheduleSelector', [getSelection(plugin, plugin.$selectingStart, $(this))]);
+        console.log("getBounds:", getBounds(plugin, plugin.$selectingStart));
+
+        [$start, $end] = getBounds(plugin, plugin.$selectingStart);
+        $start = $start !== null ? $start[0] : plugin.$selectingStart;
+        $end = $end !== null ? $end[1] : plugin.$selectingStart;
+        $start.html(formatSlotTime($start, $end));
+
+        plugin.$selectingStart = null;
+
       }
     });
 
     this.$el.on('mouseover', '.time-slot', function () {
       var $slots, day, start, end, temp;
       if (plugin.isSelecting()) {  // if we are in selecting mode
+        day = $(this).data('day');
+        $slots = plugin.$el.find('.time-slot[data-day="' + day + '"]');
+        end = $slots.index(this);
+
         day = plugin.$selectingStart.data('day');
         $slots = plugin.$el.find('.time-slot[data-day="' + day + '"]');
         $slots.filter('[data-selecting]').removeAttr('data-selecting');
         start = $slots.index(plugin.$selectingStart);
-        end = $slots.index(this);
-        if (end < 0) return;  // not hovering on the same column
+
+
         if (start > end) { temp = start; start = end; end = temp; }
         $slots.slice(start, end + 1).attr('data-selecting', 'selecting');
+
+        plugin.$selectingStart.html(formatSlotTime($slots.eq(start), $slots.eq(end)));
       }
     });
   };
@@ -187,6 +232,26 @@
     return selections;
   };
 
+  function getSlotHours($slot) {
+    let time = $slot.data('time').replace(/:00/g, "");
+    if (time[0] == "0") {
+      time = time.slice(1);
+    }
+    return time - 0;
+  }
+
+  function hoursToAmPm(hours) {
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    return [(hours != 0 ? hours : 12), ampm];
+  }
+
+  function formatSlotTime($a, $b) {
+    const start = hoursToAmPm(getSlotHours($a));
+    const end = hoursToAmPm((getSlotHours($b) + 1) % 24);
+    return start[0] + '-' + end.join(' ');
+  }
+
   /**
    * Deserialize the schedule and render on the UI
    * @public
@@ -200,6 +265,7 @@
    *      6: []
    *    }
    */
+
   DayScheduleSelector.prototype.deserializeDashboard = function (schedule) {
     var plugin = this, i;
     $.each(schedule, function(d, ds) {
@@ -258,10 +324,16 @@
     $.each(schedule, function(d, ds) {
       var $slots = plugin.$el.find('.time-slot[data-day="' + d + '"]');
       $.each(ds, function(_, s) {
+        let start, end;
         for (i = 0; i < $slots.length; i++) {
           if ($slots.eq(i).data('time') >= s[1]) { break; }
-          if ($slots.eq(i).data('time') >= s[0]) { plugin.select($slots.eq(i)); }
+          if ($slots.eq(i).data('time') >= s[0]) {
+            end = $slots.eq(i);
+            if (!start) start = end;
+            plugin.select(end);
+          }
         }
+        if (start) start.html(formatSlotTime(start, end));
       })
     });
   };

@@ -158,8 +158,9 @@ def settings():
         session["index"] = 0
 
         # update the database requests and matches based on the block
-        p = Process(target=update_requests_matches, args=(netid, blocknetid))
-        p.start()
+        update_requests_matches(netid, blocknetid)
+        # p = Process(target=update_requests_matches, args=(netid, blocknetid))
+        # p.start()
 
     context: Dict[str, Any] = {}
     common.fill_schedule(context, user.schedule)

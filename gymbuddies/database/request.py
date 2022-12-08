@@ -255,7 +255,7 @@ def new(srcnetid: str,
     if all(not x for x in schedule):
         raise InvalidRequestSchedule
 
-    if any(x and (s == db.ScheduleStatus.MATCHED or d != db.ScheduleStatus.AVAILABLE)
+    if any(x and (s & db.ScheduleStatus.MATCHED or d != db.ScheduleStatus.AVAILABLE)
            for x, s, d in zip(schedule, db_user.get_schedule(srcnetid, session=session),
                               db_user.get_schedule(destnetid, session=session))):
         raise ConflictingRequestSchedule
