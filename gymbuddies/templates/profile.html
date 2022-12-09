@@ -75,14 +75,14 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="name" class="form-control-label">Name</label>
+                <label for="name" class="form-control-label">Name*</label>
                 <p class="text-xs">(as you want it to appear on people's feeds)</p>
                 <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  required >
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                <label for="contact" class="form-control-label">Contact</label>
+                <label for="contact" class="form-control-label">Contact*</label>
                 <p class="text-xs">(shared with your buddy when you match. Must have +1 code for SMS) </p>
                 <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" required>
               </div>
@@ -93,7 +93,7 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label for="bio" class="form-control-label">Bio</label>
+                <label for="bio" class="form-control-label">Bio*</label>
                 <p class="text-xs">Write a short bio introducing yourself!</p>
                 <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}"  required>
               </div>
@@ -101,7 +101,7 @@
           </div>
           <div class = "row pb-3">
             <div class = "col md-4">
-              <label for="level">Level</label>
+              <label for="level">Level*</label>
               <select name="level" id="cars" class="form-control" placeholder="Level">
                 <option id="level0" value="0" {{ "selected" if (user.level == 0 ) else "" }}>Beginner</option>
                 <option id="level1" value="1" {{ "selected" if (user.level == 1 ) else "" }}>Intermediate</option>
@@ -125,7 +125,7 @@
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">
-                <label for="interests" class="form-control-label">Interests</label>
+                <label for="interests" class="form-control-label">Interests*</label>
                   <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="Gaining Mass"
                     name="interests"
@@ -160,7 +160,7 @@
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label for="gender" class="form-control-label">Gender</label>
+                <label for="gender" class="form-control-label">Gender*</label>
                   <div class="custom-control custom-checkbox">
                     <input type="radio" class="custom-control-input" id="nonbinary"
                     name="gender"
@@ -183,7 +183,7 @@
             </div>
           </div>
           <hr class="horizontal dark">
-          <p class="text-uppercase text-sm">Match Preferences</p>
+          <p class="text-uppercase text-sm">Match Preferences*</p>
           <div class = "row">
             <div class = "col md-4">
               <label for = "levelpreference">Buddy's Level</label>
@@ -196,7 +196,7 @@
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label for="gender" class="form-control-label">Gender Preference</label>
+                <label for="gender" class="form-control-label">Gender Preference*</label>
                   <div class="custom-control custom-checkbox">
                     <input type="checkbox" id ="okbinary" name="okbinary" class="custom-control-input" {{ "checked" if user.okbinary else "" }}>
                     <label class="custom-control-label" for="okbinary">Non-Binary</label>

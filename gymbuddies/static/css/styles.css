@@ -101,10 +101,10 @@ body {
 #navbar {
   background-color: #4666CE !important;
 }
-
+/* 
 .hide {
   display: none;
-}
+} */
 
 .wait, .wait * {
    cursor:wait !important;
