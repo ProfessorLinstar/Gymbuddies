@@ -7,7 +7,7 @@ from . import db
 from . import user as db_user
 from . import schedule as db_schedule
 
-LIMIT = 10
+LIMIT = 5
 
 
 class RequestAlreadyExists(Exception):
@@ -22,7 +22,7 @@ class RequestAlreadyExists(Exception):
         super().__init__(f"Active request between '{srcnetid}' and '{destnetid}' already exists.")
 
 
-class InvalidRequestSchedule(Exception):
+class EmptyRequestSchedule(Exception):
     """Exception raised in API call if request made with empty schedule."""
 
     def __init__(self):
@@ -253,7 +253,7 @@ def new(srcnetid: str,
             raise db_user.UserNotFound(netid)
 
     if all(not x for x in schedule):
-        raise InvalidRequestSchedule
+        raise EmptyRequestSchedule
 
     if any(x and (s & db.ScheduleStatus.MATCHED or d != db.ScheduleStatus.AVAILABLE)
            for x, s, d in zip(schedule, db_user.get_schedule(srcnetid, session=session),

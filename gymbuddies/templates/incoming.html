@@ -33,21 +33,6 @@
             <p>Request Successfully Sent!</p>
           </div>
 
-          <!-- <div class="row">
-
-            <div class="col-md-6 text-sm-center" >
-              <form action="{{url_for('matching.outgoing')}}" method="get">
-                <button type="submit" id="goToMatches" class="btn btn-primary btn-sm" onClick="sendReq">See Outgoing Requests</button>
-              </form>
-            </div>
-            <div class="col-md-6 text-sm-center">
-              <form action="{{url_for('matching.findabuddy')}}" method="get">
-                <button type="submit" id="searchAgain" class="btn btn-primary btn-sm">Keep Looking</button>
-              </form>
-            </div>
-
-          </div> -->
-
         </div>
       </div>
 
@@ -80,6 +65,27 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
+  function makeRequest() {
+    const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
+    let destnetid = $('#modifyRequest').val();
+    let requestid = $('#requestId').val();
+    // let sessionindex = $('#indexInput').val();
+    console.log(destnetid)
+    if (request != null)
+      request.abort();
+
+    $("body").addClass("wait");
+    $.ajax({
+      type: 'POST',
+      url: '/matching/incomingmodal',
+      data: { "destnetid": destnetid, "jsoncalendar": JSON.stringify(calendar), "requestid":requestid },
+      success: function() { $("#requestSent").modal("show"); },
+      error: function(xhr, textstatus, errorthrown) { showError(xhr); },
+      complete: function() { $("body").removeClass("wait"); },
+    })
+    $("#Popup").modal("hide");
+  }
+
   function setup() {
     setup_refresh([
       ["{{ url_for('matching.incomingtable') }}", "#requestTable"],
