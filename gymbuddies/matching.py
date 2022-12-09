@@ -57,6 +57,8 @@ def findabuddy():
         session["index"] = 0
         matches = session.get("matches", None)
         index = session.get("index", None)
+        no_matches = True
+        return render_template("findabuddy.html", netid=netid, no_matches=no_matches)
 
     no_matches = False
 
@@ -108,12 +110,14 @@ def buddies():
         session["index"] = 0
         matches = session.get("matches", None)
         index = session.get("index", None)
+        no_matches = True
+        return render_template("buddies.html", netid=netid, no_matches=no_matches)
 
     no_matches = False
 
     if len(matches) == 0:
         no_matches = True
-        return render_template("buddies.html", netid=netid, no_matches=no_matches)
+        return render_template("findabuddy.html", netid=netid, no_matches=no_matches)
 
     
 
