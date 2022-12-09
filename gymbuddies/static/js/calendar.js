@@ -9,6 +9,7 @@
     this.$selectingStart = null;
   }
 
+
   DayScheduleSelector.DEFAULTS = {
     days        : [0, 1, 2, 3, 4, 5, 6],  // Sun - Sat
     startTime   : '00:00',                // HH:mm format
@@ -22,6 +23,8 @@
                     '</table>'                                  +
                   '<div>',
     interactive : true,
+    restricted  : true,
+    drag        : false,
   };
 
   /**
@@ -104,15 +107,11 @@
     var $slots, index, start, end;
     $slots = plugin.$el.find('.time-slot[data-day="' + $center.data('day') + '"]');
     index = $slots.index($center);
-    console.log("center", $center)
-    console.log("slots", $slots)
     $center.html("")
     for (end = index+1; end < $slots.length && $slots.eq(end).is('[data-selected]'); end++) {
-      console.log("end is", end)
       $slots.eq(end).html("")
     }
     for (start = index-1; start >= 0 && $slots.eq(start).is('[data-selected]'); start--) {
-      console.log("start is", start)
       $slots.eq(start).html("")
     }
     return [
@@ -121,21 +120,36 @@
     ];
   }
 
+  function finalizeSelection(plugin, $target) {
+    var $start, $end;
+    plugin.$el.find('.time-slot[data-day="' + plugin.$selectingStart.data('day') + '"]').filter('[data-selecting]')
+      .attr('data-selected', 'selected').removeAttr('data-selecting');
+    plugin.$el.find('.time-slot').removeAttr('data-disabled');
+    plugin.$el.trigger('selected.artsy.dayScheduleSelector', [getSelection(plugin, plugin.$selectingStart, $target)]);
+    console.log("getBounds:", getBounds(plugin, plugin.$selectingStart));
+
+    [$start, $end] = getBounds(plugin, plugin.$selectingStart);
+    $start = $start !== null ? $start[0] : plugin.$selectingStart;
+    $end = $end !== null ? $end[1] : plugin.$selectingStart;
+    $start.html(formatSlotTime($start, $end));
+
+    plugin.$selectingStart = null;
+  }
+
 
 
   DayScheduleSelector.prototype.attachEvents = function () {
-    if (!this.options.interactive) {
+    var plugin = this
+      , options = this.options;
+
+    if (!options.interactive) {
       this.$el.find(".schedule-rows").find("td").css("cursor", "auto");
       return;
     }
 
-    var plugin = this
-      , options = this.options
-      , $start
-      , $end;
-
     this.$el.on('click', '.time-slot', function () {
       if (!plugin.isSelecting()) {  // if we are not in selecting mode
+        if (options.restricted && !$(this).is("[data-initial]")) return;
 
         if (isSlotSelected($(this))) {
           plugin.deselect($(this));
@@ -147,24 +161,13 @@
           $(this).attr('data-selecting', 'selecting');
           plugin.$el.find('.time-slot').attr('data-disabled', 'disabled');
           plugin.$el.find('.time-slot[data-day="' + $(this).data('day') + '"]').removeAttr('data-disabled');
-          $(this).html(formatSlotTime($(this), $(this)));
+
+          if (!options.drag) finalizeSelection(plugin, $(this));
+          else $(this).html(formatSlotTime($(this), $(this)));
         }
 
       } else {  // if we are in selecting mode
-
-        plugin.$el.find('.time-slot[data-day="' + plugin.$selectingStart.data('day') + '"]').filter('[data-selecting]')
-          .attr('data-selected', 'selected').removeAttr('data-selecting');
-        plugin.$el.find('.time-slot').removeAttr('data-disabled');
-        plugin.$el.trigger('selected.artsy.dayScheduleSelector', [getSelection(plugin, plugin.$selectingStart, $(this))]);
-        console.log("getBounds:", getBounds(plugin, plugin.$selectingStart));
-
-        [$start, $end] = getBounds(plugin, plugin.$selectingStart);
-        $start = $start !== null ? $start[0] : plugin.$selectingStart;
-        $end = $end !== null ? $end[1] : plugin.$selectingStart;
-        $start.html(formatSlotTime($start, $end));
-
-        plugin.$selectingStart = null;
-
+        finalizeSelection(plugin, $(this));
       }
     });
 
@@ -269,7 +272,6 @@
   DayScheduleSelector.prototype.deserializeDashboard = function (schedule) {
     var plugin = this, i;
     $.each(schedule, function(d, ds) {
-      console.log("testing", d, ds)
       var $slots = plugin.$el.find('.time-slot[data-day="' + d + '"]');
       $.each(ds, function(_, s) {
         for (i = 0; i < $slots.length; i++) {
@@ -286,15 +288,13 @@
             if (end[0] == "0") {
               end = end.slice(1)
             }
-            console.log(start, end)
             plugin.select($slots.eq(i)); 
             let matchName = s[2]
             if ($slots.eq(i).data('time') == s[0]) { 
-              console.log("Hello", s[2])
               if (s[2].length > 8) {
                 matchName = s[2].slice(0, 5) + "..."
               }
-              $slots.eq(i).append(matchName + " " +  start + "-" + end);
+              $slots.eq(i).append(matchName + " " +  hoursToAmPm(start)[0] + "-" + hoursToAmPm(end).join(' '));
             }
           }
         }
@@ -307,14 +307,17 @@
     $.each(schedule, function(d, ds) {
       var $slots = plugin.$el.find('.time-slot[data-day="' + d + '"]');
       $.each(ds, function(_, s) {
+        let start, end;
         for (i = 0; i < $slots.length; i++) {
           if ($slots.eq(i).data('time') >= s[1]) { break; }
           if ($slots.eq(i).data('time') >= s[0]) { 
-            plugin.initialize($slots.eq(i));
-            if (s[2] == 1) {
-              plugin.select($slots.eq(i)); 
-            }  } // set events to initialize
+            end = $slots.eq(i);
+            if (!start) start = end;
+            plugin.initialize(end);
+            if (s[2] == 1) plugin.select(end); 
+          } // set events to initialize
         }
+        if (start && s[2] == 1) start.html(formatSlotTime(start, end));
       })
     });
   };

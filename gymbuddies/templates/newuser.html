@@ -257,6 +257,8 @@
         startTime: '06:00',
         endTime: '24:00',
         interactive: true,
+        restricted: false,
+        drag: true,
       });
       const calendar = '{{ jsoncalendar|safe }}'
       const parsed = JSON.parse(calendar)

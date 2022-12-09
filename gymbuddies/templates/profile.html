@@ -108,7 +108,7 @@
                 <option id="level2" value="2" {{ "selected" if (user.level == 2 ) else "" }}>Advanced</option>
               </select>
             </div>
-            
+
           </div>
 
           <div class="row">
@@ -250,7 +250,7 @@
             <div class="col-md-6">
               <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar">Update</button>
             </div>
-           
+
             <span class="text-sm" id="lastUpdated"></span>
             </div>
           </div>
@@ -271,19 +271,22 @@
       startTime: '06:00',
       endTime: '24:00',
       interactive: true,
+      restricted: false,
+      drag: true,
     });
     const calendar = '{{ jsoncalendar|safe }}'
     const parsed = JSON.parse(calendar)
     console.log(calendar, parsed)
 
     $("#day-schedule").data("artsy.dayScheduleSelector").deserializeProfile(parsed);
+
     $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
       console.log(selected);
     })
 
     $('#updateCalendar').click( function() {
       const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
-      
+
       $("body").addClass("wait");
       $.ajax({
         type:'POST',
