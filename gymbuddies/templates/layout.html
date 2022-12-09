@@ -281,7 +281,7 @@
 
     <div class="container-fluid py-4">
 
-      <div class="modal fade bd-example-modal-lg" id="errorPopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+      <div class="modal fade bd-example-modal-lg" id="errorPopup" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
         <div class="modal-dialog modal-md" role="document">
           <div class="modal-content">
 
@@ -291,7 +291,7 @@
 
             <div class="modal-body">
               <div class="card-body">
-                Oops! An error occurred. Please refresh. <span id="errorPopupSpan"></span>
+                <span id="errorPopupSpan"></span>
               </div>
             </div>
 
@@ -333,6 +333,32 @@
       }
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
+
+
+    $('.modal').on('hidden.bs.modal', function(event) {
+      $(this).removeClass( 'fv-modal-stack' );
+      $('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) - 1 );
+    });
+
+    $('.modal').on('shown.bs.modal', function (event) {
+      // keep track of the number of open modals
+      if ( typeof( $('body').data( 'fv_open_modals' ) ) == 'undefined' ) {
+        $('body').data( 'fv_open_modals', 0 );
+      }
+
+      // if the z-index of this modal has been set, ignore.
+      if ($(this).hasClass('fv-modal-stack')) {
+        return;
+      }
+
+      $(this).addClass('fv-modal-stack');
+      $('body').data('fv_open_modals', $('body').data('fv_open_modals' ) + 1 );
+      $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
+      $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack'); 
+
+    });
+
+
   </script>
 
   <!-- Github buttons

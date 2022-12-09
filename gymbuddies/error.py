@@ -4,27 +4,59 @@ import sys
 import traceback
 
 from flask import Blueprint
-from flask import session
-from flask import render_template
+from flask import session, request
+from flask import redirect, url_for
 from sqlalchemy.exc import OperationalError
-from werkzeug.exceptions import HTTPException
+from werkzeug.exceptions import HTTPException, InternalServerError
 from . import database
+from .database import db
+
+RETRY_NUM = 10
 
 bp = Blueprint("error", __name__, url_prefix="")
 
 
 class NoLoginError(Exception):
     """Exception raised in a data request if no user is currently logged in."""
+
     def __init__(self):
         super().__init__("No user is logged in.")
 
 
+@bp.app_errorhandler(database.request.EmptyRequestSchedule)
+def empty_request(ex):
+    """Application handler for when attempting to create a request with no selected times."""
+    traceback.print_exception(ex, file=sys.stderr)
+    return {
+        "error": type(ex).__name__,
+        "message": "Please select at least one time.",
+        "noRefresh": True
+    }, 400
+
+@bp.app_errorhandler(database.request.RequestStatusMismatch)
+def request_mismatch(ex: database.request.RequestStatusMismatch):
+    """Application handler for when attempting to perform an operation on a request with a
+    mismatched request status."""
+    traceback.print_exception(ex, file=sys.stderr)
+    expected = db.RequestStatus(ex.expected).to_readable().lower()
+    return {
+        "error": type(ex).__name__,
+        "message": f"The selected request has changed is no longer {expected}.",
+        "noRefresh": True
+    }, 410
+
+
+    
 
 @bp.app_errorhandler(database.request.RequestNotFound)
 def request_not_found(ex):
     """Application error handler for when attempting to access a request that does not exist."""
     traceback.print_exception(ex, file=sys.stderr)
-    return render_template("error.html"), 410
+    return {
+        "error": type(ex).__name__,
+        "message": "The selected request no longer exists. Please refresh.",
+        "noRefresh": False
+    }, 410
 
 
 @bp.app_errorhandler(database.user.UserNotFound)
@@ -34,12 +66,15 @@ def user_not_found(ex):
     Otherwise, returns a deleted-content error code (410)."""
     traceback.print_exception(ex, file=sys.stderr)
 
-    code = 410
     if ex.netid == session.get("netid", ""):
         session.clear()
-        code = 401
+        return redirect(url_for("home.index"))
 
-    return render_template("error.html"), code
+    return {
+        "error": type(ex).__name__,
+        "message": "The requested user no longer exists. Please refresh.",
+        "noRefresh": False
+    }, 410
 
 
 @bp.app_errorhandler(OperationalError)
@@ -49,7 +84,18 @@ def sqlalchemy_operational_error(ex):
     should be to just continue normal function."""
     traceback.print_exception(ex, file=sys.stderr)
 
-    return render_template("error.html"), 404
+    session["retries"] = session.get("retries", 0) + 1
+    if session["retries"] < RETRY_NUM:
+        return redirect(request.url)
+    else:
+        session["retries"] = 0
+
+    return {
+        "error": type(ex).__name__,
+        "message": "The database seems to be done. Please refresh.",
+        "noRefresh": False
+    }, 500
+
 
 @bp.app_errorhandler(Exception)
 def internal_server_error(ex: Exception):
@@ -62,5 +108,4 @@ def internal_server_error(ex: Exception):
         code = ex.code
         return ex.get_body(), code
     else:
-        code = 500
-        return render_template("error.html"), code
+        raise InternalServerError
