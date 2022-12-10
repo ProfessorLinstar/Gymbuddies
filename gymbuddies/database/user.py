@@ -150,11 +150,12 @@ def _update_user(session: Session,
     """Updates the attributes of 'user' according to 'kwargs'. """
     assert "netid" not in kwargs and "lastupdated" not in kwargs
 
-    print("_update_user: using these kwargs: ", kwargs)
+    print(f"_update_user: {schedule_as_availability = }; using these kwargs: ", kwargs)
     print("columns:", db.User.__table__.columns)
 
-    schedule = kwargs.pop("schedule", None)
-    if schedule_as_availability and schedule is not None:
+    if schedule_as_availability and "schedule" in kwargs:
+        schedule = kwargs.pop("schedule")
+        print("updating schedule availability!", schedule)
         schedulemod.add_schedule_status(user.netid,
                                         schedule,
                                         db.ScheduleStatus.AVAILABLE,
