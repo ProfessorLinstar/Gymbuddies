@@ -22,7 +22,7 @@
             <img src="../static/pictures/running.png" width="60%">
           </div>
           <div class="row" style="text-align:center">
-            <p>Request Successfully Sent!</p>
+            <p><span id="requestSentSpan"></span></p>
           </div>
 
         </div>
@@ -40,6 +40,7 @@
     <!-- </div> -->
     </div>
 </div>
+
 <div class="row">
   <div class="col-12 mb-4">
     <div class="card">
@@ -72,11 +73,39 @@
       type: 'POST',
       url: '/matching/incomingmodal',
       data: { "destnetid": destnetid, "jsoncalendar": JSON.stringify(calendar), "requestid":requestid },
-      success: function() { $("#requestSent").modal("show"); },
+      success: function() {
+        $("#requestSentSpan").html("Request successfully sent!");
+        $("#requestSent").modal("show");
+      },
       error: function(xhr, textstatus, errorthrown) { showError(xhr); },
       complete: function() { $("body").removeClass("wait"); },
     })
     $("#Popup").modal("hide");
+  }
+
+  function acceptRequest(requestid) {
+    if (postrequest != null) {
+      console.log("postrequest already in process! breaking!");
+      return;
+    }
+
+    $("body").addClass("wait");
+    postrequest = $.ajax({
+      type: "POST",
+      data: { "requestid": requestid, "action": "accept" },
+      url: "{{ url_for('matching.incomingtable') }}",
+      success: function(response) {
+        $("#requestSentSpan").html("Match successfully finalized!");
+        $("#requestSent").modal("show");
+        refresh(response, "#requestTable", false);
+      },
+      complete: function() {
+        postrequest = null;
+        $("body").removeClass("wait");
+      },
+      error: error,
+      timeout: ajaxtimeout
+    })
   }
 
   function setup() {

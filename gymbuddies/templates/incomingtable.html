@@ -21,12 +21,12 @@
           <button
             id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
             type="button"
-            onClick="act('{{ url_for('matching.incomingtable')}}', '#requestTable', {{ requests[i].requestid }}, 'reject')"}
+            onClick="act('{{ url_for('matching.incomingtable')}}', '#requestTable', {{ requests[i].requestid }}, 'reject')"
           ><i class="far fa-trash-alt me-2"></i>Delete</button>
           <button
             class="btn btn-link text-dark px-3 mb-0"
             type="submit"
-            onClick="act('{{ url_for('matching.incomingtable')}}', '#requestTable', {{ requests[i].requestid }}, 'accept')"}
+            onClick="acceptRequest({{ requests[i].requestid }})"
           ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
         </div>
 
