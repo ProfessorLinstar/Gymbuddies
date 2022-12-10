@@ -30,7 +30,7 @@
           ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
         </div>
 
-        <button id="wtf" type="button" class="btn btn-block mb-3" data-toggle="modal" data-target="#Popup"
+        <button type="button" class="btn btn-block mb-3" data-bs-toggle="modal" data-bs-target="#Popup"
           onClick="getCard({{ requests[i].requestid }}, '{{ url_for('matching.incomingmodal') }}')">
           See Request Details
         </button>
@@ -41,7 +41,3 @@
   {% endfor %}
 </ul>
 {% endif %}
-
-<!-- <script> -->
-<!--   $("#wtf").click(function() { $("#Popup").modal("show"); console.log("wtf"); }) -->
-<!-- </script> -->
