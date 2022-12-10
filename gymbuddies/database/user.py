@@ -126,7 +126,7 @@ def _default_profile() -> Dict[str, Any]:
             ),
         "schedule": [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
         "open":
-            False,
+            True,
         "gender":
             db.Gender.NONBINARY,
         "okmale":

@@ -1,7 +1,9 @@
 """Error pages blueprint"""
 
 import functools
+import random
 import sys
+import time
 import traceback
 from typing import Callable, ParamSpec, TypeVar
 
@@ -17,6 +19,7 @@ P = ParamSpec('P')
 R = TypeVar('R')
 
 RETRY_NUM = 10
+TIMEOUT = .005 # seconds
 
 bp = Blueprint("error", __name__, url_prefix="")
 
@@ -148,8 +151,11 @@ def sqlalchemy_operational_error(ex):
     traceback.print_exception(ex, file=sys.stderr)
 
     session["retries"] = session.get("retries", 0) + 1
-    print(f"retrying operational error {session['retries']}th time.")
+    print(f"got operational error for the {session['retries']}th time.")
     if session["retries"] < RETRY_NUM:
+        duration = TIMEOUT * (1 + random.random()) * 2**session["retries"] 
+        print(f"sleeping for {duration = } before retry {session['retries'] = }")
+        time.sleep(duration)
         return redirect(request.url, code=302 if request.method != "POST" else 307)
     else:
         session["retries"] = 0
