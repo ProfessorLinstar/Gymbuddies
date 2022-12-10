@@ -355,6 +355,16 @@
   };
 
 
+  DayScheduleSelector.prototype.clear = function () {
+    var plugin = this;
+    var $slots = plugin.$el.find('.time-slot');
+    $slots.removeAttr('data-disabled');
+    $slots.removeAttr('data-selecting');
+    $slots.removeAttr('data-selected');
+    $slots.html('');
+    plugin.$selectingStart = null;
+  }
+
 
 
 
