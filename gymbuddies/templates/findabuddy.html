@@ -87,17 +87,17 @@
     let destnetid = $('#matchRequest').val();
     let sessionindex = $('#indexInput').val();
     console.log(destnetid)
-    if (request != null)
-      request.abort();
+    if (postrequest != null)
+      return;
 
     $("body").addClass("wait");
-    $.ajax({
+    postrequest = $.ajax({
       type: 'POST',
       url: '/matching/findabuddy',
       data: { "destnetid": destnetid, "index": sessionindex, "jsoncalendar": JSON.stringify(calendar) },
       success: function() { $("#requestSent").modal("show"); },
       error: function(xhr, textstatus, errorthrown) { showError(xhr); },
-      complete: function() { $("body").removeClass("wait"); }
+      complete: function() { postrequest = null; $("body").removeClass("wait"); }
     })
   }
 
@@ -110,12 +110,12 @@
   function getBuddies() {
     let sessionindex = $('#indexInput').val();
     console.log(sessionindex)
-    if (request != null)
-      request.abort();
+    if (getrequest != null)
+      getrequest.abort();
 
 
     $("body").addClass("wait");
-    request = $.ajax({
+    getrequest = $.ajax({
         type: 'GET',
         data: { "index": sessionindex },
         url: '/matching/buddies',

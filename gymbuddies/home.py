@@ -28,7 +28,7 @@ def dashboard():
     """Homepage for logged-in user."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     # if random.random() < .9:
     #     raise OperationalError(None, None, None)
@@ -84,7 +84,7 @@ def profile():
     """Profile page for editing user information."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     user = database.user.get_user(netid)
 
@@ -119,7 +119,7 @@ def newuser():
     """Profile page for creating new user information."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     user = database.user.get_user(netid)
 
@@ -144,7 +144,7 @@ def settings():
     """Settings page."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     user = database.user.get_user(netid)
 
@@ -200,7 +200,7 @@ def blockedtable():
     """Returns table of blocked people."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     if request.method == "POST":
         # requestid = int(request.form.get("requestid", "0"))

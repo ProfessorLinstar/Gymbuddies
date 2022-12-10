@@ -34,6 +34,12 @@ class RequestAlreadyExists(Exception):
         self.destnetid = destnetid
         super().__init__(f"Active request between '{srcnetid}' and '{destnetid}' already exists.")
 
+class PreviousRequestInactive(Exception):
+    """Exception raised in API call if attempting to modify a request that is no longer active."""
+
+    def __init__(self):
+        super().__init__("Previous request to be modified must be active.")
+
 
 class RequestToSelf(Exception):
     """Exception raised in API call if request made to oneself."""
@@ -284,9 +290,10 @@ def new(srcnetid: str,
     prevrequestid: int = 0
     if prev is not None:
         prevrequestid = prev.requestid
-        _deactivate(session, prev)
+        if not _deactivate(session, prev):
+            raise PreviousRequestInactive
 
-    elif get_active_pair(srcnetid, destnetid, session=session):
+    if get_active_pair(srcnetid, destnetid, session=session):
         raise RequestAlreadyExists(srcnetid, destnetid)
 
     if any(x and (s & db.ScheduleStatus.MATCHED or d != db.ScheduleStatus.AVAILABLE)
@@ -376,12 +383,16 @@ def _terminate(session: Session, request: db.MappedRequest) -> None:
     request.deletetimestamp = datetime.now(timezone.utc)
 
 
-def _deactivate(session: Session, request: db.MappedRequest) -> None:
-    """Deactivates a request if it is active."""
+def _deactivate(session: Session, request: db.MappedRequest) -> bool:
+    """Deactivates a request if it is active. Returns True if a request was deactivated, and False
+    otherwise."""
     if request.status == db.RequestStatus.PENDING:
         _reject(session, request)
     elif request.status == db.RequestStatus.FINALIZED:
         _terminate(session, request)
+    else:
+        return False
+    return True
 
 
 @db.session_decorator(commit=True)

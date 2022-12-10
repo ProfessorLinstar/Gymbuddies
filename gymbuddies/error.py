@@ -19,7 +19,7 @@ P = ParamSpec('P')
 R = TypeVar('R')
 
 RETRY_NUM = 10
-TIMEOUT = .005 # seconds
+TIMEOUT = .005  # seconds
 
 bp = Blueprint("error", __name__, url_prefix="")
 
@@ -48,6 +48,28 @@ def guard_decorator() -> Callable[[Callable[P, R]], Callable[P, R]]:
     return decorator
 
 
+@bp.app_errorhandler(NoLoginError)
+def no_login_error(ex):
+    """Application handler for when a data request is made but no user is logged in."""
+    traceback.print_exception(ex, file=sys.stderr)
+    return {
+        "error": type(ex).__name__,
+        "message": "You've been logged out. Please refresh.",
+        "noRefresh": False,
+    }, 401
+
+
+@bp.app_errorhandler(database.request.PreviousRequestInactive)
+def previous_request_inactive(ex):
+    """Application handler for when attempting to create a request with no selected times."""
+    traceback.print_exception(ex, file=sys.stderr)
+    return {
+        "error": type(ex).__name__,
+        "message": "The selected request is no longer active.",
+        "noRefresh": True,
+    }, 400
+
+
 @bp.app_errorhandler(database.request.ConflictingRequestSchedule)
 def conflicting_request_schedule(ex: database.request.ConflictingRequestSchedule):
     """Application handler for when attempting to create a request with no selected times."""
@@ -66,7 +88,7 @@ def request_to_blocked_user(ex: database.request.RequestToBlockedUser):
     traceback.print_exception(ex, file=sys.stderr)
     netid = session.get("netid", "")
     if ex.blocker != netid:
-        blocker = ex.blocker 
+        blocker = ex.blocker
         blocked = "You have"
     else:
         blocker = "you"
@@ -91,7 +113,7 @@ def request_already_exists(ex: database.request.RequestAlreadyExists):
 
 
 @bp.app_errorhandler(database.request.EmptyRequestSchedule)
-def empty_request(ex):
+def empty_request_schedule(ex):
     """Application handler for when attempting to create a request with no selected times."""
     traceback.print_exception(ex, file=sys.stderr)
     return {
@@ -102,7 +124,7 @@ def empty_request(ex):
 
 
 @bp.app_errorhandler(database.request.RequestStatusMismatch)
-def request_mismatch(ex: database.request.RequestStatusMismatch):
+def request_status_mismatch(ex: database.request.RequestStatusMismatch):
     """Application handler for when attempting to perform an operation on a request with a
     mismatched request status."""
     traceback.print_exception(ex, file=sys.stderr)
@@ -153,7 +175,7 @@ def sqlalchemy_operational_error(ex):
     session["retries"] = session.get("retries", 0) + 1
     print(f"got operational error for the {session['retries']}th time.")
     if session["retries"] < RETRY_NUM:
-        duration = TIMEOUT * (1 + random.random()) * 2**session["retries"] 
+        duration = TIMEOUT * (1 + random.random()) * 2**session["retries"]
         print(f"sleeping for {duration = } before retry {session['retries'] = }")
         time.sleep(duration)
         return redirect(request.url, code=302 if request.method != "POST" else 307)

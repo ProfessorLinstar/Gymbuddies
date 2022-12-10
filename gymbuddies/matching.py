@@ -11,7 +11,7 @@ from flask import Blueprint
 from flask import render_template, redirect, url_for
 from flask import session, g, request
 from .error import NoLoginError
-from . import common
+from . import common, error
 from . import database
 from . import sendsms
 from .database import db
@@ -20,11 +20,12 @@ bp = Blueprint("matching", __name__, url_prefix="/matching")
 
 
 @bp.route("/findabuddy", methods=("GET", "POST"))
+@error.guard_decorator()
 def findabuddy():
     # get the current user in the session
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     if request.method == "POST":
         destnetid = request.form["destnetid"]
@@ -90,11 +91,12 @@ def findabuddy():
 
 
 @bp.route("/buddies", methods=["GET"])
+@error.guard_decorator()
 def buddies():
     """get the current user in the session"""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     # implement the roundtable format of getting matches
     sess_index = request.args.get("index")
@@ -153,16 +155,18 @@ def buddies():
 
 
 @bp.route("/incoming", methods=("GET",))
+@error.guard_decorator()
 def incoming():
     """Page for incoming requests."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     return render_template("incoming.html", netid=netid)
 
 
 @bp.route("/incomingtable", methods=("GET", "POST"))
+@error.guard_decorator()
 def incomingtable():
     """Table for incoming requests."""
 
@@ -217,41 +221,13 @@ def incomingtable():
 
 
 
-# def incomingmodal():
-#     """Modal for incoming requests."""
-#     netid: str = session.get("netid", "")
-#     if not netid:
-#         return redirect(url_for("auth.login"))
-
-#     print("processing an incoming modal request!")
-
-#     # TODO: handle errors when database is not available
-#     # requests = database.request.get_active_incoming(netid)
-#     requestid = request.args.get("requestid", "0")
-#     req = database.request.get_request(int(requestid))
-
-#     user = database.user.get_user(req.srcnetid)
-#     # create schedule with combined...current events show up gray?
-#     jsoncalendar = common.schedule_to_json(req.schedule)
-#     level = db.Level(user.level).to_readable()
-#     interests = db.interests_to_readable(user.interests)
-
-#     print(f"returning card with info for request {requestid = }")
-
-#     return render_template("incomingmodal.html",
-#                            netid=netid,
-#                            req=req,
-#                            user=user,
-#                            jsoncalendar=jsoncalendar,
-#                            level=level,
-#                            interests=interests)
-
 @bp.route("/incomingmodal", methods=["GET","POST"])
+@error.guard_decorator()
 def incomingmodal():
     """Modal for incoming requests."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     print("processing an incoming modal request!")
 
@@ -305,20 +281,22 @@ def incomingmodal():
 
 
 @bp.route("/outgoing", methods=["GET"])
+@error.guard_decorator()
 def outgoing():
     """Page for viewing outgoing requests."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
     return render_template("outgoing.html", netid=netid)
 
 
 @bp.route("/outgoingtable", methods=["POST", "GET"])
+@error.guard_decorator()
 def outgoingtable():
     """Page for viewing outgoing requests."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        raise NoLoginError
 
     # TODO: put reject handler into shared helper function
     requestid = int(request.form.get("requestid", "0"))
@@ -345,21 +323,23 @@ def outgoingtable():
 
 
 @bp.route("/matched", methods=("GET",))
+@error.guard_decorator()
 def matched():
     """Page for finding matched."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     return render_template("matched.html", netid=netid)
 
 
 @bp.route("/matchedtable", methods=("GET", "POST"))
+@error.guard_decorator()
 def matchedtable():
     """Page for finding matched."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        raise NoLoginError
 
     if request.method == "POST":
         requestid = int(request.form.get("requestid", "0"))
@@ -401,6 +381,7 @@ def matchedtable():
                            length=length)
 
 @bp.route("/matchedmodal", methods=["GET","POST"])
+@error.guard_decorator()
 def matchedmodal():
     """Modal for modifying matches."""
     print("processing a modifying match request!")
@@ -462,11 +443,12 @@ def matchedmodal():
                            requestid = requestid)
 
 @bp.route("/historytable", methods=("GET", "POST"))
+@error.guard_decorator()
 def historytable():
     """HTML for matches history table"""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        raise NoLoginError
 
     if common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
         return ""

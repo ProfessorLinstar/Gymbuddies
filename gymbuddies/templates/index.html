@@ -28,33 +28,32 @@
     {% endblock %}
   </head>
 </head>
+
 <body class="g-sidenav-show   bg-gray-100">
   <section id = "login-background" class="vh-100">
     <div class="container-fluid  py-5 h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col col-xl-7">
           <div class="card" style="border-radius: 1rem;">
-                <div class="card-body p-4 p-lg-5 text-black">
-  
-                  
-                    <div class="d-flex mb-3 pb-1" style="justify-content:center;">
-                      <img src="../static/pictures/biglogo.png" width="30%" alt="GymBuddies logo">
-                    </div>
-  
-                    <h5 class="fw-normal mb-3 pb-3" style="letter-spacing:1px;text-align:center;">Sign into your account</h5>
-  
-                    <div class="d-flex pt-1 mb-4 justify-content-center">
-                      <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-primary" type="button" >Login</a>
-                    </div>
-                    <div class="d-flex pt-1 mb-4 justify-content-center">
-                      <a href="{{ url_for('auth.signup') }}" class="btn btn-lg btn-primary" type="button">Sign Up</a>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                      <a href="{{ url_for('master.show') }}">Master Debug</a>
-                    </div>
+            <div class="card-body p-4 p-lg-5 text-black">
+
+                <div class="d-flex mb-3 pb-1" style="justify-content:center;">
+                  <img src="../static/pictures/biglogo.png" width="30%" alt="GymBuddies logo">
                 </div>
-              
-            
+
+                <h5 class="fw-normal mb-3 pb-3" style="letter-spacing:1px;text-align:center;">Sign into your account</h5>
+
+                <div class="d-flex pt-1 mb-4 justify-content-center">
+                  <a href="{{ url_for('auth.login') }}" class="btn btn-lg btn-primary" type="button" >Login</a>
+                </div>
+                <div class="d-flex pt-1 mb-4 justify-content-center">
+                  <a href="{{ url_for('auth.signup') }}" class="btn btn-lg btn-primary" type="button">Sign Up</a>
+                </div>
+                <div class="d-flex justify-content-center">
+                  <a href="{{ url_for('master.show') }}">Master Debug</a>
+                </div>
+
+            </div>
           </div>
         </div>
       </div>
