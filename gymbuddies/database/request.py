@@ -410,7 +410,7 @@ def modify(requestid: int,
 
 
 @db.session_decorator(commit=True)
-def modifymatch(requestid: int,
+def modify_match(requestid: int,
                 netid: str,
                 schedule: List[db.ScheduleStatus] | List[int],
                 *,

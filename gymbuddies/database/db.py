@@ -290,10 +290,10 @@ def schedule_to_events(schedule: List[int] | List[ScheduleStatus]) -> List[List[
 
     blocks: List[List[TimeBlock]] = [[]]
     for t, status in enumerate(schedule):
-        if (status != ScheduleStatus.AVAILABLE or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
+        if (not (status & ScheduleStatus.AVAILABLE) or t % NUM_DAY_BLOCKS == 0) and blocks[-1]:
             blocks[-1].append(TimeBlock(t))
             blocks.append([])
-        if status == ScheduleStatus.AVAILABLE and not blocks[-1]:
+        if status & ScheduleStatus.AVAILABLE and not blocks[-1]:
             blocks[-1].append(TimeBlock(t))
 
     if blocks[-1]:

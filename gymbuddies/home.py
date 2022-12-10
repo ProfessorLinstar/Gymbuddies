@@ -14,7 +14,6 @@ from .database import db
 bp = Blueprint("home", __name__, url_prefix="")
 
 @bp.route("/")
-@error.guard_decorator()
 def index():
     """Default page for the Gymbuddies web application. Redirects to user home page if logged in."""
     if session.get("netid"):

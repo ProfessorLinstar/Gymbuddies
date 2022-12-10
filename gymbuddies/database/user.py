@@ -30,6 +30,7 @@ class UserNotBlocked(Exception):
         self.delnetid = delnetid
         super().__init__(f"User with netid '{delnetid}' already blocked.")
 
+
 class UserBlockedIsSelf(Exception):
     """Exception raise in API call if attempting to block oneself."""
 
@@ -38,6 +39,7 @@ class UserBlockedIsSelf(Exception):
     def __init__(self, netid: str):
         self.netid = netid
         super().__init__(f"User with netid '{netid}' cannot block themself.")
+
 
 class UserAlreadyExists(Exception):
     """Exception raised in API call if attempting to create a user with a netid already in the
@@ -89,14 +91,14 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> None:
 def update(netid: str,
            *,
            session: Optional[Session] = None,
-           update_schedule: bool = True,
+           schedule_as_availability: bool = True,
            **kwargs) -> None:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
     _update_user(session,
                  get_user(netid, session=session),
-                 update_schedule=update_schedule,
+                 schedule_as_availability=schedule_as_availability,
                  **kwargs)
 
 
@@ -143,13 +145,21 @@ def _default_profile() -> Dict[str, Any]:
 def _update_user(session: Session,
                  user: db.MappedUser,
                  /,
-                 update_schedule: bool = True,
+                 schedule_as_availability: bool = True,
                  **kwargs) -> None:
     """Updates the attributes of 'user' according to 'kwargs'. """
     assert "netid" not in kwargs and "lastupdated" not in kwargs
 
     print("_update_user: using these kwargs: ", kwargs)
     print("columns:", db.User.__table__.columns)
+
+    schedule = kwargs.pop("schedule", None)
+    if schedule_as_availability and schedule is not None:
+        schedulemod.add_schedule_status(user.netid,
+                                        schedule,
+                                        db.ScheduleStatus.AVAILABLE,
+                                        session=session)
+
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         print("updating this: ", k, v)
         setattr(user, k, v)
@@ -164,9 +174,6 @@ def _update_user(session: Session,
     if user.lastupdated is not None:
         print("user.lastupdated:", user.lastupdated.timestamp())
 
-    if update_schedule and kwargs.get("schedule") is not None:
-        schedulemod.update_schedule(user.netid, user.schedule, session=session, update_user=False)
-
 
 @db.session_decorator(commit=True)
 def delete(netid: str, *, session: Optional[Session] = None) -> None:
@@ -175,8 +182,9 @@ def delete(netid: str, *, session: Optional[Session] = None) -> None:
     assert session is not None
 
     requestmod.delete_all(netid)
-    schedulemod.update_schedule(netid, [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
-                                session=session)
+    schedulemod.remove_schedule_status(netid, [True] * db.NUM_WEEK_BLOCKS,
+                                       db.ScheduleStatus(~0),
+                                       session=session)
     session.delete(get_user(netid, session=session))
 
 
@@ -394,7 +402,7 @@ def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) 
         requestmod._deactivate(session, request)
 
     user.blocked.append(delnetid)
-    _update_user(session, user) # trigger update of lastupdated
+    _update_user(session, user)  # trigger update of lastupdated
     _update_user(session, deluser)
 
 
@@ -409,7 +417,7 @@ def unblock_user(netid: str, delnetid: str, *, session: Optional[Session] = None
         raise UserNotBlocked(delnetid)
 
     user.blocked.remove(delnetid)
-    _update_user(session, user) # trigger update of lastupdated
+    _update_user(session, user)  # trigger update of lastupdated
     _update_user(session, get_user(delnetid, session=session))
 
 
