@@ -246,6 +246,9 @@
 {% block scripts%}
 <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
 <script>
+
+  let postrequest = null;
+
   function setup() {
 
     $("#day-schedule").dayScheduleSelector({
@@ -270,8 +273,11 @@
     $('#updateCalendar').click( function() {
       const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
 
+      if (postrequest !== null)
+        return;
+
       $("body").addClass("wait");
-      $.ajax({
+      postrequest = $.ajax({
         type:'POST',
         url:'/profile',
         data: {"update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
@@ -287,6 +293,7 @@
           })
         },
         complete: function(response) {
+          postrequest = null;
           $("body").removeClass("wait");
         }
       })
