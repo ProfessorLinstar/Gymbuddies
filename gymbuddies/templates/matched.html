@@ -1,14 +1,6 @@
+{% set current = "matched" %}
 {% extends 'layout.html' %}
 {% block title %}Matches{% endblock %}
-{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
-  {% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
-  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.incoming') }}">{% endblock %}
-  {% block classmat %}<a class="nav-link active" href="{{ url_for('matching.matched') }}">{% endblock %}
-  {% block classprof %}<a class="nav-link " href="{{ url_for('home.profile') }}">{% endblock %}
-  {% block classsett %}<a class="nav-link" href="{{ url_for('home.settings') }}">{% endblock %}
-  {% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
-{% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Matches</li>{% endblock %}
-{% block pagename_large %} Matches{% endblock %}
 
 {% block content %}
 <!-- Popup indicating that the request was successful -->
