@@ -81,10 +81,10 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> None:
     if not netid:
         raise InvalidNetid
 
-    profile: Dict[str, Any] = _default_profile()
     user = db.User(netid=netid)
-    _update_user(session, user, **(profile | kwargs))
-    session.add(user)
+
+    profile: Dict[str, Any] = _default_profile()
+    _update_user(session, user, schedule_as_availability=False, **(profile | kwargs))
 
 
 @db.session_decorator(commit=True)
@@ -157,9 +157,9 @@ def _update_user(session: Session,
         schedule = kwargs.pop("schedule")
         print("updating schedule availability!", schedule)
         schedulemod.update_schedule_status(user.netid,
-                                        schedule,
-                                        db.ScheduleStatus.AVAILABLE,
-                                        session=session)
+                                           schedule,
+                                           db.ScheduleStatus.AVAILABLE,
+                                           session=session)
 
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         print("updating this: ", k, v)
