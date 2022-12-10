@@ -156,7 +156,7 @@ def _update_user(session: Session,
     if schedule_as_availability and "schedule" in kwargs:
         schedule = kwargs.pop("schedule")
         print("updating schedule availability!", schedule)
-        schedulemod.add_schedule_status(user.netid,
+        schedulemod.update_schedule_status(user.netid,
                                         schedule,
                                         db.ScheduleStatus.AVAILABLE,
                                         session=session)
