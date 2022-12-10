@@ -28,7 +28,7 @@ NUM_DAY_BLOCKS = 24 * NUM_HOUR_BLOCKS
 NUM_WEEK_BLOCKS = 7 * NUM_DAY_BLOCKS
 DAY_NAMES = ("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, execution_options={"isolation_level": "SERIALIZABLE"})
 
 
 def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P, R]]:
@@ -44,8 +44,10 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
     NOTE: if a function might not require 'session.commit', it is permissible to set 'commit' to
     False, and then call 'session.commit' manually where required. Beware, however, that this may
     result in multiple 'session.commit' calls, if, for instance, this function is called by another
-    function decorated by '@session_decorator(commit=True)'. Because of this, it is recommended that
-    any such function use 'commit=True' instead of manually calling 'session.commit'."""
+    function decorated by '@session_decorator(commit=True)'. This prevents a single API call from
+    behaving like a single transaction, breaking the serializability guarantees of this API. Because
+    of this, it is recommended that any such function use 'commit=True' instead of manually calling
+    'session.commit'."""
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
 

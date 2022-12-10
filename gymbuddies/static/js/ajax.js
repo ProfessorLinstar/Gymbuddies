@@ -19,6 +19,7 @@ function showError(jqXHR) {
   $("#errorPopup").modal({"backdrop": backdrop});
   $("#errorPopupSpan").html(message);
   $("#errorPopup").modal("show");
+  lastrefreshed = 0;
 }
 
 

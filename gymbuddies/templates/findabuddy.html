@@ -127,6 +127,7 @@
   // sets up the page 
   function setup() {
     getBuddies();
+    $("#requestSent").on("hidden.bs.modal", getBuddies);
   }
   $('document').ready(setup);
 </script>

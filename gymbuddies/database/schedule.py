@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from . import db
-from . import user as db_user
+from . import user as usermod
 
 
 @db.session_decorator(commit=False)
@@ -26,6 +26,12 @@ def update_schedule(netid: str,
     assert session is not None
     assert len(schedule) == db.NUM_WEEK_BLOCKS
 
+    # make change to the User table if necessary
+    # acquire the user lock here so that the schedule table can be modified safely
+    print(f"update_schedule: trying to update user: {netid = }, {update_user = }")
+    if update_user:
+        usermod.update(netid, session=session, schedule=schedule, update_schedule=False)
+
     # make change to the Schedule Table
     session.query(db.Schedule).filter(db.Schedule.netid == netid).delete()
     for i, status in enumerate(schedule):
@@ -39,10 +45,6 @@ def update_schedule(netid: str,
 
         session.add(block)
 
-    # make change to the User table if necessary
-    print(f"update_schedule: trying to update user: {netid = }, {update_user = }")
-    if update_user:
-        db_user.update(netid, session=session, schedule=schedule, update_schedule=False)
 
 
 @db.session_decorator(commit=True)
@@ -57,7 +59,7 @@ def add_schedule_status(
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is marked for the corresponding TimeBlock. If False, then the element is ignored."""
 
-    schedule: List[int] = db_user.get_schedule(netid, session=session)
+    schedule: List[int] = usermod.get_schedule(netid, session=session)
 
     for i, m in enumerate(marked):
         if m:
@@ -78,7 +80,7 @@ def remove_schedule_status(
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is unmarked for the corresponding TimeBlock. if False, then the element is ignored."""
 
-    schedule: List[int] = db_user.get_schedule(netid, session=session)
+    schedule: List[int] = usermod.get_schedule(netid, session=session)
     for i, m in enumerate(marked):
         if m:
             schedule[i] &= ~status

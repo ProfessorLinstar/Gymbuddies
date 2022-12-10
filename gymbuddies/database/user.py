@@ -5,8 +5,8 @@ from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import func
 from . import db
-from . import schedule as db_schedule
-from . import request as db_request
+from . import schedule as schedulemod
+from . import request as requestmod
 
 
 class UserAlreadyBlocked(Exception):
@@ -165,7 +165,7 @@ def _update_user(session: Session,
         print("user.lastupdated:", user.lastupdated.timestamp())
 
     if update_schedule and kwargs.get("schedule") is not None:
-        db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
+        schedulemod.update_schedule(user.netid, user.schedule, session=session, update_user=False)
 
 
 @db.session_decorator(commit=True)
@@ -174,8 +174,8 @@ def delete(netid: str, *, session: Optional[Session] = None) -> None:
     Does nothing if the user does not exist."""
     assert session is not None
 
-    db_request.delete_all(netid)
-    db_schedule.update_schedule(netid, [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
+    requestmod.delete_all(netid)
+    schedulemod.update_schedule(netid, [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
                                 session=session)
     session.delete(get_user(netid, session=session))
 
@@ -389,9 +389,9 @@ def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) 
         raise UserAlreadyBlocked(delnetid)
 
     deluser = get_user(delnetid, session=session)
-    request = db_request.get_active_pair(netid, delnetid)
+    request = requestmod.get_active_pair(netid, delnetid)
     if request is not None:
-        db_request._deactivate(session, request)
+        requestmod._deactivate(session, request)
 
     user.blocked.append(delnetid)
     _update_user(session, user) # trigger update of lastupdated
