@@ -1,25 +1,17 @@
+{% set current = "findabuddy" %}
 {% extends 'layout.html' %}
-{% block title %}Search{% endblock %}
-{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
-  {% block classfind %}<a class="nav-link active" href="{{ url_for('matching.findabuddy') }}">{% endblock %}
-  {% block classreq %}<a class="nav-link " href="{{ url_for('matching.incoming') }}">{% endblock %}
-  {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
-  {% block classprof %}<a class="nav-link " href="{{ url_for('home.profile') }}">{% endblock %}
-  {% block classsett %}<a class="nav-link" href="{{ url_for('home.settings') }}">{% endblock %}
-  {% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
-{% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Find a Buddy</li>{% endblock %}
-{% block pagename_large %} Find a Buddy {% endblock %}
+{% block title %}Find a Buddy{% endblock %}
 
 {% block content %}
-<!-- Popup indicating that the request was successful -->
 
+<!-- Popup indicating that the request was successful -->
 <div class="modal fade bd-example-modal-lg" id="requestSent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-md" role="document">
     <div class="modal-content">
 
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle">Success</h5>
-        <button type="button" id="closeButton" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" id="closeButton" class="close" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -42,8 +34,8 @@
               </form>
             </div>
             <div class="col-md-6 text-sm-center">
-              <form action="{{url_for('matching.findabuddy')}}" method="get">
-                <button type="submit" id="searchAgain" class="btn btn-primary btn-sm">Keep Looking</button>
+              
+                <button type="button" id="searchAgain" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Keep Looking</button>
               </form>
             </div>
 
@@ -87,17 +79,17 @@
     let destnetid = $('#matchRequest').val();
     let sessionindex = $('#indexInput').val();
     console.log(destnetid)
-    if (request != null)
-      request.abort();
+    if (postrequest != null)
+      return;
 
     $("body").addClass("wait");
-    $.ajax({
+    postrequest = $.ajax({
       type: 'POST',
       url: '/matching/findabuddy',
       data: { "destnetid": destnetid, "index": sessionindex, "jsoncalendar": JSON.stringify(calendar) },
       success: function() { $("#requestSent").modal("show"); },
       error: function(xhr, textstatus, errorthrown) { showError(xhr); },
-      complete: function() { $("body").removeClass("wait"); }
+      complete: function() { postrequest = null; $("body").removeClass("wait"); }
     })
   }
 
@@ -110,12 +102,12 @@
   function getBuddies() {
     let sessionindex = $('#indexInput').val();
     console.log(sessionindex)
-    if (request != null)
-      request.abort();
+    if (getrequest != null)
+      getrequest.abort();
 
 
     $("body").addClass("wait");
-    request = $.ajax({
+    getrequest = $.ajax({
         type: 'GET',
         data: { "index": sessionindex },
         url: '/matching/buddies',
@@ -127,6 +119,8 @@
   // sets up the page 
   function setup() {
     getBuddies();
+    $("#requestSent").on("hidden.bs.modal", getBuddies);
+    $("#searchAgain").on("click", getBuddies);
   }
   $('document').ready(setup);
 </script>

@@ -4,9 +4,12 @@ from flask import Blueprint
 from flask import session, g
 from flask import request
 from flask import render_template, redirect, url_for
-from . import common
+from . import common, error
 from . import database
 from .database import db
+
+# import random
+# from sqlalchemy.exc import OperationalError
 
 bp = Blueprint("home", __name__, url_prefix="")
 
@@ -19,11 +22,15 @@ def index():
 
 
 @bp.route("/dashboard")
+@error.guard_decorator()
 def dashboard():
     """Homepage for logged-in user."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
+
+    # if random.random() < .9:
+    #     raise OperationalError(None, None, None)
 
     user = database.user.get_user(netid)  # can access this in jinja template with {{ user }}
     interests = database.user.get_interests_string(netid)
@@ -71,11 +78,12 @@ def dashboard():
 
 
 @bp.route("/profile", methods=["GET", "POST"])
+@error.guard_decorator()
 def profile():
     """Profile page for editing user information."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     user = database.user.get_user(netid)
 
@@ -97,6 +105,7 @@ def profile():
 
 
 @bp.route("/profileupdated", methods=["GET"])
+@error.guard_decorator()
 def profileupdated():
     """Updated profile message."""
     time: str = request.args.get("lastupdated", "")
@@ -104,11 +113,12 @@ def profileupdated():
 
 
 @bp.route("/newuser", methods=["GET", "POST"])
+@error.guard_decorator()
 def newuser():
     """Profile page for creating new user information."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     user = database.user.get_user(netid)
 
@@ -128,11 +138,12 @@ def newuser():
 
 
 @bp.route("/settings", methods=["GET", "POST"])
+@error.guard_decorator()
 def settings():
     """Settings page."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     user = database.user.get_user(netid)
 
@@ -149,7 +160,7 @@ def settings():
         print(request.form.get("blockinghere", 0) != "")
 
     if request.method == "POST" and request.form.get("blockinghere", "") == "true":
-        blocknetid = request.form.get("netid")
+        blocknetid = request.form.get("netid", "")
         database.user.block_user(netid, blocknetid)
 
         # perform refresh for the find a buddy page after having blocked a user
@@ -183,11 +194,12 @@ def update_requests_matches(netid, blocknetid):
             database.request.terminate(match.requestid)
 
 @bp.route("/blockedtable", methods=["GET", "POST"])
+@error.guard_decorator()
 def blockedtable():
     """Returns table of blocked people."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("home.index"))
 
     if request.method == "POST":
         # requestid = int(request.form.get("requestid", "0"))

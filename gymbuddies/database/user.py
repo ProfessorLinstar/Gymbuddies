@@ -5,8 +5,8 @@ from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import func
 from . import db
-from . import schedule as db_schedule
-from . import request as db_request
+from . import schedule as schedulemod
+from . import request as requestmod
 
 
 class UserAlreadyBlocked(Exception):
@@ -30,6 +30,7 @@ class UserNotBlocked(Exception):
         self.delnetid = delnetid
         super().__init__(f"User with netid '{delnetid}' already blocked.")
 
+
 class UserBlockedIsSelf(Exception):
     """Exception raise in API call if attempting to block oneself."""
 
@@ -38,6 +39,7 @@ class UserBlockedIsSelf(Exception):
     def __init__(self, netid: str):
         self.netid = netid
         super().__init__(f"User with netid '{netid}' cannot block themself.")
+
 
 class UserAlreadyExists(Exception):
     """Exception raised in API call if attempting to create a user with a netid already in the
@@ -79,24 +81,24 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> None:
     if not netid:
         raise InvalidNetid
 
-    profile: Dict[str, Any] = _default_profile()
     user = db.User(netid=netid)
-    _update_user(session, user, **(profile | kwargs))
-    session.add(user)
+
+    profile: Dict[str, Any] = _default_profile()
+    _update_user(session, user, schedule_as_availability=False, **(profile | kwargs))
 
 
 @db.session_decorator(commit=True)
 def update(netid: str,
            *,
            session: Optional[Session] = None,
-           update_schedule: bool = True,
+           schedule_as_availability: bool = True,
            **kwargs) -> None:
     """Attempts to update the profile information of of a user with netid with the profile provided
     by **kwargs. Does nothing if the user does not exist."""
     assert session is not None
     _update_user(session,
                  get_user(netid, session=session),
-                 update_schedule=update_schedule,
+                 schedule_as_availability=schedule_as_availability,
                  **kwargs)
 
 
@@ -126,7 +128,7 @@ def _default_profile() -> Dict[str, Any]:
             ),
         "schedule": [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
         "open":
-            False,
+            True,
         "gender":
             db.Gender.NONBINARY,
         "okmale":
@@ -143,13 +145,22 @@ def _default_profile() -> Dict[str, Any]:
 def _update_user(session: Session,
                  user: db.MappedUser,
                  /,
-                 update_schedule: bool = True,
+                 schedule_as_availability: bool = True,
                  **kwargs) -> None:
     """Updates the attributes of 'user' according to 'kwargs'. """
     assert "netid" not in kwargs and "lastupdated" not in kwargs
 
-    print("_update_user: using these kwargs: ", kwargs)
+    print(f"_update_user: {schedule_as_availability = }; using these kwargs: ", kwargs)
     print("columns:", db.User.__table__.columns)
+
+    if schedule_as_availability and "schedule" in kwargs:
+        schedule = kwargs.pop("schedule")
+        print("updating schedule availability!", schedule)
+        schedulemod.update_schedule_status(user.netid,
+                                           schedule,
+                                           db.ScheduleStatus.AVAILABLE,
+                                           session=session)
+
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         print("updating this: ", k, v)
         setattr(user, k, v)
@@ -164,9 +175,6 @@ def _update_user(session: Session,
     if user.lastupdated is not None:
         print("user.lastupdated:", user.lastupdated.timestamp())
 
-    if update_schedule and kwargs.get("schedule") is not None:
-        db_schedule.update_schedule(user.netid, user.schedule, session=session, update_user=False)
-
 
 @db.session_decorator(commit=True)
 def delete(netid: str, *, session: Optional[Session] = None) -> None:
@@ -174,9 +182,10 @@ def delete(netid: str, *, session: Optional[Session] = None) -> None:
     Does nothing if the user does not exist."""
     assert session is not None
 
-    db_request.delete_all(netid)
-    db_schedule.update_schedule(netid, [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS,
-                                session=session)
+    requestmod.delete_all(netid)
+    schedulemod.remove_schedule_status(netid, [True] * db.NUM_WEEK_BLOCKS,
+                                       db.ScheduleStatus(~0),
+                                       session=session)
     session.delete(get_user(netid, session=session))
 
 
@@ -389,12 +398,12 @@ def block_user(netid: str, delnetid: str, *, session: Optional[Session] = None) 
         raise UserAlreadyBlocked(delnetid)
 
     deluser = get_user(delnetid, session=session)
-    request = db_request.get_active_pair(netid, delnetid)
+    request = requestmod.get_active_pair(netid, delnetid)
     if request is not None:
-        db_request._deactivate(session, request)
+        requestmod._deactivate(session, request)
 
     user.blocked.append(delnetid)
-    _update_user(session, user) # trigger update of lastupdated
+    _update_user(session, user)  # trigger update of lastupdated
     _update_user(session, deluser)
 
 
@@ -409,7 +418,7 @@ def unblock_user(netid: str, delnetid: str, *, session: Optional[Session] = None
         raise UserNotBlocked(delnetid)
 
     user.blocked.remove(delnetid)
-    _update_user(session, user) # trigger update of lastupdated
+    _update_user(session, user)  # trigger update of lastupdated
     _update_user(session, get_user(delnetid, session=session))
 
 

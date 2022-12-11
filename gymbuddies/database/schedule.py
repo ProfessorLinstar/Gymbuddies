@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from . import db
-from . import user as db_user
+from . import user as usermod
 
 
 @db.session_decorator(commit=False)
@@ -18,13 +18,17 @@ def get_schedule(netid: str, *, session: Optional[Session] = None) -> List[int]:
 def update_schedule(netid: str,
                     schedule: List[int],
                     *,
-                    session: Optional[Session] = None,
-                    update_user: bool = True) -> None:
+                    session: Optional[Session] = None) -> None:
     """Updates either Availability, Pending, or Matched to be set for a certain time block.
     In the case that the attribute was already set, False is returned. status should
     be a ScheduleStatus enum value"""
     assert session is not None
     assert len(schedule) == db.NUM_WEEK_BLOCKS
+
+    # make change to the User table if necessary
+    # acquire the user lock here so that the schedule table can be modified safely
+    print(f"update_schedule: trying to update user: {netid = }, {schedule = }")
+    usermod.update(netid, session=session, schedule_as_availability=False, schedule=schedule)
 
     # make change to the Schedule Table
     session.query(db.Schedule).filter(db.Schedule.netid == netid).delete()
@@ -39,56 +43,64 @@ def update_schedule(netid: str,
 
         session.add(block)
 
-    # make change to the User table if necessary
-    print(f"update_schedule: trying to update user: {netid = }, {update_user = }")
-    if update_user:
-        db_user.update(netid, session=session, schedule=schedule, update_schedule=False)
+@db.session_decorator(commit=True)
+def update_schedule_status(netid: str,
+                        marked: List[int | bool],
+                        status: db.ScheduleStatus,
+                        *,
+                        session: Optional[Session] = None) -> None:
+    """Updates the pending schedule for a user with netid 'netid', according to the marked list. The
+    indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
+    is marked for the corresponding TimeBlock. If False, then the element is unmarked."""
+
+    schedule: List[int] = usermod.get_schedule(netid, session=session)
+    for i, m in enumerate(marked):
+        if m:
+            schedule[i] |= status
+        else:
+            schedule[i] &= ~status
+
+    update_schedule(netid, schedule, session=session)
 
 
 @db.session_decorator(commit=True)
-def add_schedule_status(
-    netid: str,
-    marked: List[int | bool],
-    status: db.ScheduleStatus,
-    *,
-    session: Optional[Session] = None,
-) -> bool:
+def add_schedule_status(netid: str,
+                        marked: List[int | bool],
+                        status: db.ScheduleStatus,
+                        *,
+                        session: Optional[Session] = None) -> None:
     """Updates the pending schedule for a user with netid 'netid', according to the marked list. The
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is marked for the corresponding TimeBlock. If False, then the element is ignored."""
 
-    schedule: List[int] = db_user.get_schedule(netid, session=session)
-
+    schedule: List[int] = usermod.get_schedule(netid, session=session)
     for i, m in enumerate(marked):
         if m:
             schedule[i] |= status
 
     update_schedule(netid, schedule, session=session)
-    return True
+
 
 @db.session_decorator(commit=True)
-def remove_schedule_status(
-    netid: str,
-    marked: List[int | bool],
-    status: db.ScheduleStatus,
-    *,
-    session: Optional[Session] = None,
-) -> bool:
+def remove_schedule_status(netid: str,
+                           marked: List[int | bool],
+                           status: db.ScheduleStatus,
+                           *,
+                           session: Optional[Session] = None) -> None:
     """Updates the pending schedule for a user with netid 'netid', according to the marked list. The
     indices of 'marked' correspond to a TimeBlock, and if an element is True, then the pending flag
     is unmarked for the corresponding TimeBlock. if False, then the element is ignored."""
 
-    schedule: List[int] = db_user.get_schedule(netid, session=session)
+    schedule: List[int] = usermod.get_schedule(netid, session=session)
     for i, m in enumerate(marked):
         if m:
             schedule[i] &= ~status
 
     update_schedule(netid, schedule, session=session)
-    return True
 
 
-def _get_status_schedule(session: Session, netid: str, status_flag: Column, status:
-                         db.ScheduleStatus) -> List[int]:
+def _get_status_schedule(session: Session, netid: str, status_flag: Column,
+                         status: db.ScheduleStatus) -> List[int]:
     schedule: List[int] = [db.ScheduleStatus.UNAVAILABLE] * db.NUM_WEEK_BLOCKS
     timeblocks = session.query(db.Schedule.timeblock).filter(
         db.Schedule.netid == netid, status_flag == True).order_by(db.Schedule.timeblock).all()
@@ -128,6 +140,7 @@ def get_available_users(timeblock: int, *, session: Optional[Session] = None) ->
     rows = session.query(db.Schedule.netid).filter(db.Schedule.timeblock == timeblock).order_by(
         db.Schedule.netid).all()
     return [row[0] for row in rows]
+
 
 # def int_to_string_schedule(schedule: List[int]) -> List[str]:
 #     schedule.

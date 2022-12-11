@@ -1,14 +1,6 @@
-{% extends 'layout.html' %} {% block title %}Incoming Requests{% endblock %} 
-{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %} 
-  {% block classfind %}<a class="nav-link" href="{{ url_for('matching.findabuddy') }}">{% endblock %} 
-  {% block classreq %}<a class="nav-link active" href="{{ url_for('matching.incoming') }}">{% endblock %} 
-  {% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %} 
-  {% block classprof %}<a class="nav-link" href="{{ url_for('home.profile') }}">{% endblock %} 
-  {% block classsett %}<a class="nav-link" href="{{ url_for('home.settings') }}">{% endblock %}
-  {% block classmast %}<a class="nav-link" href="{{ url_for('master.show') }}">{% endblock %}
-  {% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Incoming Requests</li>
-{% endblock %}
-{% block pagename_large %}Incoming Requests{%endblock %}
+{% set current = "incoming" %}
+{% extends 'layout.html' %}
+{% block title %}Incoming Requests{% endblock %} 
 
 {% block content %}
 <!-- Popup indicating that the request was successful -->
@@ -18,7 +10,7 @@
 
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle">Success</h5>
-        <button type="button" id="closeButton" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" id="closeButton" class="close" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -30,7 +22,7 @@
             <img src="../static/pictures/running.png" width="60%">
           </div>
           <div class="row" style="text-align:center">
-            <p>Request Successfully Sent!</p>
+            <p><span id="requestSentSpan"></span></p>
           </div>
 
         </div>
@@ -48,6 +40,7 @@
     <!-- </div> -->
     </div>
 </div>
+
 <div class="row">
   <div class="col-12 mb-4">
     <div class="card">
@@ -63,13 +56,14 @@
 {% endblock %}
 
 {% block scripts %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
   function makeRequest() {
     const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
     let destnetid = $('#modifyRequest').val();
     let requestid = $('#requestId').val();
-    // let sessionindex = $('#indexInput').val();
     console.log(destnetid)
     if (request != null)
       request.abort();
@@ -79,11 +73,39 @@
       type: 'POST',
       url: '/matching/incomingmodal',
       data: { "destnetid": destnetid, "jsoncalendar": JSON.stringify(calendar), "requestid":requestid },
-      success: function() { $("#requestSent").modal("show"); },
+      success: function() {
+        $("#requestSentSpan").html("Request successfully sent!");
+        $("#requestSent").modal("show");
+      },
       error: function(xhr, textstatus, errorthrown) { showError(xhr); },
       complete: function() { $("body").removeClass("wait"); },
     })
     $("#Popup").modal("hide");
+  }
+
+  function acceptRequest(requestid) {
+    if (postrequest != null) {
+      console.log("postrequest already in process! breaking!");
+      return;
+    }
+
+    $("body").addClass("wait");
+    postrequest = $.ajax({
+      type: "POST",
+      data: { "requestid": requestid, "action": "accept" },
+      url: "{{ url_for('matching.incomingtable') }}",
+      success: function(response) {
+        $("#requestSentSpan").html("Match successfully finalized!");
+        $("#requestSent").modal("show");
+        refresh(response, "#requestTable", false);
+      },
+      complete: function() {
+        postrequest = null;
+        $("body").removeClass("wait");
+      },
+      error: error,
+      timeout: ajaxtimeout
+    })
   }
 
   function setup() {

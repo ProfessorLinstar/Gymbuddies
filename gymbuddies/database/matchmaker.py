@@ -3,8 +3,8 @@ Core matchmaking algorithm. Provided a userid, the algorithm will find the top c
 who have the greatest similarities for weighted user interests and schedule availability.
 """
 from typing import List, Dict
-from . import user as db_user
-from . import schedule as db_schedule
+from . import user as usermod
+from . import schedule as schedulemod
 from . import db
 from . import request
 
@@ -20,11 +20,11 @@ BLOCKS_IN_AN_HOUR: int = 12 # number of blocks in an hour. Used for total inters
 def find_matches(netid: str) -> List[str]:
     """run algorithm to find top matches for user <netid>"""
     # get the main user using their netid
-    main_user = db_user.get_user(netid)
+    main_user = usermod.get_user(netid)
     assert main_user is not None
 
     # get a random sample of users to select from
-    randusers = db_user.get_rand_users(RANDOM_NUMBER, netid)
+    randusers = usermod.get_rand_users(RANDOM_NUMBER, netid)
     assert randusers is not None
 
     # do a hard filter on users that you are already matched with
@@ -57,7 +57,7 @@ def find_matches(netid: str) -> List[str]:
             banned_netids.append(src_user)
 
     # do a hard filter on users that you have blocked
-    blocked_users = db_user.get_blocked(netid)
+    blocked_users = usermod.get_blocked(netid)
     assert blocked_users is not None
     for blocked_user in blocked_users:
         if blocked_user in rand_netids:
@@ -163,11 +163,11 @@ def find_matches(netid: str) -> List[str]:
 
 
     # update user compatability scores based on schedule intersection
-    main_user_schedule: List[int] | None = db_schedule.get_schedule(netid)
+    main_user_schedule: List[int] | None = schedulemod.get_schedule(netid)
     assert main_user_schedule is not None
     for user in randusers:
         schedule_score: int = 0
-        user_schedule: List[int] | None = db_schedule.get_schedule(user.netid)
+        user_schedule: List[int] | None = schedulemod.get_schedule(user.netid)
         assert user_schedule is not None
         i = 0
         while i + (BLOCKS_IN_AN_HOUR - 1) < len(user_schedule):

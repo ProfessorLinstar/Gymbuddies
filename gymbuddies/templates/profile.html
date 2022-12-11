@@ -1,28 +1,6 @@
-<!--
-=========================================================
-* Argon Dashboard 2 - v2.0.4
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://www.creative-tim.com/license)
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
+{% set current = "profile" %}
 {% extends 'layout.html' %}
 {% block title %}Profile{% endblock %}
-{% block classdash %}<a class="nav-link" href="../dashboard">{% endblock %}
-{% block classfind %}<a class="nav-link " href="{{ url_for('matching.findabuddy') }}">{% endblock %}
-{% block classreq %}<a class="nav-link" href="{{ url_for('matching.incoming') }}">{% endblock %}
-{% block classmat %}<a class="nav-link" href="{{ url_for('matching.matched') }}">{% endblock %}
-{% block classprof %}<a class="nav-link active" href="{{ url_for('home.profile') }}">{% endblock %}
-{% block classsett %}<a class="nav-link" href="{{ url_for('home.settings') }}">{% endblock %}
-{% block classmast %}<a class="nav-link " href="{{ url_for('master.show') }}">{% endblock %}
-{% block pagename %}<li class="breadcrumb-item text-sm text-white active" aria-current="page">Account</li>{% endblock %}
-{% block pagename_large %}Profile{% endblock %}
 
 {% block content %}
 
@@ -32,7 +10,7 @@
 
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle">Success</h5>
-          <button type="button" id="closeButton" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" id="closeButton" class="close" data-bs-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -247,8 +225,13 @@
 
             <div id="day-schedule"></div>
             <br>
-            <div class="col-md-6">
-              <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar">Update</button>
+            <div class="d-flex">
+              <div class="d-flex flex-column">
+                <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar">Update</button>
+              </div>
+              <div class="ms-auto text-end">
+                <button class="btn btn-sm ms-auto" type="button" id="clearCalendar">Clear</button>
+              </div>
             </div>
 
             <span class="text-sm" id="lastUpdated"></span>
@@ -263,6 +246,9 @@
 {% block scripts%}
 <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
 <script>
+
+  let postrequest = null;
+
   function setup() {
 
     $("#day-schedule").dayScheduleSelector({
@@ -287,8 +273,11 @@
     $('#updateCalendar').click( function() {
       const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
 
+      if (postrequest !== null)
+        return;
+
       $("body").addClass("wait");
-      $.ajax({
+      postrequest = $.ajax({
         type:'POST',
         url:'/profile',
         data: {"update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
@@ -304,9 +293,15 @@
           })
         },
         complete: function(response) {
+          postrequest = null;
           $("body").removeClass("wait");
         }
       })
+    });
+
+    $("#clearCalendar").click( function() {
+      console.log("???");
+      $("#day-schedule").data("artsy.dayScheduleSelector").clear();
     });
 
   }

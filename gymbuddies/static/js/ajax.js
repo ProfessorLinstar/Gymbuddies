@@ -1,3 +1,4 @@
+let refreshid;
 let ajaxtimeout = 10000;
 let refreshinterval = 1000;
 
@@ -13,12 +14,18 @@ function showError(jqXHR) {
   let message = "Oops! An unexpected error occurred. Please refresh.";
   console.log(jqXHR);
   if (jqXHR.responseJSON !== undefined) {
-    if (jqXHR.responseJSON.noRefresh) backdrop = true;
+    if (jqXHR.responseJSON.noRefresh) {
+      backdrop = true;
+    } else {
+      window.clearInterval(refreshid);
+      console.log("clearing interval!");
+    }
     if (jqXHR.responseJSON.message !== undefined) message = jqXHR.responseJSON.message;
   }
   $("#errorPopup").modal({"backdrop": backdrop});
   $("#errorPopupSpan").html(message);
   $("#errorPopup").modal("show");
+  lastrefreshed = 0;
 }
 
 
@@ -100,6 +107,7 @@ function refreshMultiple(url_ids) {
 
   for (let i = 0; i < url_ids.length; i++) {
     const url = url_ids[i][0];
+    console.log("why is this happening???", $.ajax);
     getrequest = $.ajax({
       type: "GET",
       data: { "lastrefreshed": lastrefreshed },
@@ -122,7 +130,10 @@ function refreshMultiple(url_ids) {
 }
 
 function setup_refresh(url_ids) {
-  refreshWrapper = function() { refreshMultiple(url_ids); };
-  refreshWrapper();
-  window.setInterval(refreshWrapper, refreshinterval)
+  if (refreshid) {
+    console.log("do not call me multiple times!");
+    return;
+  }
+  refreshMultiple(url_ids);
+  refreshid = window.setInterval(refreshMultiple, refreshinterval, url_ids)
 }

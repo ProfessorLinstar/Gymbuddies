@@ -4,14 +4,14 @@ import json
 
 from typing import Any, Generator, Dict
 from . import db
-from . import user as db_user
-from . import request as db_request
+from . import user as usermod
+from . import request as requestmod
 
 
 def sprint_users(*criterions) -> Generator[str, None, None]:
     """Yields a generator whose elements are strings representing a user in json format."""
 
-    users = db_user.get_users(*criterions)
+    users = usermod.get_users(*criterions)
     if users is None:
         return
 
@@ -44,8 +44,8 @@ def sprint_requests(requests: Dict[int, db.RequestStatus]) -> str:
         {
             requestid: {
                 "id": requestid,
-                "srcnetid": db_request.get_srcnetid(requestid),
-                "destnetid": db_request.get_destnetid(requestid),
+                "srcnetid": requestmod.get_srcnetid(requestid),
+                "destnetid": requestmod.get_destnetid(requestid),
                 "status": status.to_readable(),
             } for requestid, status in requests.items()
         },

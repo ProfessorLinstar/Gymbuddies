@@ -4,10 +4,23 @@ from datetime import datetime, timezone
 from sqlalchemy import Column
 from sqlalchemy.orm import Session
 from . import db
-from . import user as db_user
-from . import schedule as db_schedule
+from . import user as usermod
+from . import schedule as schedulemod
 
 LIMIT = 5
+
+class RequestToBlockedUser(Exception):
+    """Exception raise in an API call if a user attempts to make a request to a blocked user a user
+    that has blocked them."""
+
+    blocker: str
+    blocked: str
+
+    def __init__(self, blocker: str, blocked: str):
+        self.blocker = blocker
+        self.blocked = blocked
+        super().__init__(f"User {blocked} blocked by user {blocker}. Unable to make request.")
+
 
 
 class RequestAlreadyExists(Exception):
@@ -21,6 +34,18 @@ class RequestAlreadyExists(Exception):
         self.destnetid = destnetid
         super().__init__(f"Active request between '{srcnetid}' and '{destnetid}' already exists.")
 
+class PreviousRequestInactive(Exception):
+    """Exception raised in API call if attempting to modify a request that is no longer active."""
+
+    def __init__(self):
+        super().__init__("Previous request to be modified must be active.")
+
+
+class RequestToSelf(Exception):
+    """Exception raised in API call if request made to oneself."""
+
+    def __init__(self):
+        super().__init__("A user cannot make a request to themself.")
 
 class EmptyRequestSchedule(Exception):
     """Exception raised in API call if request made with empty schedule."""
@@ -248,25 +273,33 @@ def new(srcnetid: str,
     'destnetid', or if the specified 'prevrequest' is not active, then returns False."""
     assert session is not None
     assert len(schedule) == db.NUM_WEEK_BLOCKS
-    for netid in (srcnetid, destnetid):
-        if not db_user.exists(netid):
-            raise db_user.UserNotFound(netid)
+    srcuser = usermod.get_user(srcnetid)
+    destuser = usermod.get_user(destnetid)
 
+    if srcnetid == destnetid:
+        raise RequestToSelf
+
+    if srcnetid in destuser.blocked:
+        raise RequestToBlockedUser(destnetid, srcnetid)
+    elif destnetid in srcuser.blocked:
+        raise RequestToBlockedUser(srcnetid, destnetid)
+    
     if all(not x for x in schedule):
         raise EmptyRequestSchedule
-
-    if any(x and (s & db.ScheduleStatus.MATCHED or d != db.ScheduleStatus.AVAILABLE)
-           for x, s, d in zip(schedule, db_user.get_schedule(srcnetid, session=session),
-                              db_user.get_schedule(destnetid, session=session))):
-        raise ConflictingRequestSchedule
 
     prevrequestid: int = 0
     if prev is not None:
         prevrequestid = prev.requestid
-        _deactivate(session, prev)
+        if not _deactivate(session, prev):
+            raise PreviousRequestInactive
 
-    elif get_active_pair(srcnetid, destnetid, session=session):
+    if get_active_pair(srcnetid, destnetid, session=session):
         raise RequestAlreadyExists(srcnetid, destnetid)
+
+    if any(x and (s & db.ScheduleStatus.MATCHED or d != db.ScheduleStatus.AVAILABLE)
+           for x, s, d in zip(schedule, usermod.get_schedule(srcnetid, session=session),
+                              usermod.get_schedule(destnetid, session=session))):
+        raise ConflictingRequestSchedule
 
     request = db.Request(srcnetid=srcnetid,
                          destnetid=destnetid,
@@ -277,8 +310,8 @@ def new(srcnetid: str,
     session.add(request)
 
     # Update user lastupdated timestamp by doing an empty update
-    db_user.update(srcnetid, session=session)
-    db_user.update(destnetid, session=session)
+    usermod.update(srcnetid, session=session)
+    usermod.update(destnetid, session=session)
 
     print("Created a request with this schedule: ", db.schedule_to_readable(schedule))
 
@@ -295,7 +328,7 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> None:
     request.status = db.RequestStatus.FINALIZED
 
     for netid in (request.srcnetid, request.destnetid):
-        db_schedule.add_schedule_status(netid,
+        schedulemod.add_schedule_status(netid,
                                         request.schedule,
                                         db.ScheduleStatus.MATCHED,
                                         session=session)
@@ -322,8 +355,8 @@ def _reject(session: Session, request: db.MappedRequest) -> None:
     request.deletetimestamp = datetime.now(timezone.utc)
 
     # Update user lastupdated timestamp
-    db_user.update(request.srcnetid, session=session)
-    db_user.update(request.destnetid, session=session)
+    usermod.update(request.srcnetid, session=session)
+    usermod.update(request.destnetid, session=session)
 
 
 @db.session_decorator(commit=True)
@@ -339,8 +372,9 @@ def _terminate(session: Session, request: db.MappedRequest) -> None:
     if request.status != db.RequestStatus.FINALIZED:
         raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.FINALIZED)
 
+    print(f"request {request.requestid} will now be terminated!")
     for netid in (request.srcnetid, request.destnetid):
-        db_schedule.remove_schedule_status(netid,
+        schedulemod.remove_schedule_status(netid,
                                            request.schedule,
                                            db.ScheduleStatus.MATCHED,
                                            session=session)
@@ -349,12 +383,16 @@ def _terminate(session: Session, request: db.MappedRequest) -> None:
     request.deletetimestamp = datetime.now(timezone.utc)
 
 
-def _deactivate(session: Session, request: db.MappedRequest) -> None:
-    """Deactivates a request if it is active."""
+def _deactivate(session: Session, request: db.MappedRequest) -> bool:
+    """Deactivates a request if it is active. Returns True if a request was deactivated, and False
+    otherwise."""
     if request.status == db.RequestStatus.PENDING:
         _reject(session, request)
     elif request.status == db.RequestStatus.FINALIZED:
         _terminate(session, request)
+    else:
+        return False
+    return True
 
 
 @db.session_decorator(commit=True)
@@ -372,7 +410,7 @@ def modify(requestid: int,
 
 
 @db.session_decorator(commit=True)
-def modifymatch(requestid: int,
+def modify_match(requestid: int,
                 netid: str,
                 schedule: List[db.ScheduleStatus] | List[int],
                 *,
@@ -384,7 +422,7 @@ def modifymatch(requestid: int,
 
     request = _get(session, requestid)
 
-    srcuser = db_user.get_user(request.srcnetid)
+    srcuser = usermod.get_user(request.srcnetid)
     if srcuser != netid:
         destuser = srcuser
         srcuser = netid
