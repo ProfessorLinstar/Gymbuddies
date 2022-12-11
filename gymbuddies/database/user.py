@@ -435,3 +435,27 @@ def get_notification_status(netid: str, *, session: Optional[Session] = None) ->
     assert session is not None
     user = get_user(netid, session=session)
     return user.settings.get("notifications", False)
+
+
+@db.session_decorator(commit=False)
+def user_profile_valid(netid: str, *, session: Optional[Session] = None) -> bool:
+    """returns whether the user profile is valid. The following conditions must be
+    met in order for the user profile to be valid:
+    - name field is populated
+    - bio field is populated
+    - contact field is populated
+    - contact must be a a 10 digit number
+    - name is too long (100 characters)
+    - bio is too long (750 characters)
+    """
+    assert session is not None
+    user = get_user(netid, session=session)
+    if user.name == "" or user.bio == "" or user.contact == "":
+        return False
+    if not user.contact.isnumeric() or len(user.contact) != 10:
+        return False
+    if len(user.name) > 100:
+        return False
+    if len(user.bio) > 750:
+        return False
+        

@@ -111,7 +111,7 @@ def buddies():
         matches = session.get("matches", None)
         index = session.get("index", None)
         no_matches = True
-        return render_template("buddies.html", netid=netid, no_matches=no_matches)
+        return render_template("buddies.html", netid=netid, no_matches=no_matches, end_of_index=True)
 
     no_matches = False
 
@@ -145,6 +145,7 @@ def buddies():
     
     return render_template("buddies.html",
                            no_matches=no_matches,
+                           end_of_index=False,
                            netid=netid,
                            level=level,
                            interests=interests,
