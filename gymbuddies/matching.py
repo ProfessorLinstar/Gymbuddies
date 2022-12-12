@@ -456,6 +456,20 @@ def matchedmodal():
                            requestid=requestid)
 
 
+@bp.route("/unmatchmodal", methods=["GET"])
+def unmatchmodal():
+    """Modal for incoming requests."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("auth.login"))
+
+    print("processing an unmatch modal!")
+    requestid = int(request.form.get("requestid", "0"))
+   
+    return render_template("unmatchmodal.html",
+                           netid=netid,
+                           requestid = requestid)
+
 @bp.route("/historytable", methods=("GET", "POST"))
 @error.guard_decorator()
 def historytable():

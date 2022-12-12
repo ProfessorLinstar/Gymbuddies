@@ -51,6 +51,28 @@ function getCard(requestid, url) {
   });
 }
 
+
+function unmatchCard(response) {
+  console.log("got a response");
+  $('#unmatchModal').html(response);
+}
+
+function getunmatchCard(requestid, url) {
+  if (getrequest != null) {
+    console.log("aborting other getrequests!");
+  }
+
+ getrequest = $.ajax({
+    type: 'GET',
+    data: { "requestid": requestid },
+    url: url,
+    success: unmatchCard,
+    complete: function() { getrequest = null; },
+    error: function() { console.log("getCard failed!"); },
+    timeout: ajaxtimeout,
+  });
+}
+
 // used as the 'success' property of an ajax request argument. Requires an
 // 'id' property to be provided to indicate where to write the response.
 function refresh(response, id, updatelastrefreshed) {
@@ -85,7 +107,29 @@ function act(url, id, requestid, action) {
     type: "POST",
     data: { "requestid": requestid, "action": action },
     url: url,
-    success: function(response) { refresh(response, id, false); },
+    success: function(response) { 
+      refresh(response, id, false); },
+    complete: function() { postrequest = null; $("body").removeClass("wait"); },
+    error: error,
+    timeout: ajaxtimeout,
+  });
+}
+
+function act2(url, requestid) {
+  if (getrequest != null) {
+    console.log("postrequest already in process! breaking!");
+    return;
+  }
+
+  $("body").addClass("wait");
+  getrequest = $.ajax({
+    type: "GET",
+    data: { "requestid": requestid},
+    url: url,
+    success: function(response) { 
+      $('#unmatchModal').html(response); 
+      $('#unmatchConfirm').modal('show');
+    },
     complete: function() { postrequest = null; $("body").removeClass("wait"); },
     error: error,
     timeout: ajaxtimeout,

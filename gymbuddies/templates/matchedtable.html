@@ -76,12 +76,21 @@
                   <!--   data-bs-toggle="modal" data-bs-target="#modifyMatchPopup" -->
                   <!--   onClick="getMatchedCard({{ match.requestid }}, '{{ url_for('matching.matchedmodal') }}')" -->
                   <!--   ><i class="fa-sharp fa-solid fa-pencil me-2"></i>Modify</button> -->
-                  <button
+                  <!-- <button
                     class="btn btn-link text-danger text-gradient px-3 mb-0"
                     type="button"
                     onClick="act('{{ url_for('matching.matchedtable') }}', '#matchesTable', {{ match.requestid }}, 'terminate')"
                     ><i class="fas fa-user-slash me-2">
+                    </i>Unmatch</button> -->
+                    
+                    <button
+                    class="btn btn-link text-danger text-gradient px-3 mb-0"
+                    type="button" 
+                    data-bs-toggle="modal" data-bs-target="#unmatchConfirm"
+                    onClick="getunmatchCard('{{ match.requestid }}','{{ url_for('matching.unmatchmodal') }}' )"
+                    ><i class="fas fa-user-slash me-2">
                     </i>Unmatch</button>
+
                     
               <!--</form>-->
               </div>

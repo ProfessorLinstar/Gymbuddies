@@ -31,6 +31,12 @@
   </div>
 </div>
 
+<div class="modal fade bd-example-modal-lg" id="unmatchConfirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <span id="unmatchModal"></span>
+  </div>
+</div>
+
 <div class="modal fade bd-example-modal-xl" id="modifyMatchPopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
     <span id="modifyPopup"></span>
@@ -78,6 +84,9 @@
 
     $("#modifyMatchPopup").on("hide.bs.modal", function() {
       $("#modifyPopup").html("");
+    });
+    $("#unmatchConfirm").on("hide.bs.modal", function() {
+      $("#unmatchModal").html("");
     });
   }
   $('document').ready(setup);
