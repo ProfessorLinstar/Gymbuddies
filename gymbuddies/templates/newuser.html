@@ -38,7 +38,7 @@
                     </div>
 
                     <h5 class="fw-normal mb-3 pb-3" style="letter-spacing:1px;text-align:center;">Welcome to Gymbuddies!</h5>
-                    <p style="letter-spacing:1px;text-align:center"> Please fill out your profile below to start matching with a gym buddy! Once you're done, press "Next".</p>
+                    <p style="letter-spacing:1px;text-align:center"> Please fill out your profile below to start matching with a gym buddy! * indicates a required field. Once you're done, press "Next".</p>
                   </div>
                   <div class="row">
                     <div class="col-md-6">
@@ -54,16 +54,16 @@
                           <div class="row">
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="name" class="form-control-label">Name</label>
-                                <p class="text-xs">(as you want it to appear on people's feeds)</p>
-                                <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  required >
+                                <label for="name" class="form-control-label">Name*</label>
+                                <p class="text-xs">(as you want it to appear)</p>
+                                <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}" placeholder="First and last name"  required >
                               </div>
                             </div>
                             <div class="col-md-6">
                               <div class="form-group">
-                                <label for="contact" class="form-control-label">Contact</label>
-                                <p class="text-xs">(will be shared with your buddy when you match) </p>
-                                <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" required>
+                                <label for="contact" class="form-control-label">Phone Number*</label>
+                                <p class="text-xs">(valid U.S. phone number) </p>
+                                <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" placeholder="0001112222" required>
                               </div>
                             </div>
                           </div>
@@ -72,15 +72,15 @@
                           <div class="row">
                             <div class="col-md-12">
                               <div class="form-group">
-                                <label for="bio" class="form-control-label">Bio</label>
+                                <label for="bio" class="form-control-label">Bio*</label>
                                 <p class="text-xs">Write a short bio introducing yourself!</p>
-                                <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}"  required>
+                                <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}" placeholder="I just started going this year..."  required>
                               </div>
                             </div>
                           </div>
                           <div class = "row pb-3">
                             <div class = "col md-4">
-                              <label for="level">Level</label>
+                              <label for="level">Level*</label>
                               <select name="level" id="cars" class="form-control" placeholder="Level">
                                 <option id="level0" value="0" {{ "selected" if (user.level == 0 ) else "" }}>Beginner</option>
                                 <option id="level1" value="1" {{ "selected" if (user.level == 1 ) else "" }}>Intermediate</option>
@@ -104,7 +104,7 @@
                           <div class="row">
                             <div class="col-md-4">
                               <div class="form-group">
-                                <label for="interests" class="form-control-label">Interests</label>
+                                <label for="interests" class="form-control-label">Interests*</label>
                                   <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" id="Gaining Mass"
                                     name="interests"
@@ -139,7 +139,7 @@
                             </div>
                             <div class="col-md-4">
                               <div class="form-group">
-                                <label for="gender" class="form-control-label">Gender</label>
+                                <label for="gender" class="form-control-label">Gender*</label>
                                   <div class="custom-control custom-checkbox">
                                     <input type="radio" class="custom-control-input" id="nonbinary"
                                     name="gender"
@@ -162,7 +162,7 @@
                             </div>
                           </div>
                           <hr class="horizontal dark">
-                          <p class="text-uppercase text-sm">Match Preferences</p>
+                          <p class="text-uppercase text-sm">Match Preferences*</p>
                           <div class = "row">
                             <div class = "col md-4">
                               <label for = "levelpreference">Buddy's Level</label>
@@ -199,7 +199,7 @@
                               <div class="form-group">
                                 <label for="example-text-input" class="form-control-label">Additional Information</label>
                                 <p class="text-xs">Please list any other information that would be helpful. (e.g. injuries, workout schedules, 1RMs) </p>
-                                <input class="form-control" type="text" name="addinfo" value="{{ user.addinfo }}">
+                                <input class="form-control" type="text" name="addinfo" value="{{ user.addinfo }}" placeholder="My max bench is 5000 lbs">
                               </div>
                             </div>
                           </div>
@@ -213,7 +213,7 @@
                     <div class="col-md-6">
                       <div class="card card-profile scrolling-wrapper">
                         <div class="card-header pb-0 pt-3 bg-transparent">
-                          <h6 class="text-capitalize">Availability</h6>
+                          <h6 class="text-capitalize">Availability *</h6>
                           <p class="text-xs">Please select your availability by clicking a box to activate a time and then dragging up or down to select more times. When selected, a box will become blue. Your potential buddy will be able to select times from your availability to request a match.</p>
                         </div>
                         <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->

@@ -1,4 +1,5 @@
 """Database API"""
+
 from datetime import datetime, timezone
 from typing import Optional, Any, List, Dict, Tuple
 from sqlalchemy import Column
@@ -81,10 +82,10 @@ def create(netid: str, *, session: Optional[Session] = None, **kwargs) -> None:
     if not netid:
         raise InvalidNetid
 
-    user = db.User(netid=netid)
-
     profile: Dict[str, Any] = _default_profile()
+    user = db.User(netid=netid)
     _update_user(session, user, schedule_as_availability=False, **(profile | kwargs))
+    session.add(user)
 
 
 @db.session_decorator(commit=True)
@@ -157,9 +158,9 @@ def _update_user(session: Session,
         schedule = kwargs.pop("schedule")
         print("updating schedule availability!", schedule)
         schedulemod.update_schedule_status(user.netid,
-                                           schedule,
-                                           db.ScheduleStatus.AVAILABLE,
-                                           session=session)
+                                        schedule,
+                                        db.ScheduleStatus.AVAILABLE,
+                                        session=session)
 
     for k, v in ((k, v) for k, v in kwargs.items() if k in db.User.__table__.columns):
         print("updating this: ", k, v)
@@ -176,6 +177,7 @@ def _update_user(session: Session,
         print("user.lastupdated:", user.lastupdated.timestamp())
 
 
+# NOTE: does not remove users from blocked list!
 @db.session_decorator(commit=True)
 def delete(netid: str, *, session: Optional[Session] = None) -> None:
     """Attempts to remove a user from the database, removing all related entries and references.

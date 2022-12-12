@@ -13,7 +13,7 @@ from .database import user
 
 _CAS_URL = 'https://fed.princeton.edu/cas/'
 
-USE_CAS = False
+USE_CAS = True
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
