@@ -1,15 +1,12 @@
 """Error pages blueprint"""
 
 import functools
-import random
 import sys
-import time
 import traceback
 from typing import Callable, ParamSpec, TypeVar
 
 from flask import Blueprint
-from flask import session, request
-from flask import redirect, url_for
+from flask import session
 from sqlalchemy.exc import OperationalError
 from werkzeug.exceptions import HTTPException, InternalServerError
 from . import database
@@ -31,16 +28,15 @@ class NoLoginError(Exception):
         super().__init__("No user is logged in.")
 
 
+# TODO: implement guard checking if necessary
 def guard_decorator() -> Callable[[Callable[P, R]], Callable[P, R]]:
-    """Decorator factory for protecting routes from database API errors. Resets the 'retries'
-    session variable when a route is executed successfully."""
+    """Decorator factory for protecting routes from database API errors."""
 
     def decorator(route: Callable[P, R]) -> Callable[P, R]:
 
         @functools.wraps(route)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             response = route(*args, **kwargs)
-            session["retries"] = 0
             return response
 
         return wrapper
@@ -156,7 +152,6 @@ def user_not_found(ex):
 
     if ex.netid == session.get("netid", ""):
         session.clear()
-        return redirect(url_for("home.index"))
 
     return {
         "error": type(ex).__name__,
@@ -171,17 +166,6 @@ def sqlalchemy_operational_error(ex):
     occur randomly, and are generally outside of the client and application's control. Response
     should be to just continue normal function."""
     traceback.print_exception(ex, file=sys.stderr)
-
-    session["retries"] = session.get("retries", 0) + 1
-    print(f"got operational error for the {session['retries']}th time.")
-    if session["retries"] < RETRY_NUM:
-        duration = TIMEOUT * (1 + random.random()) * 2**session["retries"]
-        print(f"sleeping for {duration = } before retry {session['retries'] = }")
-        time.sleep(duration)
-        return redirect(request.url, code=302 if request.method != "POST" else 307)
-    else:
-        session["retries"] = 0
-
     return {
         "error": type(ex).__name__,
         "message": "The database is under load. Please refresh.",

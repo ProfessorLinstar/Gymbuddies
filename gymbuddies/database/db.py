@@ -2,6 +2,10 @@
 
 import functools
 import os
+import random
+import sys
+import traceback
+import time
 
 from datetime import datetime, timezone
 from enum import Enum, IntFlag
@@ -9,6 +13,7 @@ from typing import Tuple, Callable, ParamSpec, TypeVar, Dict, List, Any
 
 from sqlalchemy import Column, String, Integer, Boolean, PickleType
 from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.mutable import MutableList, MutableDict
 from sqlalchemy.orm import Session
@@ -21,6 +26,9 @@ if not DATABASE_URL:
     raise ValueError("Database URL must be provided with the 'DATABASE_URL' environment variable.")
 
 BASE = declarative_base()
+
+TIMEOUT = 0.01  # seconds
+RETRY_NUM = 10
 
 BLOCK_LENGTH = 5  # minutes
 NUM_HOUR_BLOCKS = 60 // BLOCK_LENGTH
@@ -56,21 +64,29 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
             if "session" in kwargs:  # A session can be provided manually
                 return func(*args, **kwargs)
 
-            with Session(engine) as session:
-                session.info["postactions"] = []
-                kwargs["session"] = session
-                result = func(*args, **kwargs)
+            for retry in range(RETRY_NUM + 1):
+                try:
+                    with Session(engine) as session:
+                        session.info["postactions"] = []
+                        kwargs["session"] = session
+                        result = func(*args, **kwargs)
 
-                if commit:
-                    session.commit()
-                    print("commit completed at", datetime.now(timezone.utc))
-                if session.info["postactions"]:
-                    for post_action in session.info["postactions"]:
-                        post_action()
-                    session.commit()
-                    print("performing postactions: ", session.info["postactions"])
+                        if commit:
+                            print("performing postactions: ", session.info["postactions"])
+                            for post_action in session.info["postactions"]:
+                                post_action()
+                            session.commit()
+                            print("commit completed at", datetime.now(timezone.utc))
+                        return result
 
-            return result
+                except OperationalError as ex:
+                    if retry == RETRY_NUM:
+                        raise ex
+                    time.sleep(TIMEOUT * (1 + random.random()) * 2**retry)
+                    traceback.print_exception(ex, file=sys.stderr)
+                    print(f"session_decorator: retrying {func.__name__}{args}{kwargs} for the {retry+1}th time.")
+
+            raise RuntimeError("No result.")
 
         return wrapper
 
@@ -384,7 +400,8 @@ class User(BASE):
     settings = Column(MutableDict.as_mutable(PickleType))  # Notification and account settings
     lastupdated = Column(PickleType)  # timestamp for last related database update
 
-    blocked = Column(MutableList.as_mutable(PickleType)) # list of users who are blocked for this user
+    blocked = Column(
+        MutableList.as_mutable(PickleType))  # list of users who are blocked for this user
 
 
 class MappedUser(User):
