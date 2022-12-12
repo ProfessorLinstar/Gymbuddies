@@ -16,24 +16,26 @@
       </div>
 
       <div class="ms-auto text-end">
-
         <div>
+        <button type="button" class="btn btn-link px-3 mb-0 text-dark" data-bs-toggle="modal" data-bs-target="#Popup"
+        onClick="getCard({{ requests[i].requestid }}, '{{ url_for('matching.incomingmodal') }}')">
+        View/Modify Request
+      </button>
+      
           <button
             id="acceptButton" class="btn btn-link text-danger text-gradient px-3 mb-0"
             type="button"
             onClick="act('{{ url_for('matching.incomingtable')}}', '#requestTable', {{ requests[i].requestid }}, 'reject')"
           ><i class="far fa-trash-alt me-2"></i>Delete</button>
-          <button
+
+          <!-- <button
             class="btn btn-link text-dark px-3 mb-0"
             type="submit"
             onClick="acceptRequest({{ requests[i].requestid }})"
-          ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button>
-        </div>
+          ><i class="fas fa-check text-success me-2" aria-hidden="true"></i>Accept</button> -->
+        </div> 
 
-        <button type="button" class="btn btn-block mb-3" data-bs-toggle="modal" data-bs-target="#Popup"
-          onClick="getCard({{ requests[i].requestid }}, '{{ url_for('matching.incomingmodal') }}')">
-          See Request Details
-        </button>
+        
 
       </div>
 

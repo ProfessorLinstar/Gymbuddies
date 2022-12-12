@@ -1,6 +1,6 @@
 <div class="modal-content">
   <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLongTitle">{{ user.name }} </h5>
+    <h5 class="modal-title" id="exampleModalLongTitle">Incoming Request </h5>
     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -25,9 +25,9 @@
               <h6 class="text-capitalize">Profile</h6>
               <div class="card-body pt-2">
                 <!--<span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2"> testandie </span>-->
-                <a href="javascript:;" class="card-title h5 d-block text-darker">
+                <div class="card-title h5 d-block text-darker">
                   {{ user.name }}
-                </a>
+                </div>
                 <p class="card-description mb-4">
                   <br>
                   Bio: {{  user.bio }}
@@ -52,11 +52,19 @@
 
       </div>
       <div class="row">
-        <div class="text-sm-center">
         <input id = "modifyRequest" type="hidden" name="destnetid" value="{{ user.netid }}"></input>
         <input id = "requestId" type ="hidden" name="requestid" value="{{requestid}}"></input>
-        <button id="requestButton" type="button" class="btn btn-primary btn-sm" onClick="makeRequest()" >Modify Request</button>
-      </div>
+        <div class="col-md-6 text-sm-right">
+          <button id="requestButton" type="button" class="btn btn-primary px-3 mb-0" onClick="makeRequest()" ><i class="fa-sharp fa-solid fa-pencil me-2 "></i>Modify Request</button>
+        </div>
+        <div class="col-md-6 text-sm-left">
+          <button
+          class="btn btn-primary px-3 mb-0"
+          type="submit"
+          onClick="acceptRequest({{ requestid }})"
+        ><i class="fas fa-check me-2" aria-hidden="true"></i>Accept</button>
+
+        </div>
       </div>
     </div>
   </div>
