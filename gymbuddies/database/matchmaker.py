@@ -11,7 +11,7 @@ from . import request
 # IMPORTANT! NUMBER_INTERESTS SHOULD NOT BE HARDCODED. CHANGE THIS ASAP!!!
 NUMBER_INTERESTS: int = 10 # find a way for this value not to be hardcoded
 RANDOM_NUMBER: int = 25 # number of users queried in random selection
-RETURN_NUMBER: int = 5 # number of users returned by find_matches
+RETURN_NUMBER: int = 10 # number of users returned by find_matches
 LEVEL_WEIGHT: float = 0.5 # weight of level to compatability score
 INTERESTS_WEIGHT: float = 1 / NUMBER_INTERESTS # weight of interests to compatability score
 SCHEDULE_WEIGHT: float = 1 # weight of schedule intersection to compatability score
