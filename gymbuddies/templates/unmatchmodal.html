@@ -1,0 +1,30 @@
+<div class="modal-content">
+
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLongTitle">Unmatch Request</h5>
+    <button type="button" id="closeButton" class="close" data-bs-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <div class="card-body">
+      <div class="row" style="text-align:center">
+        <p>Are you sure you would like to unmatch? This user will be notified that you have unmatched with them.</p>
+      </div>
+      <div class="row">
+        <div class="text-sm-center">
+          <button
+        id = "unMatchRequest"
+        class="btn btn-primary btn-sm"
+        type="button"
+        data-bs-dismiss="modal" 
+        onClick="act('{{ url_for('matching.matchedtable') }}', '#matchesTable', {{ requestid }}, 'terminate')"
+        ><i class="fas fa-user-slash me-2">
+        </i>Unmatch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
