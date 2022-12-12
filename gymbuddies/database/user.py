@@ -467,4 +467,4 @@ def user_profile_valid(netid: str, *, session: Optional[Session] = None) -> bool
         return False
     if len(user.bio) > 750:
         return False
-        
+    return True

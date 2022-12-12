@@ -26,6 +26,8 @@ def findabuddy():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
 
     if request.method == "POST":
         destnetid = request.form["destnetid"]
@@ -159,6 +161,8 @@ def incoming():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
 
     return render_template("incoming.html", netid=netid)
 
@@ -288,6 +292,8 @@ def outgoing():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
     return render_template("outgoing.html", netid=netid)
 
 
@@ -330,6 +336,8 @@ def matched():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
 
     return render_template("matched.html", netid=netid)
 

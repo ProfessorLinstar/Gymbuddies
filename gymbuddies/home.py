@@ -28,6 +28,8 @@ def dashboard():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
 
     # if random.random() < .9:
     #     raise OperationalError(None, None, None)
@@ -144,6 +146,8 @@ def settings():
     netid: str = session.get("netid", "")
     if not netid:
         return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
 
     user = database.user.get_user(netid)
 
