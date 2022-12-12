@@ -96,6 +96,7 @@
       url: "{{ url_for('matching.incomingtable') }}",
       success: function(response) {
         $("#requestSentSpan").html("Match successfully finalized!");
+        $('#Popup').modal('hide');
         $("#requestSent").modal("show");
         refresh(response, "#requestTable", false);
       },
