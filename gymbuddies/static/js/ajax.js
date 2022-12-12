@@ -182,3 +182,41 @@ function setup_refresh(url_ids) {
   refreshMultiple(url_ids);
   refreshid = window.setInterval(refreshMultiple, refreshinterval, url_ids)
 }
+
+
+function getprofileCard() {
+  if (getrequest != null) {
+    console.log("aborting other getrequests!");
+  }
+  console.log("making getrequest for profilecard")
+  getrequest = $.ajax({
+    type: 'GET',
+    url: "/profileCard",
+    success: function(response) {
+      $("#profileCard").html(response)
+    },
+    complete: function() { getrequest = null; },
+    error: function() { console.log("getprofileCard failed!"); },
+    timeout: ajaxtimeout,
+  });
+}
+
+
+function updateprofileCard() {
+  if (postrequest != null) {
+    console.log("aborting other postrequests!");
+  }
+  console.log("making postrequest for profilecard")
+  getrequest = $.ajax({
+    type: 'POST',
+    data: $("#profileformUpdate").serialize(),
+    url: "/profileCard",
+    success: function(response) {
+      $("#profileCard").html(response)
+    },
+    complete: function() { postrequest = null; 
+    console.log($("#profileformUpdate").serialize())},
+    error: function() { console.log("updateprofileCard failed!"); },
+    timeout: ajaxtimeout,
+  });
+}

@@ -105,6 +105,34 @@ def profile():
 
     return render_template("profile.html", netid=netid, user=user, **context)
 
+@bp.route("/profileCard", methods=["GET", "POST"])
+@error.guard_decorator()
+def profileCard():
+    """Profile page for editing user information."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+
+    user = database.user.get_user(netid)
+
+    if request.method == "POST":
+        submit: str = request.form.get("update", "")
+        print("update value: ", submit)
+        prof: Dict[str, Any] = common.form_to_profile(submit)
+        prof.update(netid=netid)
+        database.user.update(**prof)
+        # update the find a buddies page
+        session["matches"] = database.matchmaker.find_matches(netid)
+        session["index"] = 0
+
+    user = database.user.get_user(netid)
+
+    context: Dict[str, Any] = {}
+    common.fill_schedule(context, user.schedule)
+
+    return render_template("profilecard.html", netid=netid, user=user, **context)
+
+
 
 @bp.route("/profileupdated", methods=["GET"])
 @error.guard_decorator()

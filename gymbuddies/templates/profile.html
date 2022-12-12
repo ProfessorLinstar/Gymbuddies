@@ -45,165 +45,7 @@
           <h6 class="text-capitalize">Create Profile</h6>
         </div>
         <div class="card-body">
-          <form action="{{ url_for('home.profile') }}" method="post">
-          <p class="text-uppercase text-sm">User Information</p>
-          <div class="row">
-            <label for="name" class="form-control-label">Net Id: </label>  <p style="font-size:13 !important">{{netid}}</p>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="name" class="form-control-label">Name*</label>
-                <p class="text-xs">(as you want it to appear)</p>
-                <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  placeholder="First and last name" required >
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="contact" class="form-control-label">Contact*</label>
-                <p class="text-xs">(valid U.S. phone number) </p>
-                <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" placeholder="0001112222" required>
-              </div>
-            </div>
-          </div>
-          <hr class="horizontal dark">
-          <p class="text-uppercase text-sm">Information</p>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="bio" class="form-control-label">Bio*</label>
-                <p class="text-xs">Write a short bio introducing yourself!</p>
-                <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}" placeholder="I just started going this year..." required>
-              </div>
-            </div>
-          </div>
-          <div class = "row pb-3">
-            <div class = "col md-4">
-              <label for="level">Level*</label>
-              <select name="level" id="cars" class="form-control" placeholder="Level">
-                <option id="level0" value="0" {{ "selected" if (user.level == 0 ) else "" }}>Beginner</option>
-                <option id="level1" value="1" {{ "selected" if (user.level == 1 ) else "" }}>Intermediate</option>
-                <option id="level2" value="2" {{ "selected" if (user.level == 2 ) else "" }}>Advanced</option>
-              </select>
-            </div>
-
-          </div>
-
-          <div class="row">
-            <div class="form-group">
-              <label for="match-availability" class="form-control-label">Match Availability</label>
-              <p class="text-xs">"Open" enables you to match with others. Toggle off if you do not want to send nor receive match requests. </p>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" name = "open" id="open" {{ "checked" if user.open else "" }}>
-                  <label class="form-check-label" for="open">Open</label>
-              </div>
-            </div>
-
-          </div>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="interests" class="form-control-label">Interests*</label>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="Gaining Mass"
-                    name="interests"
-                    value="Gaining Mass" {{ "checked" if user.interests.get("Gaining Mass") else "" }}>
-                    <label class="custom-control-label" for="Gaining Mass" >Gaining Mass</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="Losing Weight"
-                    name="interests"
-                    value="Losing Weight"{{ "checked" if user.interests.get("Losing Weight" ) else "" }} >
-                    <label class="custom-control-label" for="Losing Weight" >Losing Weight</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="Cardiovascular Fitness"
-                    name="interests"
-                    value="Cardiovascular Fitness" {{ "checked" if user.interests.get("Cardiovascular Fitness" ) else "" }}>
-                    <label class="custom-control-label" for="Cardiovascular Fitness" >Cardiovascular Fitness</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="Upper Body"
-                    name="interests"
-                    value="Upper Body"{{ "checked" if user.interests.get("Upper Body" ) else "" }}>
-                    <label class="custom-control-label" for="Upper Body" >Upper Body</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="Lower Body"
-                    name="interests"
-                    value="Lower Body" {{ "checked" if user.interests.get("Lower Body" ) else "" }}>
-                    <label class="custom-control-label" for="Lower Body" >Lower Body</label>
-                  </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="gender" class="form-control-label">Gender*</label>
-                  <div class="custom-control custom-checkbox">
-                    <input type="radio" class="custom-control-input" id="nonbinary"
-                    name="gender"
-                    value="2" {{ "checked" if (user.gender == 2 ) else "" }}>
-                    <label class="custom-control-label" for="nonbinary">Non-Binary</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="radio" class="custom-control-input" id="male"
-                    name="gender"
-                    value="0" {{ "checked" if (user.gender == 0 ) else "" }}>
-                    <label class="custom-control-label" for="male">Male</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="radio" class="custom-control-input" id="female"
-                    name="gender"
-                    value="1" {{ "checked" if (user.gender == 1 ) else "" }}>
-                    <label class="custom-control-label" for="female">Female</label>
-                  </div>
-              </div>
-            </div>
-          </div>
-          <hr class="horizontal dark">
-          <p class="text-uppercase text-sm">Match Preferences*</p>
-          <div class = "row">
-            <div class = "col md-4">
-              <label for = "levelpreference">Buddy's Level</label>
-              <select required class="form-control" placeholder="Level" name="levelpreference">
-                <option id="level0" value="0" {{ "selected" if (user.levelpreference == 0 ) else "" }}> Equal </option>
-                <option id="level1" value="1" {{ "selected" if (user.levelpreference ==1 ) else "" }}>Less than or Equal to</option>
-                <option id="level2"  value="2" {{ "selected" if (user.levelpreference ==2 ) else "" }}>Greater than or Equal to</option>
-                <option id="level3"  value="3" {{ "selected" if (user.levelpreference ==3 ) else "" }}>All</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <div class="form-group">
-                <label for="gender" class="form-control-label">Gender Preference*</label>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" id ="okbinary" name="okbinary" class="custom-control-input" {{ "checked" if user.okbinary else "" }}>
-                    <label class="custom-control-label" for="okbinary">Non-Binary</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" id ="okmale" name="okmale" class="custom-control-input" {{ "checked" if user.okmale else "" }}>
-                    <label class="custom-control-label" for="okmale">Male</label>
-                  </div>
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" id ="okfemale" name="okfemale" class="custom-control-input" {{ "checked" if user.okfemale else "" }}>
-                    <label class="custom-control-label" for="okfemale">Female</label>
-                  </div>
-              </div>
-            </div>
-          </div>
-
-          <hr class="horizontal dark">
-          <p class="text-uppercase text-sm">Additional Information</p>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="example-text-input" class="form-control-label">Additional Information</label>
-                <p class="text-xs">Please list any other information that would be helpful. (e.g. injuries, workout schedules, 1RMs) </p>
-                <input class="form-control" type="text" name="addinfo" value="{{ user.addinfo }}" placeholder="My max bench is 5000 lbs">
-              </div>
-            </div>
-          </div>
-        <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button>
-        </form>
+          <span id="profileCard"></span>
         </div>
       </div>
     </div>
@@ -245,11 +87,12 @@
 {% endblock %}
 {% block scripts%}
 <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
 
-  let postrequest = null;
 
   function setup() {
+    getprofileCard();
 
     $("#day-schedule").dayScheduleSelector({
       days: [0, 1, 2, 3, 4, 5, 6],
