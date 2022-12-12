@@ -377,6 +377,7 @@ def schedule_to_readable(schedule: List[ScheduleStatus] | List[int]) -> List[str
     ]
 
 
+# TODO limit the size of columns in the database
 class User(BASE):
     """Users database. Maps each netid to their Gymbuddies profile information."""
     __tablename__ = "users"

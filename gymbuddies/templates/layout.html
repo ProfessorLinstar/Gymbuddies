@@ -345,6 +345,7 @@
 
     $('.modal').on('shown.bs.modal', function (event) {
       // keep track of the number of open modals
+      console.log("handling shown modal!")
       if ( typeof( $('body').data( 'fv_open_modals' ) ) == 'undefined' ) {
         $('body').data( 'fv_open_modals', 0 );
       }

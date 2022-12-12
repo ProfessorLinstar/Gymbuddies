@@ -62,6 +62,7 @@ function getunmatchCard(requestid, url) {
     console.log("aborting other getrequests!");
   }
 
+  console.log("making getrequest with requestid", requestid)
  getrequest = $.ajax({
     type: 'GET',
     data: { "requestid": requestid },

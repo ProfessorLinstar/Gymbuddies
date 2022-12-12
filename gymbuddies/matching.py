@@ -464,7 +464,8 @@ def unmatchmodal():
         return redirect(url_for("auth.login"))
 
     print("processing an unmatch modal!")
-    requestid = int(request.form.get("requestid", "0"))
+    requestid = int(request.args.get("requestid", "0"))
+    print(f"{requestid = }")
    
     return render_template("unmatchmodal.html",
                            netid=netid,
