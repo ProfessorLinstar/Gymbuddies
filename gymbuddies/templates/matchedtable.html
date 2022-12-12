@@ -87,7 +87,7 @@
                     class="btn btn-link text-danger text-gradient px-3 mb-0"
                     type="button" 
                     data-bs-toggle="modal" data-bs-target="#unmatchConfirm"
-                    onClick="getunmatchCard('{{ match.requestid }}','{{ url_for('matching.unmatchmodal') }}' )"
+                    onClick="getunmatchCard({{ match.requestid }},'{{ url_for('matching.unmatchmodal') }}' )"
                     ><i class="fas fa-user-slash me-2">
                     </i>Unmatch</button>
 
