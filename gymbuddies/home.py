@@ -165,11 +165,17 @@ def settings():
 
     if request.method == "POST" and request.form.get("blockinghere", "") == "true":
         blocknetid = request.form.get("netid", "")
-        database.user.block_user(netid, blocknetid)
+        # make sure that the block user operation is valid
+        if not (database.user.exists(blocknetid) and database.user.exists(netid)):
+            pass
+        elif blocknetid == netid:
+            pass
+        else:
+            database.user.block_user(netid, blocknetid)
 
-        # perform refresh for the find a buddy page after having blocked a user
-        session["matches"] = database.matchmaker.find_matches(netid)
-        session["index"] = 0
+            # perform refresh for the find a buddy page after having blocked a user
+            session["matches"] = database.matchmaker.find_matches(netid)
+            session["index"] = 0
 
         # update the database requests and matches based on the block
         update_requests_matches(netid, blocknetid)
