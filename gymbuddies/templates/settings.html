@@ -4,6 +4,36 @@
 
 {% block content %}
 
+<div class="modal fade bd-example-modal-lg" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Delete Account</h5>
+        <button type="button" id="closeButton" class="close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="card-body">
+          <div class="row" style="text-align:center">
+            <h6>Are you sure you want to delete your account?</h6>
+            <p style="font-size: small;"> By deleting your account, you won't be able to access Gymbuddies services. All your account information will be removed from the database. <b>This action cannot be undone.</b>
+          </div>
+
+          <div class="d-flex mt-2 justify-content-center">
+            <form action="{{ url_for('home.delete')}}" method="post">
+              <button type="submit" id="deleteAccountButton" class="btn btn-primary btn-sm" style = "background-color: #E10600 !important;" >Delete Account</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <div class="container-fluid py-4">
 
 
@@ -37,16 +67,25 @@
           </div>
           <br>
           <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button>
-        <!-- </form> -->
-          <!-- <hr class="horizontal dark"> -->
-          
+        </form>
+          <hr class="horizontal dark"> 
+
+          <!-- Account Settings-->
+          <p class="text-uppercase text-sm">Account</p>
+          <div class="row">
+            <div class="form-group">
+              <label for="accountdeletion" class="form-control-label">Delete account</label>
+              <p class="text-xs">Deleting your account will remove all your personal data from GymBuddies. </p>
+              <button id="requestButton" type="button" class="btn btn-sm btn-box px-3 mb-0" data-bs-toggle="modal" data-bs-target="#deleteAccountModal"><i class="far fa-trash-alt me-2"></i>Delete account</button>
+            </div>
+        </div>
         </div>
       </div>
     </div>
-  </form>
-         
-    <!-- Calendar -->
+  
+
     <div class="col-md-6">
+      <!-- Blocked list -->
       <div class="card card-profile scrolling-wrapper">
         <div class="card-header pb-0 pt-3 bg-transparent">
           <h6 class="text-capitalize">Blocked</h6>
@@ -60,6 +99,7 @@
         <!-- </form> -->
       </div>
       <br>
+      <!-- Search to Block Users -->
       <div class="card card-profile scrolling-wrapper">
         <div class="card-header pb-0 pt-3 bg-transparent">
           <h6 class="text-capitalize">Block Users</h6>
@@ -78,9 +118,9 @@
                   <input name="netid" id="netid" class="form-control" type="text" value="">
                 </div>
               </div>
-              <br>
               <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Block</button>
               </form>
+              <br>
             </div>
           </div>
         <!-- </form> -->

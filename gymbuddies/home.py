@@ -273,3 +273,17 @@ def blockedtable():
                            netid=netid,
                            blockedusers=users,
                            length=length)
+
+
+@bp.route("/delete", methods=["POST"])
+@error.guard_decorator()
+def delete():
+    """Deletes user"""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+
+    database.user.delete(netid)
+
+    return redirect(url_for("home.index"))
+

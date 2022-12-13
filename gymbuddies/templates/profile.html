@@ -42,7 +42,16 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-header pb-0 pt-3 bg-transparent">
-          <h6 class="text-capitalize">Create Profile</h6>
+          <!-- <h6 class="text-capitalize">Create Profile</h6>
+          
+            <button class="btn btn-primary btn-sm ms-auto">Settings</button> -->
+            <div class="d-flex align-items-center">
+              <h6 class="text-capitalize">Create Profile</h6>
+              <a class = "ms-auto" href="{{ url_for('home.settings') }}">
+                <i class="fa-solid fa-gear"></i>
+              </a>
+              <!-- <button class="btn btn-primary btn-sm ms-auto">Settings</button> -->
+            </div>
         </div>
         <div class="card-body">
           <span id="profileCard"></span>
