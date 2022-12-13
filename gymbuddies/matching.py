@@ -38,9 +38,10 @@ def findabuddy():
         # ADD SMS MESSAGING HERE
         if sendsms.SEND_SMS:
             if database.user.get_notification_status(destnetid):
+                username = database.user.get_name(netid)
                 number = database.user.get_contact(destnetid)
                 success = sendsms.sendsms("1" + number,
-                                          sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", netid))
+                                          sendsms.NEW_REQUEST_MESSAGE.replace("$netid$", netid).replace("$username$", username))
                 print("sent to this number:", number)
                 print(success)
         # return redirect(url_for("matching.outgoing"))
@@ -188,18 +189,20 @@ def incomingtable():
             # ADD SMS MESSAGING HERE
             if sendsms.SEND_SMS:
                 srcnetid = database.request.get_srcnetid(requestid)
+                srcusername = database.user.get_name(srcnetid)
                 src_number = database.user.get_contact(srcnetid)
                 destnetid = database.request.get_destnetid(requestid)
+                destusername = database.user.get_name(destnetid)
                 dest_number = database.user.get_contact(destnetid)
                 if netid == destnetid and database.user.get_notification_status(srcnetid):
                     result = sendsms.sendsms(
                         "1" + src_number,
-                        sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", destnetid))
+                        sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", destnetid).replace("$username$", destusername))
                     print(result)
                 elif netid == srcnetid and database.user.get_notification_status(destnetid):
                     result = sendsms.sendsms(
                         "1" + dest_number,
-                        sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", srcnetid))
+                        sendsms.FINALIZE_REQUEST_MESSAGE.replace("$netid$", srcnetid).replace("$username$", destusername))
                     print(result)
         else:
             print(f"Action not found! {action = }")
@@ -242,6 +245,24 @@ def incomingmodal():
         schedule = common.json_to_schedule(request.form["jsoncalendar"])
 
         database.request.modify(requestid, schedule)
+        # ADD SMS MESSAGING HERE
+        if sendsms.SEND_SMS:
+            srcnetid = database.request.get_srcnetid(requestid)
+            srcusername = database.user.get_name(srcnetid)
+            src_number = database.user.get_contact(srcnetid)
+            destnetid = database.request.get_destnetid(requestid)
+            destusername = database.user.get_name(destnetid)
+            dest_number = database.user.get_contact(destnetid)
+            if netid == destnetid and database.user.get_notification_status(srcnetid):
+                result = sendsms.sendsms(
+                    "1" + src_number,
+                    sendsms.MODIFY_REQUEST_MESSAGE.replace("$netid$", destnetid).replace("$username$", destusername))
+                print(result)
+            elif netid == srcnetid and database.user.get_notification_status(destnetid):
+                result = sendsms.sendsms(
+                    "1" + dest_number,
+                    sendsms.MODIFY_REQUEST_MESSAGE.replace("$netid$", srcnetid).replace("$username$", srcusername))
+                print(result)
         # return redirect(url_for("matching.outgoing"))
         print("inside incomingmodal POST")
         return ""
@@ -359,17 +380,16 @@ def matchedtable():
             # ADD SMS MESSAGING HERE
             if sendsms.SEND_SMS:
                 destnetid = database.request.get_destnetid(requestid)
+                username = database.user.get_name(netid)
                 if destnetid != netid and database.user.get_notification_status(destnetid):
                     number = database.user.get_contact(destnetid)
-                    success = sendsms.sendsms(
-                        "1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid))
+                    success = sendsms.sendsms("1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid).replace("$username$", username))
                     print(success)
                 else:
                     srcnetid = database.request.get_srcnetid(requestid)
                     if database.user.get_notification_status(srcnetid):
                         number = database.user.get_contact(srcnetid)
-                        success = sendsms.sendsms(
-                            "1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid))
+                        success = sendsms.sendsms("1" + number, sendsms.MATCH_TERMINATE_MESSAGE.replace("$netid$", netid).replace("$username$", username))
 
         else:
             print(f"Action not found! {action = }")
@@ -408,6 +428,7 @@ def matchedmodal():
         schedule = common.json_to_schedule(request.form["jsoncalendar"])
 
         database.request.modify_match(requestid, netid, schedule)
+        
         # return redirect(url_for("matching.outgoing"))
         print("inside matchedmodal POST")
         return ""
