@@ -7,8 +7,7 @@ function showFieldError(element, str, elementError, pattern) {
     elementError.textContent = str + ' should be at least ' + element.minLength + ' characters; you entered ' + element.value.length;
   } else if (element.validity.patternMismatch) {
     console.log("validity:", element.validity);
-    console.log("pattern:", element.pattern, element.pattern === "^\\S.*\\S$");
-    if (element.pattern === "^\\S.*\\S$") {
+    if (element.pattern === "(^\\S.*\\S$|^\\S$)") {
       elementError.textContent = "Entered value cannot have leading/trailing whitespace."
     } else {
       elementError.textContent = "Entered value needs to have " + pattern;
@@ -44,7 +43,19 @@ function showGenderPrefError(elementError) {
   // element.className = "form-control is-invalid focus"
 }
 
-function validate(name, contact, bio, nameError, contactError, bioError, genderpError) {
+function getFields() {
+  const name = document.getElementById("name");
+  const contact = document.getElementById("contact");
+  const bio = document.getElementById("bio");
+  const nameError = document.querySelector("#name + span.invalid-feedback");
+  const contactError = document.querySelector("#contact + span.invalid-feedback");
+  const bioError = document.querySelector("#bio + span.invalid-feedback");
+  const genderpError = document.querySelector("#genderPrefFeedback");
+  return [name, contact, bio, nameError, contactError, bioError, genderpError];
+}
+
+function validate() {
+  const [name, contact, bio, nameError, contactError, bioError, genderpError] = getFields();
   let error = 0
   if (!name.validity.valid) {
     showFieldError(name, "name", nameError);
@@ -65,16 +76,7 @@ function validate(name, contact, bio, nameError, contactError, bioError, genderp
 }
 
 function bindEvents() {
-  const form = document.getElementById("profileformUpdate");
-  const name = document.getElementById("name");
-  const contact = document.getElementById("contact");
-  const bio = document.getElementById("bio");
-  const updatebutton = document.getElementById("profileinfoUpdate");
-  const nameError = document.querySelector("#name + span.invalid-feedback");
-  const contactError = document.querySelector("#contact + span.invalid-feedback");
-  const bioError = document.querySelector("#bio + span.invalid-feedback");
-  const genderpError = document.querySelector("#genderPrefFeedback");
-
+  const [name, contact, bio, nameError, contactError, bioError, genderpError] = getFields();
 
   console.log("name:", name);
   console.log("contact:", contact);
@@ -138,17 +140,6 @@ function bindEvents() {
       showFieldError(bio, "bio", bioError);
     }
   });
-
-  updatebutton.addEventListener("click", (event) => {
-    if (validate(name, contact, bio, nameError, contactError, bioError, genderpError)) {
-      // showFieldError(contact, "phone number", contactError);
-      $("#profileinvalidModal").modal("show");
-    }
-    else {
-      updateprofileCard();
-    }
-
-  })
 
 }
 
