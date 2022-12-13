@@ -107,9 +107,9 @@ def profile():
     return render_template("profile.html", netid=netid, user=user, **context)
 
 
-@bp.route("/profileCard", methods=["GET", "POST"])
+@bp.route("/profilecard", methods=["GET", "POST"])
 @error.guard_decorator()
-def profileCard():
+def profilecard():
     """Profile page for editing user information."""
     netid: str = session.get("netid", "")
     if not netid:
