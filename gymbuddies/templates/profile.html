@@ -72,7 +72,7 @@
       <div class="card">
         <div class="card-header pb-0 pt-3 bg-transparent">
           <!-- <h6 class="text-capitalize">Create Profile</h6>
-          
+
             <button class="btn btn-primary btn-sm ms-auto">Settings</button> -->
             <div class="d-flex align-items-center">
               <h6 class="text-capitalize">Create Profile</h6>
@@ -85,6 +85,7 @@
         <div class="card-body">
           <form action="{{ url_for('home.profilecard') }}" id="profileformUpdate">
             <span id="profileCard"></span>
+            <button class="btn btn-primary btn-sm ms-auto" type="button" id = "profileinfoUpdate">Update</button>
           </form>
         </div>
       </div>
@@ -163,9 +164,9 @@
         $("#profileCard").html(response);
         bindEvents();
       },
-      complete: function() { 
-        postrequest = null; 
-        $("body").removeClass("wait"); 
+      complete: function() {
+        postrequest = null;
+        $("body").removeClass("wait");
         $('#profileModal').modal('show');
       },
       error: function() { console.log("updateprofileCard failed!"); },
@@ -174,9 +175,8 @@
   }
 
   function setup() {
-   
     getprofileCard();
-    
+
 
     $("#day-schedule").dayScheduleSelector({
       days: [0, 1, 2, 3, 4, 5, 6],
@@ -196,7 +196,7 @@
     $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
       console.log(selected);
     })
-    
+
 
     $('#updateCalendar').click( function() {
       const calendar = $("#day-schedule").data("artsy.dayScheduleSelector").serialize();
@@ -234,6 +234,16 @@
     $("#clearCalendar").click( function() {
       console.log("???");
       $("#day-schedule").data("artsy.dayScheduleSelector").clear();
+    });
+
+    $("#profileinfoUpdate").on("click", (event) => {
+      if (validate()) {
+        // showFieldError(contact, "phone number", contactError);
+        $("#profileinvalidModal").modal("show");
+      }
+      else {
+        updateprofileCard();
+      }
     });
 
   }

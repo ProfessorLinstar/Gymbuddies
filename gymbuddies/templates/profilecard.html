@@ -10,7 +10,7 @@
     <div class="form-group">
       <label for="name" class="form-control-label">Name*</label>
       <p class="text-xs">(as you want it to appear)</p>
-      <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  placeholder="First and last name" maxLength="35" pattern="^\S.*\S$" required>
+      <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  placeholder="First and last name" maxLength="35" pattern="(^\S.*\S$|^\S$)" required>
       <span class="invalid-feedback" aria-live="polite"></span>
     </div>
   </div>
@@ -162,4 +162,3 @@
   </div>
 </div>
 <input type="hidden" name="update" value="information">
-<button class="btn btn-primary btn-sm ms-auto" type="button" id = "profileinfoUpdate">Update</button>
