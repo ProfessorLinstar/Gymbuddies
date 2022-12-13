@@ -123,197 +123,221 @@
   </form>
 </div>
 {% endblock %}
+
 {% block scripts%}
 <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery-input-mask-phone-number.js') }}"></script>
 <script>
-  function showError(element,str, elementError, pattern) {
-  if (element.validity.valueMissing) {
-    elementError.textContent = "You need to enter a " + str;
-  } else if (element.validity.typeMismatch) {
-    elementError.textContent = "Entered value needs to be a " + str;
-  } else if (element.validity.tooShort) {
-    elementError.textContent = str + ' should be at least ' + element.minLength+' characters; you entered ' + element.value.length;
-  } else if (element.validity.patternMismatch) {
-    elementError.textContent = "Entered value needs to have " + pattern;
-  } 
-  else if (element.validity.tooLong) {
-    // If the data is too short,
-    // display the following error message.
-    elementError.textContent = str + ' should be at most ' + element.maxLength+' characters; you entered ' + element.value.length;
+  function showFieldError(element, str, elementError, pattern) {
+    if (element.validity.valueMissing) {
+      elementError.textContent = "You need to enter a " + str;
+    } else if (element.validity.typeMismatch) {
+      elementError.textContent = "Entered value needs to be a " + str;
+    } else if (element.validity.tooShort) {
+      elementError.textContent = str + ' should be at least ' + element.minLength+' characters; you entered ' + element.value.length;
+    } else if (element.validity.patternMismatch) {
+      console.log("validity:", element.validity);
+      console.log("pattern:", element.pattern, element.pattern === "^\\S.*\\S$");
+      if (element.pattern === "^\\S.*\\S$") {
+        elementError.textContent = "Entered value cannot have leading/trailing whitespace."
+      } else {
+        elementError.textContent = "Entered value needs to have " + pattern;
+      }
+    } 
+    else if (element.validity.tooLong) {
+      // If the data is too short,
+      // display the following error message.
+      elementError.textContent = str + ' should be at most ' + element.maxLength+' characters; you entered ' + element.value.length;
+    }
+
+    // Set the styling appropriately
+    elementError.className = "invalid-feedback";
+    elementError.style.display = "block";
+    element.className = "form-control is-invalid focus"
   }
 
-  // Set the styling appropriately
-  elementError.className = "invalid-feedback";
-  elementError.style.display = "block";
-  element.className = "form-control is-invalid focus"
-}
-function validateGenderPref() {
-  okbin = document.getElementById('okbinary');
-  okmale = document.getElementById('okmale');
-  okfemale = document.getElementById('okfemale');
-  return okbin.checked || okmale.checked || okfemale.checked;
-}
+  function validateGenderPref() {
+    okbin = document.getElementById('okbinary');
+    okmale = document.getElementById('okmale');
+    okfemale = document.getElementById('okfemale');
+    return okbin.checked || okmale.checked || okfemale.checked;
+  }
 
-function showGenderPrefError(elementError) {
-  if (!validateGenderPref()) {
-    elementError.textContent = "Select at least one option";
-  } 
+  function showGenderPrefError(elementError) {
+    if (!validateGenderPref()) {
+      elementError.textContent = "Select at least one option";
+    } 
 
-  // Set the styling appropriately
-  elementError.className = "invalid-feedback";
-  elementError.style.display = "block";
-  // element.className = "form-control is-invalid focus"
-}
+    // Set the styling appropriately
+    elementError.className = "invalid-feedback";
+    elementError.style.display = "block";
+    // element.className = "form-control is-invalid focus"
+  }
 
-  function validate(name,contact,bio, nameError,  contactError, bioError, genderpError) {
+  function validate(name, contact, bio, nameError, contactError, bioError, genderpError) {
     let error  = 0
     if(!name.validity.valid) {
-      showError(name, "name", nameError);
+      showFieldError(name, "name", nameError);
       error = 1;
     }
     if (!contact.validity.valid ) {
-      showError(contact, "phone number", contactError, "10 digits, no special characters");
+      showFieldError(contact, "phone number", contactError, "10 digits, no special characters");
       error = 1;
     }
     if (!bio.validity.valid ) {
-      showError(bio, "bio", bioError);
+      showFieldError(bio, "bio", bioError);
       error = 1;
     } if (!validateGenderPref()){
       showGenderPrefError(genderpError);
       error = 1;
     }
-  return error;
-}
+    return error;
+  }
 
   function bindEvents() {
-  const form = document.getElementById("profileformUpdate");
-  const name = document.getElementById("name");
-  const contact = document.getElementById("contact");
-  const bio = document.getElementById("bio");
-  const nameError = document.querySelector("#name + span.invalid-feedback");
-  const contactError = document.querySelector("#contact + span.invalid-feedback");
-  const bioError = document.querySelector("#bio + span.invalid-feedback");
-  const updatebutton = document.getElementById("profileinfoUpdate");
-  const genderpError = document.querySelector("#bio + span#genderPrefFeedback");
-
-  name.addEventListener("input", (event) => {
-  // Each time the user types something, we check if the
-  // form fields are valid.
-
-  console.log("inside name addeventlistener")
-  if (name.validity.valid) {
-    // In case there is an error message visible, if the field
-    // is valid, we remove the error message.
-    nameError.textContent = ""; // Reset the content of the message
-    nameError.className = "invalid-feedback"; // Reset the visual state of the message
-    name.className = "form-control is-valid"
-    
-  } else {
-    // If there is still an error, show the correct error
-    showError(name, "name", nameError);
-  }
-});
-contact.addEventListener("input", (event) => {
-  // Each time the user types something, we check if the
-  // form fields are valid.
-
-  console.log("inside contact addeventlistener")
-  if (contact.validity.valid) {
-    // In case there is an error message visible, if the field
-    // is valid, we remove the error message.
-    contactError.textContent = ""; // Reset the content of the message
-    contactError.className = "invalid-feedback"; // Reset the visual state of the message
-    contact.className = "form-control is-valid"
-    
-  } else {
-    // If there is still an error, show the correct error
-    showError(contact, "phone number", contactError, "10 digits, no special characters");
-  }
-});
-bio.addEventListener("input", (event) => {
-  // Each time the user types something, we check if the
-  // form fields are valid.
-
-  console.log("inside bio addeventlistener")
-  if (bio.validity.valid) {
-    // In case there is an error message visible, if the field
-    // is valid, we remove the error message.
-    bioError.textContent = ""; // Reset the content of the message
-    bioError.className = "invalid-feedback"; // Reset the visual state of the message
-    bio.className = "form-control is-valid"
-    
-  } else {
-    // If there is still an error, show the correct error
-    showError(bio, "bio", bioError);
-  }
-});
-updatebutton.addEventListener("click", (event) => {
-  if (validate(name,contact,bio, nameError, contactError, bioError, genderpError)) {
-    // showError(contact, "phone number", contactError);
-    $("#profileinvalidModal").modal("show");
-  }
-  else {
-    updateprofileCard();
-  }
-  
-})
-}
-
-// form.addEventListener("submit", (event) => {
-//   // if the email field is valid, we let the form submit
-//   if (!contact.validity.valid) {
-//     // If it isn't, we display an appropriate error message
-//     showError();
-//     // Then we prevent the form from being sent by canceling the event
-//     event.preventDefault();
-//   }
-// });
+    const form = document.getElementById("profileformUpdate");
+    const name = document.getElementById("name");
+    const contact = document.getElementById("contact");
+    const bio = document.getElementById("bio");
+    const updatebutton = document.getElementById("profileinfoUpdate");
+    const nameError = document.querySelector("#name + span.invalid-feedback");
+    const contactError = document.querySelector("#contact + span.invalid-feedback");
+    const bioError = document.querySelector("#bio + span.invalid-feedback");
+    const genderpError = document.querySelector("#genderPrefFeedback");
 
 
+    console.log("name:", name);
+    console.log("contact:", contact);
+    console.log("bio:", bio);
+    console.log("nameError:", nameError);
+    console.log("contactError:", contactError);
+    console.log("bioError:", bioError);
+    console.log("genderpError:", genderpError);
 
 
-function getprofileCard() {
-  if (getrequest != null) {
-    console.log("aborting other getrequests!");
-  }
-  console.log("making getrequest for profilecard")
-  getrequest = $.ajax({
-    type: 'GET',
-    url: "/profileCard",
-    success: function(response) {
-      $("#profileCard").html(response);
-      bindEvents();
-    },
-    complete: function() { getrequest = null; },
-    error: function() { console.log("getprofileCard failed!"); },
-    timeout: ajaxtimeout,
-  });
-}
+    name.addEventListener("focusout", (event) => {
+      // Each time the user types something, we check if the
+      // form fields are valid.
 
-function updateprofileCard() {
-  if (postrequest != null) {
-    console.log("aborting other postrequests!");
+      console.log("inside name addeventlistener")
+      if (name.validity.valid) {
+        // In case there is an error message visible, if the field
+        // is valid, we remove the error message.
+        nameError.textContent = ""; // Reset the content of the message
+        nameError.className = "invalid-feedback"; // Reset the visual state of the message
+        name.className = "form-control is-valid"
+        
+      } else {
+        // If there is still an error, show the correct error
+        showFieldError(name, "name", nameError);
+      }
+    });
+
+    contact.addEventListener("focusout", (event) => {
+      // Each time the user types something, we check if the
+      // form fields are valid.
+
+      console.log("inside contact addeventlistener")
+      if (contact.validity.valid) {
+        // In case there is an error message visible, if the field
+        // is valid, we remove the error message.
+        contactError.textContent = ""; // Reset the content of the message
+        contactError.className = "invalid-feedback"; // Reset the visual state of the message
+        contact.className = "form-control is-valid"
+        
+      } else {
+        // If there is still an error, show the correct error
+        showFieldError(contact, "phone number", contactError, "10 digits, no special characters");
+      }
+    });
+
+    bio.addEventListener("focusout", (event) => {
+      // Each time the user types something, we check if the
+      // form fields are valid.
+
+      console.log("inside bio addeventlistener")
+      if (bio.validity.valid) {
+        // In case there is an error message visible, if the field
+        // is valid, we remove the error message.
+        bioError.textContent = ""; // Reset the content of the message
+        bioError.className = "invalid-feedback"; // Reset the visual state of the message
+        bio.className = "form-control is-valid"
+        
+      } else {
+        // If there is still an error, show the correct error
+        showFieldError(bio, "bio", bioError);
+      }
+    });
+
+    updatebutton.addEventListener("click", (event) => {
+      if (validate(name,contact,bio, nameError, contactError, bioError, genderpError)) {
+        // showFieldError(contact, "phone number", contactError);
+        $("#profileinvalidModal").modal("show");
+      }
+      else {
+        updateprofileCard();
+      }
+      
+    })
+
   }
 
-  $("body").addClass("wait");
-  console.log("making postrequest for profilecard")
-  getrequest = $.ajax({
-    type: 'POST',
-    data: $("#profileformUpdate").serialize(),
-    url: "/profileCard",
-    success: function(response) {
-      $("#profileCard").html(response);
-      bindEvents();
-    },
-    complete: function() { 
-      postrequest = null; 
-      $("body").removeClass("wait"); 
-      $('#profileModal').modal('show');
-    },
-    error: function() { console.log("updateprofileCard failed!"); },
-    timeout: ajaxtimeout,
-  });
-}
+  // form.addEventListener("submit", (event) => {
+  //   // if the email field is valid, we let the form submit
+  //   if (!contact.validity.valid) {
+  //     // If it isn't, we display an appropriate error message
+  //     showFieldError();
+  //     // Then we prevent the form from being sent by canceling the event
+  //     event.preventDefault();
+  //   }
+  // });
+
+
+
+
+  function getprofileCard() {
+    if (getrequest != null) {
+      console.log("aborting other getrequests!");
+    }
+    console.log("making getrequest for profilecard")
+    getrequest = $.ajax({
+      type: 'GET',
+      url: "/profileCard",
+      success: function(response) {
+        $("#profileCard").html(response);
+        bindEvents();
+      },
+      complete: function() { getrequest = null; },
+      error: function() { console.log("getprofileCard failed!"); },
+      timeout: ajaxtimeout,
+    });
+  }
+
+  function updateprofileCard() {
+    if (postrequest != null) {
+      console.log("aborting other postrequests!");
+    }
+
+    $("body").addClass("wait");
+    console.log("making postrequest for profilecard")
+    getrequest = $.ajax({
+      type: 'POST',
+      data: $("#profileformUpdate").serialize(),
+      url: "/profileCard",
+      success: function(response) {
+        $("#profileCard").html(response);
+        bindEvents();
+      },
+      complete: function() { 
+        postrequest = null; 
+        $("body").removeClass("wait"); 
+        $('#profileModal').modal('show');
+      },
+      error: function() { console.log("updateprofileCard failed!"); },
+      timeout: ajaxtimeout,
+    });
+  }
+
   function setup() {
    
     getprofileCard();

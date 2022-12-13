@@ -11,7 +11,7 @@
       <div class="form-group">
         <label for="name" class="form-control-label">Name*</label>
         <p class="text-xs">(as you want it to appear)</p>
-        <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  placeholder="First and last name" maxLength="35" required >
+        <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  placeholder="First and last name" maxLength="35" pattern="^\S.*\S$" required>
         <span class="invalid-feedback" aria-live="polite"></span>
       </div>
     </div>
@@ -19,7 +19,7 @@
       <div class="form-group">
         <label for="contact" class="form-control-label">Contact*</label>
         <p class="text-xs">(valid U.S. phone number) </p>
-        <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}"  minlength="10" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" placeholder="0001112222" required>
+        <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}"  minlength="10" maxlength="10" pattern="[0-9]{10}" placeholder="0001112222" required>
         <span class="invalid-feedback" aria-live="polite"></span>
       </div>
     </div>
@@ -60,7 +60,7 @@
 
   </div>
   <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
       <div class="form-group">
         <label for="interests" class="form-control-label">Interests*</label>
           <div class="custom-control custom-checkbox">
@@ -95,7 +95,7 @@
           </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
       <div class="form-group">
         <label for="gender" class="form-control-label">Gender*</label>
           <div class="custom-control custom-checkbox">
@@ -122,7 +122,7 @@
   <hr class="horizontal dark">
   <p class="text-uppercase text-sm">Match Preferences*</p>
   <div class = "row">
-    <div class = "col md-4">
+    <div class = "col-md-6">
       <label for = "levelpreference">Buddy's Level</label>
       <select required class="form-control" placeholder="Level" name="levelpreference">
         <option id="level0" value="0" {{ "selected" if (user.levelpreference == 0 ) else "" }}> Equal </option>
@@ -131,7 +131,7 @@
         <option id="level3"  value="3" {{ "selected" if (user.levelpreference ==3 ) else "" }}>All</option>
       </select>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
       <div class="form-group">
         <label for="gender" class="form-control-label">Gender Preference*</label>
           <div class="custom-control custom-checkbox">
