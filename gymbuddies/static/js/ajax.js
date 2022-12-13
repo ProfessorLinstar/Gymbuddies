@@ -46,11 +46,16 @@ function showBuddyError() {
 
 function fillCard(response) {
   console.log("got a response");
+  $('#Popup').modal("show");
   $('#userPopup').html(response);
 }
 
 
 function getCard(requestid, url) {
+  if (postrequest != null) {
+    console.log("Busy! am not opening card");
+    return;
+  }
   if (getrequest != null) {
     console.log("aborting other getrequests!");
   }
