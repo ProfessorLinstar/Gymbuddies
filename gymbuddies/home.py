@@ -157,7 +157,7 @@ def newuser():
         prof: Dict[str, Any] = common.form_to_entireprofile()
         prof.update(netid=netid)
         database.user.update(**prof)
-        return redirect(url_for("home.profile"))
+        return redirect(url_for("home.tutorial"))
 
     user = database.user.get_user(netid)
 
@@ -166,6 +166,16 @@ def newuser():
     common.fill_schedule(context, user.schedule)
 
     return render_template("newuser.html", netid=netid, user=user, **context)
+
+@bp.route("/tutorial", methods=["GET", "POST"])
+@error.guard_decorator()
+def tutorial():
+    """Profile page for creating new user information."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+
+    return render_template("tutorial.html", netid=netid)
 
 
 @bp.route("/settings", methods=["GET", "POST"])
