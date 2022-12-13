@@ -35,6 +35,7 @@ td {
 
 .schedule-rows td[data-selected] {
   font-size: 11px;
+  background-color: #5E72E3;
 }
 
 /* td p {
@@ -64,11 +65,11 @@ td {
 .schedule-rows td[data-selected],
 .schedule-rows td[data-selecting] {
   font-weight: 600;
-  background-color: #5E72E3;
 }
 
 .schedule-rows td[data-selecting] {
   font-size: 12px;
+  background-color: #7684d6;
 }
 
 .schedule-rows td[data-disabled] { opacity: 0.55; }
@@ -78,17 +79,17 @@ td {
 }
 
 .ellipsis {
-    position: relative;
+  position: relative;
 }
 .ellipsis:before {
-    content: '&nbsp;';
-    visibility: hidden;
+  content: '&nbsp;';
+  visibility: hidden;
 }
 .ellipsis span {
-    position: absolute;
-    left: 0;
-    right: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  position: absolute;
+  left: 0;
+  right: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

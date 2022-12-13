@@ -148,6 +148,7 @@
     }
 
     this.$el.on('click', '.time-slot', function () {
+      console.log('found a click!');
       if (!plugin.isSelecting()) {  // if we are not in selecting mode
         if (options.restricted && !$(this).is("[data-initial]")) return;
 
@@ -158,6 +159,7 @@
           }
         } else {  // then start selecting
           plugin.$selectingStart = $(this);
+          plugin.$lastMouseOvered = $(this);
           $(this).attr('data-selecting', 'selecting');
           plugin.$el.find('.time-slot').attr('data-disabled', 'disabled');
           plugin.$el.find('.time-slot[data-day="' + $(this).data('day') + '"]').removeAttr('data-disabled');
@@ -167,13 +169,15 @@
         }
 
       } else {  // if we are in selecting mode
+        console.log("finalizing selection!");
         finalizeSelection(plugin, $(this));
       }
     });
 
     this.$el.on('mouseover', '.time-slot', function () {
+      console.log('got a mouseover event!');
       var $slots, day, start, end, temp;
-      if (plugin.isSelecting()) {  // if we are in selecting mode
+      if (plugin.isSelecting() && this !== plugin.$lastMouseOvered) {  // if we are in selecting mode
         day = $(this).data('day');
         $slots = plugin.$el.find('.time-slot[data-day="' + day + '"]');
         end = $slots.index(this);
@@ -188,6 +192,7 @@
         $slots.slice(start, end + 1).attr('data-selecting', 'selecting');
 
         plugin.$selectingStart.html(formatSlotTime($slots.eq(start), $slots.eq(end)));
+        plugin.$lastMouseOvered = this;
       }
     });
   };
