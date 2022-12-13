@@ -17,7 +17,6 @@ block links %}
   {% endif %}
 
   <form action="{{ url_for('master.show') }}" method="post">
-    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
     <div id="container">
       <div id="left">
         <h2>User Profile</h2>

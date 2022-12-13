@@ -24,7 +24,6 @@
 
           <div class="d-flex mt-2 justify-content-center">
             <form action="{{ url_for('home.delete')}}" method="post">
-              <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
               <button type="submit" id="deleteAccountButton" class="btn btn-primary btn-sm" style = "background-color: #E10600 !important;" >Delete Account</button>
             </form>
           </div>
