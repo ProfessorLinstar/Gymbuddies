@@ -210,7 +210,7 @@
       </div>
     </nav>
 
-    <div class="container-fluid py-4">
+    <div id="main-body" class="container-fluid py-4">
 
       <div class="modal fade bd-example-modal-lg" id="errorPopup" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
         <div class="modal-dialog modal-md" role="document">
@@ -230,7 +230,9 @@
         </div>
       </div>
 
-      {% block content %}{% endblock %}
+      <div id="main-content">
+        {% block content %}{% endblock %}
+      </div>
 
       <!-- footer -->
       <footer class="footer pt-3  ">
