@@ -117,6 +117,7 @@
 
   // sets up the page 
   function setup() {
+    showBuddyError();
     getBuddies();
     $("#requestSent").on("hidden.bs.modal", getBuddies);
     $("#searchAgain").on("click", getBuddies);
