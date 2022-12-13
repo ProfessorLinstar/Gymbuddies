@@ -135,3 +135,19 @@ body {
   color: red;
 }
 
+main {
+  display:flex;
+  flex-direction:column;
+  min-height: 100vh;
+}
+
+#main-body {
+  display:flex;
+  flex-direction:column;
+  flex: 1;
+}
+
+#main-content {
+  flex: 1;
+}
+
