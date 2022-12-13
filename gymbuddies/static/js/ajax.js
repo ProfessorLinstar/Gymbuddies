@@ -206,6 +206,8 @@ function updateprofileCard() {
   if (postrequest != null) {
     console.log("aborting other postrequests!");
   }
+
+  $("body").addClass("wait");
   console.log("making postrequest for profilecard")
   getrequest = $.ajax({
     type: 'POST',
@@ -214,8 +216,11 @@ function updateprofileCard() {
     success: function(response) {
       $("#profileCard").html(response)
     },
-    complete: function() { postrequest = null; 
-    console.log($("#profileformUpdate").serialize())},
+    complete: function() { 
+      postrequest = null; 
+      $("body").removeClass("wait"); 
+      $('#profileModal').modal('show');
+    },
     error: function() { console.log("updateprofileCard failed!"); },
     timeout: ajaxtimeout,
   });

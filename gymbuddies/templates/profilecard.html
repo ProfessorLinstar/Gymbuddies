@@ -1,7 +1,10 @@
 <form action="{{ url_for('home.profileCard') }}" id="profileformUpdate">
   <p class="text-uppercase text-sm">User Information</p>
   <div class="row">
-    <label for="name" class="form-control-label">Net Id: </label>  <p style="font-size:13 !important">{{netid}}</p>
+    <div class="form-group">
+    <label for="netid" class="form-control-label">Net Id: </label>  
+    <input name="netid" id="netid" class="form-control" type="text" value="{{ netid }}" readonly >
+  </div>
   </div>
   <div class="row">
     <div class="col-md-6">

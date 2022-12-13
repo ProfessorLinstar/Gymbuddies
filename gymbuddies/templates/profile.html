@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="modal fade bd-example-modal-lg" id="Popup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+<div class="modal fade bd-example-modal-lg" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
 
@@ -76,7 +76,7 @@
               </div>
             </div>
 
-            <span class="text-sm" id="lastUpdated"></span>
+            <!-- <span class="text-sm" id="lastUpdated"></span> -->
             </div>
           </div>
         <!-- </form> -->
@@ -125,19 +125,23 @@
         url:'/profile',
         data: {"update": "schedule", "jsoncalendar": JSON.stringify(calendar) },
         success: function(response) {
-          let lastupdated = new Date()
-          $.ajax({
-            type:'GET',
-            url:'/profileupdated',
-            data: {"lastupdated":lastupdated},
-            success: function(response) {
-              $('#lastUpdated').html(response);
-            }
-          })
+          console.log("successfully updated profile calendar");
         },
+        // success: function(response) {
+        //   let lastupdated = new Date()
+        //   $.ajax({
+        //     type:'GET',
+        //     url:'/profileupdated',
+        //     data: {"lastupdated":lastupdated},
+        //     success: function(response) {
+        //       $('#lastUpdated').html(response);
+        //     }
+        //   })
+        // },
         complete: function(response) {
           postrequest = null;
           $("body").removeClass("wait");
+          $('#profileModal').modal('show');
         }
       })
     });

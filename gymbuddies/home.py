@@ -134,12 +134,12 @@ def profileCard():
 
 
 
-@bp.route("/profileupdated", methods=["GET"])
-@error.guard_decorator()
-def profileupdated():
-    """Updated profile message."""
-    time: str = request.args.get("lastupdated", "")
-    return render_template("profileupdated.html", time=time)
+# @bp.route("/profileupdated", methods=["GET"])
+# @error.guard_decorator()
+# def profileupdated():
+#     """Updated profile message."""
+#     time: str = request.args.get("lastupdated", "")
+#     return render_template("profileupdated.html", time=time)
 
 
 @bp.route("/newuser", methods=["GET", "POST"])
