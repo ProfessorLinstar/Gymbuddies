@@ -130,7 +130,7 @@
   if (element.validity.valueMissing) {
     elementError.textContent = "You need to enter a " + str;
   } else if (element.validity.typeMismatch) {
-    emailError.textContent = "Entered value needs to be a " + str;
+    elementError.textContent = "Entered value needs to be a " + str;
   } else if (element.validity.tooShort) {
     elementError.textContent = str + ' should be at least ' + element.minLength+' characters; you entered ' + element.value.length;
   } else if (element.validity.patternMismatch) {
@@ -147,20 +147,41 @@
   elementError.style.display = "block";
   element.className = "form-control is-invalid focus"
 }
-  function validate(name,contact,bio, nameError, contactError, bioError) {
-  let error  = 0
-  if(!name.validity.valid) {
-    showError(name, "name", nameError);
-    error = 1;
-  }
-  if (!contact.validity.valid ) {
-    showError(contact, "phone number", contactError, "10 digits, no special characters");
-    error = 1;
-  }
-  if (!bio.validity.valid ) {
-    showError(bio, "bio", bioError);
-    error = 1;
-  }
+function validateGenderPref() {
+  okbin = document.getElementById('okbinary');
+  okmale = document.getElementById('okmale');
+  okfemale = document.getElementById('okfemale');
+  return okbin.checked || okmale.checked || okfemale.checked;
+}
+
+function showGenderPrefError(elementError) {
+  if (!validateGenderPref()) {
+    elementError.textContent = "Select at least one option";
+  } 
+
+  // Set the styling appropriately
+  elementError.className = "invalid-feedback";
+  elementError.style.display = "block";
+  // element.className = "form-control is-invalid focus"
+}
+
+  function validate(name,contact,bio, nameError,  contactError, bioError, genderpError) {
+    let error  = 0
+    if(!name.validity.valid) {
+      showError(name, "name", nameError);
+      error = 1;
+    }
+    if (!contact.validity.valid ) {
+      showError(contact, "phone number", contactError, "10 digits, no special characters");
+      error = 1;
+    }
+    if (!bio.validity.valid ) {
+      showError(bio, "bio", bioError);
+      error = 1;
+    } if (!validateGenderPref()){
+      showGenderPrefError(genderpError);
+      error = 1;
+    }
   return error;
 }
 
@@ -173,6 +194,7 @@
   const contactError = document.querySelector("#contact + span.invalid-feedback");
   const bioError = document.querySelector("#bio + span.invalid-feedback");
   const updatebutton = document.getElementById("profileinfoUpdate");
+  const genderpError = document.querySelector("#bio + span#genderPrefFeedback");
 
   name.addEventListener("input", (event) => {
   // Each time the user types something, we check if the
@@ -226,7 +248,7 @@ bio.addEventListener("input", (event) => {
   }
 });
 updatebutton.addEventListener("click", (event) => {
-  if (validate(name,contact,bio, nameError, contactError, bioError)) {
+  if (validate(name,contact,bio, nameError, contactError, bioError, genderpError)) {
     // showError(contact, "phone number", contactError);
     $("#profileinvalidModal").modal("show");
   }
