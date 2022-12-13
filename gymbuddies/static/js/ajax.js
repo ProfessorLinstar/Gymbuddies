@@ -225,3 +225,97 @@ function updateprofileCard() {
     timeout: ajaxtimeout,
   });
 }
+
+function resetblockSearch() {
+  if (getrequest != null) {
+    console.log("aborting other getrequests!");
+  }
+
+  $("body").addClass("wait");
+  console.log("making get request for blocksearch")
+  getrequest = $.ajax({
+    type: 'GET',
+    url: "/blocksearch",
+    success: function(response) {
+      $("#blocksearch").html(response)
+    },
+    complete: function() { 
+      getrequest = null; 
+      $("body").removeClass("wait"); 
+      // $('#profileModal').modal('show');
+    },
+    error: function() { console.log("resetblockSearch() failed!"); },
+    timeout: ajaxtimeout,
+  });
+}
+
+function block() {
+  if (postrequest != null) {
+    console.log("aborting other postrequests!");
+  }
+
+  $("body").addClass("wait");
+  console.log("making post request for blocksearch")
+  postrequest = $.ajax({
+    type: 'POST',
+    data: $("#blockUser").serialize(),
+    url: "/blocksearch",
+    success: function(response) {
+      $("#blocksearch").html(response)
+    },
+    complete: function() { 
+      postrequest = null; 
+      $("body").removeClass("wait"); 
+      // $('#profileModal').modal('show');
+    },
+    error: function() { console.log("block() failed!"); },
+    timeout: ajaxtimeout,
+  });
+}
+
+function getNotifSettings() {
+  if (getrequest != null) {
+    console.log("aborting other getrequests!");
+  }
+
+  $("body").addClass("wait");
+  console.log("making post request for settingsnotifs")
+  getrequest = $.ajax({
+    type: 'GET',
+    url: "/settingsnotifs",
+    success: function(response) {
+      $("#notifForm").html(response)
+    },
+    complete: function() { 
+      getrequest = null; 
+      $("body").removeClass("wait"); 
+      // $('#profileModal').modal('show');
+    },
+    error: function() { console.log("getNotifSettings() failed!"); },
+    timeout: ajaxtimeout,
+  });
+}
+
+function updateNotifSettings() {
+  if (postrequest != null) {
+    console.log("aborting other postrequests!");
+  }
+
+  $("body").addClass("wait");
+  console.log("making post request for settingsnotifs")
+  postrequest = $.ajax({
+    type: 'POST',
+    data: $("#notifUpdateForm").serialize(),
+    url: "/settingsnotifs",
+    success: function(response) {
+      $("#notifForm").html(response)
+    },
+    complete: function() { 
+      postrequest = null; 
+      $("body").removeClass("wait"); 
+      // $('#profileModal').modal('show');
+    },
+    error: function() { console.log("updateNotifSettings() failed!"); },
+    timeout: ajaxtimeout,
+  });
+}

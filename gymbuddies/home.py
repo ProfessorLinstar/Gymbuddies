@@ -177,19 +177,31 @@ def settings():
     if not database.user.user_profile_valid(netid):
         return redirect(url_for("home.newuser"))
 
-    user = database.user.get_user(netid)
+    # user = database.user.get_user(netid)
 
-    if request.method == "POST" and request.form.get("update", "") == "true":
-        # submit: str = request.form.get("update", "")
-        # prof: Dict[str, Any] = common.form_to_profile(submit)
-        # prof.update(netid=netid)
-        # database.user.update(**prof)
-        if request.form.get("notifications") == "on":
-            database.user.recieve_notification_on(netid)
-        else:
-            database.user.recieve_notification_off(netid)
+    # if request.method == "POST" and request.form.get("update", "") == "true":
+    #     if request.form.get("notifications") == "on":
+    #         database.user.recieve_notification_on(netid)
+    #     else:
+    #         database.user.recieve_notification_off(netid)
 
-        print(request.form.get("blockinghere", 0) != "")
+    #     print(request.form.get("blockinghere", 0) != "")
+
+    # notification = database.user.get_notification_status(netid)
+    
+    # return render_template("settings.html", netid=netid, user=user, notification=notification)
+
+    return render_template("settings.html", netid=netid)
+
+@bp.route("/blocksearch", methods=["GET", "POST"])
+@error.guard_decorator()
+def blocksearch():
+    """Block search box."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
 
     if request.method == "POST" and request.form.get("blockinghere", "") == "true":
         blocknetid = request.form.get("netid", "")
@@ -200,22 +212,34 @@ def settings():
             pass
         else:
             database.user.block_user(netid, blocknetid)
-
             # perform refresh for the find a buddy page after having blocked a user
             session["matches"] = database.matchmaker.find_matches(netid)
             session["index"] = 0
-
-        # update the database requests and matches based on the block
         update_requests_matches(netid, blocknetid)
-        # p = Process(target=update_requests_matches, args=(netid, blocknetid))
-        # p.start()
+    
+    return render_template("blocksearch.html")
 
-    context: Dict[str, Any] = {}
-    common.fill_schedule(context, user.schedule)
+@bp.route("/settingsnotifs", methods=["GET", "POST"])
+@error.guard_decorator()
+def settingsnotifs():
+    """Settings notification toggle."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+    if not database.user.user_profile_valid(netid):
+        return redirect(url_for("home.newuser"))
+
+    user = database.user.get_user(netid)
+
+    if request.method == "POST" and request.form.get("update", "") == "true":
+        if request.form.get("notifications") == "on":
+            database.user.recieve_notification_on(netid)
+        else:
+            database.user.recieve_notification_off(netid)
 
     notification = database.user.get_notification_status(netid)
-
-    return render_template("settings.html", netid=netid, user=user, notification=notification, **context)
+    
+    return render_template("settingsnotifs.html", netid=netid, user=user, notification=notification)
 
 def update_requests_matches(netid, blocknetid):
     active_outgoing = database.request.get_active_outgoing(netid)

@@ -45,29 +45,15 @@
           <h6 class="text-capitalize">Settings</h6>
         </div>
         <div class="card-body">
-          <form action="{{ url_for('home.settings') }}" method="post">
-            <input type="hidden" id="update" name="update" value="true">
+          <!-- <form action="{{ url_for('home.settings') }}" method="post"> 
+            <input type="hidden" id="update" name="update" value="true">-->
           <p class="text-uppercase text-sm">Notifications</p>
-          <div class="row">
-              <div class="form-group">
-                <label for="notifications" class="form-control-label">SMS Notifications</label>
-                <p class="text-xs">Receive updates by SMS when someone requests a match or accepts one.</p>
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" name = "notifications" id="notifications" {% if notification %} checked {% endif %}>
-                  <label class="form-check-label" for="notifications">Receive alerts</label>
-                </div>
-              </div>
-          </div>
-          <div class="row">
-            <div class="form-group">
-              <label for="email" class="form-control-label">Phone Number:</label>
-              <p class="text-xs">(from Profile)</p>
-              <input name="email" id="email" class="form-control" type="text" value="{{ user.contact }}" readonly>
-            </div>
-          </div>
-          <br>
-          <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button>
-        </form>
+          <form id="notifUpdateForm">
+            <span id="notifForm"></span>
+            <br>
+            <!-- <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button> -->
+            <button class="btn btn-primary btn-sm ms-auto" type="button" onClick="updateNotifSettings()">Update</button>
+          </form>
           <hr class="horizontal dark"> 
 
           <!-- Account Settings-->
@@ -107,19 +93,22 @@
         </div>
         <!-- <form action="{{ url_for('home.profile') }}" method="post"> -->
           <div class="card-body pb-0 pt-3 bg-transparent">
-            <!--- <div>hi</div> --->
-            <!--- <span id="blockedTable"></span> --->
             <div>
-            <form action="{{ url_for('home.settings') }}" method="post">
-              <div class="row">
+            <!-- <form action="{{ url_for('home.settings') }}" method="post"> -->
+              <!-- <div class="row">
                 <input type="hidden" id="blockinghere" name="blockinghere" value="true">
                 <div class="form-group">
                   <label for="email" class="form-control-label">User netid:</label>
                   <input name="netid" id="netid" class="form-control" type="text" value="">
                 </div>
-              </div>
-              <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Block</button>
+              </div> -->
+              <form id ="blockUser">
+                <span id="blocksearch"></span>
+                <!-- <input type="hidden" name="update" value="information"> -->
+                <button class="btn btn-primary btn-sm ms-auto" type="button" onClick="block()">Block</button>
               </form>
+              <!-- <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Block</button> -->
+              <!-- </form> -->
               <br>
             </div>
           </div>
@@ -133,6 +122,8 @@
 <script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
   function setup() {
+    resetblockSearch();
+    getNotifSettings();
     setup_refresh([
       ["{{ url_for('home.blockedtable') }}", "#blockedTable"],
     ]);
