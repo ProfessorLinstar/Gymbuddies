@@ -316,3 +316,15 @@ def notificationstable():
     print("notifications refreshed!")
 
     return render_template("notificationstable.html", unread=database.request.get_unread(netid))
+
+@bp.route("/notificationbadge", methods=["GET", "POST"])
+def notificationbadge():
+    """Returns table of blocked people."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+
+    if common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
+
+    return render_template("notificationbadge.html", unread=database.request.get_unread(netid))

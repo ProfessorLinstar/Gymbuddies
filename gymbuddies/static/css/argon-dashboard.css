@@ -22403,9 +22403,6 @@ hr.horizontal.gray-light {
 }
 
 @media (min-width: 992px) {
-  :not(.main-content) .navbar .dropdown .dropdown-menu {
-    top: 2.25rem !important;
-  }
 
   :not(.main-content) .navbar .dropdown .dropdown-menu .dropdown .dropdown-menu {
     top: 0 !important;
