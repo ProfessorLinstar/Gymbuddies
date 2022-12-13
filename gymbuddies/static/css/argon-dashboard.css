@@ -21242,6 +21242,7 @@ fieldset:disabled .btn {
 
 .dropdown-menu li {
   position: relative;
+  margin-bottom: 0rem !important;
 }
 
 .dropdown.dropdown-subitem:after {

@@ -66,7 +66,7 @@ def session_decorator(*, commit: bool) -> Callable[[Callable[P, R]], Callable[P,
 
             for retry in range(RETRY_NUM + 1):
                 try:
-                    with Session(engine) as session:
+                    with Session(engine, expire_on_commit=False) as session:
                         session.info["postactions"] = []
                         kwargs["session"] = session
                         result = func(*args, **kwargs)
@@ -420,6 +420,11 @@ class MappedUser(User):
     schedule: List[int]
     open: bool
 
+    gender: int
+    okmale: bool
+    okfemale: bool
+    okbinary: bool
+
     settings: Dict[str, Any]
     lastupdated: datetime
 
@@ -440,6 +445,8 @@ class Request(BASE):
     status = Column(Integer)  # status of the request
     schedule = Column(PickleType)  # 2016-character schedule sequence (same format as user.schedule)
     prevrequestid = Column(Integer)  # Id of previous request; 0 if no such request
+    read = Column(Boolean)  # False if not read by the user yet; True otherwise
+
 
 
 class MappedRequest(BASE):
@@ -455,6 +462,7 @@ class MappedRequest(BASE):
     deletetimestamp: datetime
     status: int
     schedule: List[int]
+    read: bool
 
 
 class Schedule(BASE):

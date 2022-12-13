@@ -1,6 +1,6 @@
 let refreshid;
 let ajaxtimeout = 10000;
-let refreshinterval = 1000;
+let refreshinterval = 2000;
 
 let lastrefreshed = 0;
 let refreshing = false;
@@ -13,14 +13,17 @@ function showError(jqXHR) {
   let backdrop = "static";
   let message = "Oops! An unexpected error occurred. Please refresh.";
   console.log(jqXHR);
+  console.log("got an erro!")
   if (jqXHR.responseJSON !== undefined) {
+    console.log("got a known error!")
     if (jqXHR.responseJSON.noRefresh) {
       backdrop = true;
-    } else {
-      window.clearInterval(refreshid);
-      console.log("clearing interval!");
     }
     if (jqXHR.responseJSON.message !== undefined) message = jqXHR.responseJSON.message;
+  }
+  if (backdrop === "static") {
+    window.clearInterval(refreshid);
+    console.log("clearing interval!");
   }
   $("#errorPopup").modal({"backdrop": backdrop});
   $("#errorPopupSpan").html(message);

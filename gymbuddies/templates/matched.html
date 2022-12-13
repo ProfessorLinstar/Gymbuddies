@@ -74,14 +74,13 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
-  function setup() {
-    setup_refresh([
-      ["{{ url_for('matching.matchedtable') }}", "#matchesTable"],
-      ["{{ url_for('matching.historytable') }}", "#historyTable"],
-    ])
+  url_ids.push(
+    ["{{ url_for('matching.matchedtable') }}", "#matchesTable"],
+    ["{{ url_for('matching.historytable') }}", "#historyTable"],
+  )
 
+  function setup() {
     $("#modifyMatchPopup").on("hide.bs.modal", function() {
       $("#modifyPopup").html("");
     });

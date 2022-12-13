@@ -13,6 +13,7 @@ from .database import db
 
 bp = Blueprint("home", __name__, url_prefix="")
 
+
 @bp.route("/")
 def index():
     """Default page for the Gymbuddies web application. Redirects to user home page if logged in."""
@@ -50,11 +51,12 @@ def dashboard():
         # requestName = database.user.get_name(match.destnetid)
         if (match.srcnetid == netid):
             requestName = database.user.get_name(match.destnetid)
-        else: 
+        else:
             requestName = database.user.get_name(match.srcnetid)
         for i in range(len(matchNames)):
             # print(matchNames[i].AVAILABLE)
-            if (match.schedule[i] == 4 and match.schedule[i-1] != 4 and match.schedule[i+1] == 4):
+            if (match.schedule[i] == 4 and match.schedule[i - 1] != 4 and
+                    match.schedule[i + 1] == 4):
                 # print("triggered")
                 matchNames[i] = requestName
         #print("row", len(match.schedule))
@@ -68,15 +70,14 @@ def dashboard():
     context: Dict[str, Any] = {}
     common.fill_match_schedule(context, matchSchedule, matchNames)
     # json.dumps(matchNames)
-    return render_template(
-        "dashboard.html",
-        netid=netid,
-        user=user,
-        interests=interests,
-        gender=gender,
-        level=level,
-        matchNames=matchNames,
-        **context)
+    return render_template("dashboard.html",
+                           netid=netid,
+                           user=user,
+                           interests=interests,
+                           gender=gender,
+                           level=level,
+                           matchNames=matchNames,
+                           **context)
 
 
 @bp.route("/profile", methods=["GET", "POST"])
@@ -105,6 +106,7 @@ def profile():
 
     return render_template("profile.html", netid=netid, user=user, **context)
 
+
 @bp.route("/profileCard", methods=["GET", "POST"])
 @error.guard_decorator()
 def profileCard():
@@ -131,7 +133,6 @@ def profileCard():
     common.fill_schedule(context, user.schedule)
 
     return render_template("profilecard.html", netid=netid, user=user, **context)
-
 
 
 # @bp.route("/profileupdated", methods=["GET"])
@@ -255,6 +256,7 @@ def update_requests_matches(netid, blocknetid):
         if match.srcnetid == blocknetid or match.destnetid == blocknetid:
             database.request.terminate(match.requestid)
 
+
 @bp.route("/blockedtable", methods=["GET", "POST"])
 @error.guard_decorator()
 def blockedtable():
@@ -264,21 +266,12 @@ def blockedtable():
         return redirect(url_for("home.index"))
 
     if request.method == "POST":
-        # requestid = int(request.form.get("requestid", "0"))
-        # action = request.form.get("action")
-
-        # if action == "terminate":
-        #     # INSERT function to unblock
-        #     database.request.terminate(requestid)
-        # else:
-        #     print(f"Action not found! {action = }")
         delnetid = request.form.get("delnetid", "")
         database.user.unblock_user(netid, delnetid)
-        
+
         # perform refresh for the find a buddy page after having unblocked a user
         session["matches"] = database.matchmaker.find_matches(netid)
         session["index"] = 0
-
 
     elif common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
         return ""
@@ -293,10 +286,7 @@ def blockedtable():
     users = [database.user.get_user(block) for block in blocked]
     length = len(blocked)
 
-    return render_template("blockedtable.html",
-                           netid=netid,
-                           blockedusers=users,
-                           length=length)
+    return render_template("blockedtable.html", netid=netid, blockedusers=users, length=length)
 
 
 @bp.route("/delete", methods=["POST"])
@@ -311,3 +301,18 @@ def delete():
 
     return redirect(url_for("home.index"))
 
+
+@bp.route("/notificationstable", methods=["GET", "POST"])
+@error.guard_decorator()
+def notificationstable():
+    """Returns table of blocked people."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+
+    if common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
+        return ""
+
+    print("notifications refreshed!")
+
+    return render_template("notificationstable.html", unread=database.request.get_unread(netid))

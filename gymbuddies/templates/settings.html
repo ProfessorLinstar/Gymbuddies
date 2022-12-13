@@ -45,7 +45,7 @@
           <h6 class="text-capitalize">Settings</h6>
         </div>
         <div class="card-body">
-          <!-- <form action="{{ url_for('home.settings') }}" method="post"> 
+          <!-- <form action="{{ url_for('home.settings') }}" method="post">
             <input type="hidden" id="update" name="update" value="true">-->
           <p class="text-uppercase text-sm">Notifications</p>
           <form id="notifUpdateForm">
@@ -54,7 +54,7 @@
             <!-- <button class="btn btn-primary btn-sm ms-auto" type="submit" name="update" value="information">Update</button> -->
             <button class="btn btn-primary btn-sm ms-auto" type="button" onClick="updateNotifSettings()">Update</button>
           </form>
-          <hr class="horizontal dark"> 
+          <hr class="horizontal dark">
 
           <!-- Account Settings-->
           <p class="text-uppercase text-sm">Account</p>
@@ -68,7 +68,7 @@
         </div>
       </div>
     </div>
-  
+
 
     <div class="col-md-6">
       <!-- Blocked list -->
@@ -115,20 +115,18 @@
         <!-- </form> -->
       </div>
     </div>
-    
+
 </div>
 {% endblock %}
-{% block scripts%}
-<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
+
+{% block scripts %}
 <script>
+  url_ids.push(["{{ url_for('home.blockedtable') }}", "#blockedTable"]);
+
   function setup() {
     resetblockSearch();
     getNotifSettings();
-    setup_refresh([
-      ["{{ url_for('home.blockedtable') }}", "#blockedTable"],
-    ]);
   }
   $('document').ready(setup);
 </script>
-
 {% endblock %}

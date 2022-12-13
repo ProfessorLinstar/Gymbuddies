@@ -57,7 +57,7 @@ def no_login_error(ex):
 
 @bp.app_errorhandler(database.request.PreviousRequestInactive)
 def previous_request_inactive(ex):
-    """Application handler for when attempting to create a request with no selected times."""
+    """Application handler for when attempting to modify a request that is no longer active."""
     traceback.print_exception(ex, file=sys.stderr)
     return {
         "error": type(ex).__name__,
@@ -80,7 +80,7 @@ def conflicting_request_schedule(ex: database.request.ConflictingRequestSchedule
 
 @bp.app_errorhandler(database.request.RequestToBlockedUser)
 def request_to_blocked_user(ex: database.request.RequestToBlockedUser):
-    """Application handler for when attempting to create a request with no selected times."""
+    """Application handler for when attempting to create a request to a blocked user."""
     traceback.print_exception(ex, file=sys.stderr)
     netid = session.get("netid", "")
     if ex.blocker != netid:
@@ -98,12 +98,24 @@ def request_to_blocked_user(ex: database.request.RequestToBlockedUser):
 
 @bp.app_errorhandler(database.request.RequestAlreadyExists)
 def request_already_exists(ex: database.request.RequestAlreadyExists):
-    """Application handler for when attempting to create a request with no selected times."""
+    """Application handler for when attempting to create a request to a user when a request already
+    exists."""
     traceback.print_exception(ex, file=sys.stderr)
     other = ex.srcnetid if ex.srcnetid != session.get("netid") else ex.destnetid
     return {
         "error": type(ex).__name__,
         "message": f"There is already an active request between {other} and you.",
+        "noRefresh": True
+    }, 400
+
+
+@bp.app_errorhandler(database.request.NoChangeModification)
+def no_change_modification(ex):
+    """Application handler for when attempting to modify a request with no changes."""
+    traceback.print_exception(ex, file=sys.stderr)
+    return {
+        "error": type(ex).__name__,
+        "message": "Please change at least one time.",
         "noRefresh": True
     }, 400
 

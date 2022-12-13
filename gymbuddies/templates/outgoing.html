@@ -18,13 +18,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
-  function setup() {
-    setup_refresh([
-      ["{{ url_for('matching.outgoingtable') }}", "#outgoingTable"],
-    ]);
-  }
-  $('document').ready(setup);
+  url_ids.push(["{{ url_for('matching.outgoingtable') }}", "#outgoingTable"]);
 </script>
 {% endblock %}

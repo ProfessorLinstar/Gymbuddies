@@ -69,7 +69,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/ajax.js') }}"></script>
 <script>
 
   // from buddies.html
@@ -108,11 +107,11 @@
 
     $("body").addClass("wait");
     getrequest = $.ajax({
-        type: 'GET',
-        data: { "index": sessionindex },
-        url: '/matching/buddies',
-        success: listBuddies,
-        complete: function() { $("body").removeClass("wait"); },
+      type: 'GET',
+      data: { "index": sessionindex },
+      url: "{{ url_for('matching.buddies')}}",
+      success: listBuddies,
+      complete: function() { $("body").removeClass("wait"); },
     });
   }
 
