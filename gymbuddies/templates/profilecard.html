@@ -11,14 +11,16 @@
       <div class="form-group">
         <label for="name" class="form-control-label">Name*</label>
         <p class="text-xs">(as you want it to appear)</p>
-        <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  placeholder="First and last name" required >
+        <input name="name" id="name" class="form-control" type="text" value="{{ user.name }}"  placeholder="First and last name" maxLength="35" required >
+        <span class="invalid-feedback" aria-live="polite"></span>
       </div>
     </div>
     <div class="col-md-6">
       <div class="form-group">
         <label for="contact" class="form-control-label">Contact*</label>
         <p class="text-xs">(valid U.S. phone number) </p>
-        <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" placeholder="0001112222" required>
+        <input name="contact" id="contact" class="form-control" type="tel" value="{{user.contact}}"  minlength="10" pattern="[0-9]{3}[0-9]{3}[0-9]{4}" placeholder="0001112222" required>
+        <span class="invalid-feedback" aria-live="polite"></span>
       </div>
     </div>
   </div>
@@ -28,8 +30,9 @@
     <div class="col-md-12">
       <div class="form-group">
         <label for="bio" class="form-control-label">Bio*</label>
-        <p class="text-xs">Write a short bio introducing yourself!</p>
-        <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}" placeholder="I just started going this year..." required>
+        <p class="text-xs">Write a short bio introducing yourself! (300 characters max)</p>
+        <input name="bio" id="bio" class="form-control" type="text" value="{{ user.bio }}" maxlength="300"  placeholder="I just started going this year..." required>
+        <span class="invalid-feedback" aria-live="polite"></span>
       </div>
     </div>
   </div>
@@ -153,11 +156,11 @@
     <div class="col-md-12">
       <div class="form-group">
         <label for="example-text-input" class="form-control-label">Additional Information</label>
-        <p class="text-xs">Please list any other information that would be helpful. (e.g. injuries, workout schedules, 1RMs) </p>
-        <input class="form-control" type="text" name="addinfo" value="{{ user.addinfo }}" placeholder="My max bench is 5000 lbs">
+        <p class="text-xs">Please list any other information that would be helpful. (e.g. injuries, workout schedules, 1RMs) (300 characters max) </p>
+        <input class="form-control" type="text" name="addinfo" maxLength="300" value="{{ user.addinfo }}" placeholder="My max bench is 5000 lbs">
       </div>
     </div>
   </div>
   <input type="hidden" name="update" value="information">
-<button class="btn btn-primary btn-sm ms-auto" type="button" onClick="updateprofileCard()">Update</button>
+<button class="btn btn-primary btn-sm ms-auto" type="button" id = "profileinfoUpdate">Update</button>
 </form>
