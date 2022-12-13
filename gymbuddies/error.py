@@ -78,20 +78,35 @@ def conflicting_request_schedule(ex: database.request.ConflictingRequestSchedule
     }, 400
 
 
-@bp.app_errorhandler(database.request.RequestToBlockedUser)
-def request_to_blocked_user(ex: database.request.RequestToBlockedUser):
-    """Application handler for when attempting to create a request to a blocked user."""
+@bp.app_errorhandler(database.request.RequestWhileClosed)
+def request_while_closed(ex):
+    """Application handler for when attempting to create a request while not open for matching."""
     traceback.print_exception(ex, file=sys.stderr)
-    netid = session.get("netid", "")
-    if ex.blocker != netid:
-        blocker = ex.blocker
-        blocked = "You have"
-    else:
-        blocker = "you"
-        blocked = ex.blocked + " has"
     return {
         "error": type(ex).__name__,
-        "message": f"{blocked} been blocked by {blocker}.",
+        "message": "You are not open for matching. Please edit your profile to make requests.",
+        "noRefresh": True
+    }, 400
+
+
+@bp.app_errorhandler(database.request.RequestToClosedUser)
+def request_to_closed_user(ex):
+    """Application handler for when attempting to create a request to a closed user."""
+    traceback.print_exception(ex, file=sys.stderr)
+    return {
+        "error": type(ex).__name__,
+        "message": "The requested user is no longer available for matching.",
+        "noRefresh": True
+    }, 400
+
+
+@bp.app_errorhandler(database.request.RequestToBlockedUser)
+def request_to_blocked_user(ex):
+    """Application handler for when attempting to create a request to a blocked user."""
+    traceback.print_exception(ex, file=sys.stderr)
+    return {
+        "error": type(ex).__name__,
+        "message": "The requested user is no longer available for matching.",
         "noRefresh": True
     }, 400
 
