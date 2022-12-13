@@ -121,7 +121,7 @@ _REQUESTSTATUS_TO_READABLE_MAP = {
     RequestStatus.PENDING: "PENDING",
     RequestStatus.RETURN: "RETURN",
     RequestStatus.FINALIZED: "FINALIZED",
-    RequestStatus.TERMINATED: "TERMINATED",
+    RequestStatus.TERMINATED: "UNMATCHED",
 }
 
 

@@ -10,6 +10,23 @@ from . import schedule as schedulemod
 LIMIT = 5
 
 
+class RequestWhileClosed(Exception):
+    """Exception raise in an API call if a user attempts to make a request while not being open to
+    matching."""
+
+    def __init__(self):
+        super().__init__(f"User is not open for matching. Unable to make request.")
+
+
+class RequestToClosedUser(Exception):
+    """Exception raise in an API call if a user attempts to make a request to a user who is not open
+    to matching."""
+
+    def __init__(self, closed: str):
+        self.closed = closed
+        super().__init__(f"User {closed} is not open for matching. Unable to make request.")
+
+
 class RequestToBlockedUser(Exception):
     """Exception raise in an API call if a user attempts to make a request to a blocked user a user
     that has blocked them."""
@@ -328,6 +345,11 @@ def new(srcnetid: str,
     elif destnetid in srcuser.blocked:
         raise RequestToBlockedUser(srcnetid, destnetid)
 
+    if not srcuser.open:
+        raise RequestWhileClosed
+    if not destuser.open:
+        raise RequestToClosedUser(destnetid)
+
     if all(not x for x in schedule):
         raise EmptyRequestSchedule
 
@@ -361,6 +383,23 @@ def new(srcnetid: str,
     usermod.update(destnetid, session=session)
 
     print("Created a request with this schedule: ", db.schedule_to_readable(schedule))
+
+
+@db.session_decorator(commit=False)
+def get_conflicts(requestid: int, *, session: Optional[Session] = None) -> List[Tuple[str, str]]:
+    """Returns requests with times conflicting with the request with the provided requestid."""
+    assert session is not None
+    request = _get(session, requestid)
+
+    conflicts: List[Tuple[str, str]] = []
+    for netid in (request.srcnetid, request.destnetid):
+        for active in get_active_single(netid, session=session):
+            if active.requestid == request.requestid:
+                continue
+            if any(x and y for x, y in zip(request.schedule, active.schedule)):
+                conflicts.append((active.srcnetid, active.destnetid))
+
+    return conflicts
 
 
 @db.session_decorator(commit=True)
