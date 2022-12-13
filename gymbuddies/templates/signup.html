@@ -1,6 +1,7 @@
 {% block content %}
   <h2>Signup</h2>
   <form action="{{ url_for('auth.signup') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{csrf_token()}}">
     <label for="netid">netid</label> <input name="netid" id="netid">
     <input type="submit" name="submit-login" value="signup">
   </form>
