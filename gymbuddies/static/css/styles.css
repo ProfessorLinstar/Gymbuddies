@@ -1,4 +1,4 @@
-/* custom primary buttons */   
+/* custom primary buttons */
 .btn-primary {
   color: #ffffff;
   background-color: #596CFF;
@@ -101,7 +101,7 @@ body {
 #navbar {
   background-color: #4666CE !important;
 }
-/* 
+/*
 .hide {
   display: none;
 } */
@@ -134,3 +134,4 @@ body {
   background-color: red;
   color: red;
 }
+

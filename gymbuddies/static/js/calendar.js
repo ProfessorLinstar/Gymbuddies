@@ -63,7 +63,7 @@
 
     $.each(generateDates(start, end, interval), function (i, d) {
       var daysInARow = $.map(new Array(days.length), function (_, i) {
-        return '<td class="time-slot" data-time="' + hhmm(d) + '" data-day="' + days[i] + '"></td>'
+        return '<td class="time-slot ellipsis" data-time="' + hhmm(d) + '" data-day="' + days[i] + '"></td>'
       }).join();
 
       $el.append('<tr><td class="time-label">' + hAmPm(d) + '</td>' + daysInARow + '</tr>');
@@ -252,7 +252,7 @@
   function formatSlotTime($a, $b) {
     const start = hoursToAmPm(getSlotHours($a));
     const end = hoursToAmPm((getSlotHours($b) + 1) % 24);
-    return start[0] + '-' + end.join(' ');
+    return '<span>' + start[0] + '-' + end.join(' ') + '</span>';
   }
 
   /**
@@ -289,12 +289,9 @@
               end = end.slice(1)
             }
             plugin.select($slots.eq(i)); 
-            let matchName = s[2]
+            let matchName = s[2].split(' ')[0]
             if ($slots.eq(i).data('time') == s[0]) { 
-              if (s[2].length > 8) {
-                matchName = s[2].slice(0, 5) + "..."
-              }
-              $slots.eq(i).append(matchName + " " +  hoursToAmPm(start)[0] + "-" + hoursToAmPm(end).join(' '));
+              $slots.eq(i).html('<span>' + matchName + ' ' + hoursToAmPm(start)[0] + '-' + hoursToAmPm(end).join(' ') + '</span>');
             }
           }
         }

@@ -345,11 +345,6 @@ def new(srcnetid: str,
     elif destnetid in srcuser.blocked:
         raise RequestToBlockedUser(srcnetid, destnetid)
 
-    if not srcuser.open:
-        raise RequestWhileClosed
-    if not destuser.open:
-        raise RequestToClosedUser(destnetid)
-
     if all(not x for x in schedule):
         raise EmptyRequestSchedule
 
@@ -360,6 +355,13 @@ def new(srcnetid: str,
             raise NoChangeModification
         if not _deactivate(session, prev):
             raise PreviousRequestInactive
+    
+    else:
+        if not srcuser.open:
+            raise RequestWhileClosed
+        if not destuser.open:
+            raise RequestToClosedUser(destnetid)
+
 
     if get_active_pair(srcnetid, destnetid, session=session):
         raise RequestAlreadyExists(srcnetid, destnetid)
