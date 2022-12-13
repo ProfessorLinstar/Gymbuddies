@@ -54,6 +54,9 @@ def findabuddy():
         sess_index = int(sess_index)
         session["index"] += 1
 
+    open = "false"
+    if database.user.get_open(netid):
+        open = "true"
     # get the users and index of current user that you have been matched with
     matches: List[str] = session.get("matches", None)
     index: int = session.get("index", None)
@@ -63,7 +66,7 @@ def findabuddy():
         matches = session.get("matches", None)
         index = session.get("index", None)
         no_matches = True
-        return render_template("findabuddy.html", netid=netid, no_matches=no_matches)
+        return render_template("findabuddy.html", netid=netid, no_matches=no_matches, open=open)
 
     no_matches = False
 
@@ -72,7 +75,7 @@ def findabuddy():
     # generate "no more matches message"
     if len(matches) == 0:
         no_matches = True
-        return render_template("findabuddy.html", netid=netid, no_matches=no_matches)
+        return render_template("findabuddy.html", netid=netid, no_matches=no_matches, open=open)
 
     g.user = database.user.get_user(
         matches[index])  # can access this in jinja template with {{ g.user }}
@@ -91,6 +94,7 @@ def findabuddy():
                            level=level,
                            interests=interests,
                            user=g.user,
+                           open=open,
                            **context)
 
 
@@ -108,6 +112,10 @@ def buddies():
         sess_index = int(sess_index)
         session["index"] += 1
 
+    open = "false"
+    if database.user.get_open(netid):
+        open = "true"
+
     # get the users and index of current user that you have been matched with
     matches: List[str] = session.get("matches", None)
     index: int = session.get("index", None)
@@ -123,7 +131,7 @@ def buddies():
 
     if len(matches) == 0:
         no_matches = True
-        return render_template("findabuddy.html", netid=netid, no_matches=no_matches)
+        return render_template("findabuddy.html", netid=netid, no_matches=no_matches, open=open)
 
     g.user = database.user.get_user(
         matches[index])  # can access this in jinja template with {{ g.user }}

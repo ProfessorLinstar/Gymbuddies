@@ -33,7 +33,7 @@ function showError(jqXHR) {
 
 function showBuddyError() {
   let backdrop = "static";
-  let message = "Oops! Please toggle Match Availability in Settings to Open in order to enter Find a Buddy.";
+  let message = "Oops! Please toggle Match Availability in Profile to Open in order to enter Find a Buddy.";
   if (backdrop === "static") {
     window.clearInterval(refreshid);
     console.log("clearing interval!");

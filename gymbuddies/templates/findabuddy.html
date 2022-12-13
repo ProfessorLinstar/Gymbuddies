@@ -66,6 +66,8 @@
   </div>
 </div>
 
+<input id="openInput" type="hidden" name="index" value="{{open}}"></input>
+
 {% endblock %}
 
 {% block scripts %}
@@ -117,7 +119,8 @@
 
   // sets up the page 
   function setup() {
-    showBuddyError();
+    let open = $('#openInput').val();
+    if (open === "false") { showBuddyError(); }
     getBuddies();
     $("#requestSent").on("hidden.bs.modal", getBuddies);
     $("#searchAgain").on("click", getBuddies);
