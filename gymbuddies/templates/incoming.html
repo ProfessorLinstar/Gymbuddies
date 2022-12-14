@@ -59,6 +59,15 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
 <script>
+  var csrf_token = "{{ csrf_token() }}";
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      }
+    }
+  });
+  
   url_ids.push(["{{ url_for('matching.incomingtable') }}", "#requestTable"]);
 
   function makeRequest() {

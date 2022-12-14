@@ -317,9 +317,17 @@
 
     // There are many ways to pick a DOM node; here we get the form itself and the email
 // input box, as well as the span element into which we will place the error message.
-
+    var csrf_token = "{{ csrf_token() }}";
+      $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+        }
+      });
 
     function setup() {
+
       setup_refresh(url_ids)
 
       $('.modal').on('hidden.bs.modal', function(event) {

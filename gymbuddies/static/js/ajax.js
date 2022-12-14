@@ -8,7 +8,6 @@ let request = null;
 let getrequest = null;
 let postrequest = null;
 
-
 function showError(jqXHR) {
   let backdrop = "static";
   let message = "Oops! An unexpected error occurred. Please refresh.";
