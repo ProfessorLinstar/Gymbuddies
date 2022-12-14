@@ -306,19 +306,10 @@ def delete():
     if not netid:
         return redirect(url_for("home.index"))
 
-    if auth.USE_CAS:
-        logout_url = (auth._CAS_URL + "logout?service=" +
-                      urllib.parse.quote(re.sub("home.delete", "logoutapp", flask.request.url)))
+    database.user.delete(netid)
+    # session.clear()
 
-        database.user.delete(netid)
-        # session.clear()
-
-        flask.abort(flask.redirect(logout_url))
-    else:
-        database.user.delete(netid)
-        # session.clear()
-
-        return redirect(url_for("home.index"))
+    return redirect(url_for("home.index"))
 
 
 @bp.route("/notificationstable", methods=["GET", "POST"])
