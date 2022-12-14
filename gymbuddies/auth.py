@@ -19,7 +19,6 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @bp.route("/signup", methods=("GET", "POST"))
-@error.guard_decorator()
 def signup():
     """Shows signup page."""
     if not USE_CAS:
@@ -39,7 +38,6 @@ def signup():
 
 
 @bp.route("/login", methods=("GET", "POST"))
-@error.guard_decorator()
 def login():
     """Shows login page."""
     netid = session.get("netid", "")
@@ -68,7 +66,6 @@ def login():
 
 
 @bp.route("/logout")
-@error.guard_decorator()
 def logout():
     """Log out of the CAS session, and then the application."""
     if USE_CAS:
@@ -86,11 +83,13 @@ def load_logged_in_user():
     """If a user is logged in, load their data from the database."""
     netid: str = session.get("netid", "")
 
-    g.user = user.get_user(netid) if netid else None
+    try:
+        g.user = user.get_user(netid) if netid else None
+    except database.user.UserNotFound:
+        session.clear()
 
 
 @bp.route("/logoutapp")
-@error.guard_decorator()
 def logoutapp():
     """Logs out of the current user."""
     session.clear()
