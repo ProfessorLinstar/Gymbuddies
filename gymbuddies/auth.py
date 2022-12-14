@@ -59,7 +59,7 @@ def login():
 
     if not USE_CAS:
         response = f"Netid '{request.form['netid']}' was not found in the database."
-        return render_template("index.html", response=response)
+        return render_template("login.html", response=response)
     else:
         return render_template("index.html")
 
@@ -87,6 +87,11 @@ def load_logged_in_user():
     except database.user.UserNotFound:
         session.clear()
 
+@bp.route("/deletelogoutapp")
+def deletelogoutapp():
+    html_code = flask.render_template("index.html")
+    response = flask.make_response(html_code)
+    return response
 
 @bp.route("/logoutapp")
 def logoutapp():

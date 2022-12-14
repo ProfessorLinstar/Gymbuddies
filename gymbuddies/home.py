@@ -1,12 +1,17 @@
 """Home page blueprint."""
+import flask
 from typing import Any, Dict
 from flask import Blueprint
 from flask import session, g
 from flask import request
 from flask import render_template, redirect, url_for
-from . import common, error
+from . import common, error, auth
 from . import database
 from .database import db
+import re
+import urllib.request
+import urllib.parse
+import flask_wtf.csrf
 
 # import random
 # from sqlalchemy.exc import OperationalError
@@ -294,7 +299,7 @@ def blockedtable():
 
     return render_template("blockedtable.html", netid=netid, blockedusers=users, length=length)
 
-
+@flask_wtf.csrf.exempt
 @bp.route("/delete", methods=["POST"])
 def delete():
     """Deletes user"""
@@ -302,10 +307,15 @@ def delete():
     if not netid:
         return redirect(url_for("home.index"))
 
-    database.user.delete(netid)
-    # session.clear()
+    if not auth.USE_CAS:
+        database.user.delete(netid)
+        # session.clear()
+        return redirect(url_for("home.index"))
 
-    return redirect(url_for("home.index"))
+    else:
+        database.user.delete(netid)
+        logout_url = (auth._CAS_URL + 'logout?service=' + urllib.parse.quote(re.sub('home.delete', 'deletelogoutapp', flask.request.url)))
+        flask.abort(flask.redirect(logout_url))
 
 
 @bp.route("/notificationstable", methods=["GET", "POST"])
