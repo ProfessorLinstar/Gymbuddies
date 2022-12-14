@@ -311,7 +311,7 @@ def delete():
 
     if auth.USE_CAS:
         logout_url = (auth._CAS_URL + "logout?service=" +
-                      urllib.parse.quote(re.sub("logout", "logoutapp", flask.request.url)))
+                      urllib.parse.quote(re.sub("home.delete", "logoutapp", flask.request.url)))
         flask.abort(flask.redirect(logout_url))
     else:
         return redirect(url_for("home.index"))
