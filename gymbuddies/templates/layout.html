@@ -277,12 +277,9 @@
         </div>
       </div>
 
-
-     
-
-      <!-- error here? -->
-
-      {% block content %}{% endblock %}
+      <div id="main-content">
+        {% block content %}{% endblock %}
+      </div>
 
       <!-- footer -->
       <footer class="footer pt-3  ">
@@ -298,7 +295,8 @@
             <div class="col-lg-6">
               <ul class="nav nav-footer justify-content-center justify-content-lg-end">
                 <li class="nav-item">
-                  <a href="https://docs.google.com/document/d/1b9cd5TDZjAqAA1PULsQelyRSA7iYJwJNtG8ClBYQzJ4/edit?usp=sharing" class="nav-link text-muted" target="_blank">About Us</a>
+                  <a href={{url_for("home.aboutus")}} class="nav-link text-muted" target="_blank">About Us</a> 
+                  <!--- <a href="https://docs.google.com/document/d/1b9cd5TDZjAqAA1PULsQelyRSA7iYJwJNtG8ClBYQzJ4/edit?usp=sharing" class="nav-link text-muted" target="_blank">About Us</a> --->
                 </li>
               </ul>
             </div>
@@ -346,9 +344,17 @@
 
     // There are many ways to pick a DOM node; here we get the form itself and the email
 // input box, as well as the span element into which we will place the error message.
-
+    var csrf_token = "{{ csrf_token() }}";
+      $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          }
+        }
+      });
 
     function setup() {
+
       setup_refresh(url_ids)
 
       $(document).on('show.bs.modal', '.modal', function() {

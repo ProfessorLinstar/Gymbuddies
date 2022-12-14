@@ -338,3 +338,13 @@ def notificationbadge():
         return ""
 
     return render_template("notificationbadge.html", unread=database.request.get_unread(netid))
+
+@bp.route("/aboutus", methods=["GET", "POST"])
+@error.guard_decorator()
+def aboutus():
+    """Profile page for creating new user information."""
+    netid: str = session.get("netid", "")
+    if not netid:
+        return redirect(url_for("home.index"))
+
+    return render_template("aboutus.html", netid=netid)

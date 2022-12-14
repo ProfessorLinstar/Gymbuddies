@@ -184,6 +184,7 @@ function sidebarType(a) {
   } else {
     var textDarks = document.querySelectorAll('.sidenav .text-dark');
     for (let i = 0; i < textDarks.length; i++) {
+      // console.log(textDarks[i], 'adding text-white');
       textDarks[i].classList.add('text-white');
       textDarks[i].classList.remove('text-dark');
     }
@@ -192,6 +193,7 @@ function sidebarType(a) {
   if (color == 'bg-default' && bodyDark) {
     var textDarks = document.querySelectorAll('.navbar-brand .text-dark');
     for (let i = 0; i < textDarks.length; i++) {
+      // console.log(textDarks[i], 'adding text-white');
       textDarks[i].classList.add('text-white');
       textDarks[i].classList.remove('text-dark');
     }
@@ -277,6 +279,7 @@ function toggleNavLinksColor(type) {
     });
   } else if (type === "transparent") {
     navLinks.forEach(element => {
+      // console.log(element, 'adding text-white');
       element.classList.add('text-white')
     });
 
@@ -301,11 +304,13 @@ function navbarBlurOnScroll(id) {
       if (window.scrollY > scrollDistance) {
         blurNavbar();
       } else {
+        console.log("1");
         transparentNavbar();
       }
     }, 10);
   } else {
     window.onscroll = debounce(function() {
+      console.log("2");
       transparentNavbar();
     }, 10);
   }
@@ -319,11 +324,13 @@ function navbarBlurOnScroll(id) {
         if (content.scrollTop > scrollDistance) {
           blurNavbar();
         } else {
+          console.log("3");
           transparentNavbar();
         }
       }, 10));
     } else {
       content.addEventListener('ps-scroll-y', debounce(function() {
+        console.log("4");
         transparentNavbar();
       }, 10));
     }
@@ -333,6 +340,7 @@ function navbarBlurOnScroll(id) {
     navbar.classList.add(...classes)
     navbar.classList.remove(...toggleClasses)
 
+    console.log("blurring navbar");
     toggleNavLinksColor('blur');
   }
 
@@ -340,7 +348,9 @@ function navbarBlurOnScroll(id) {
     navbar.classList.remove(...classes)
     navbar.classList.add(...toggleClasses)
 
-    toggleNavLinksColor('transparent');
+    console.log("transparenting navbar");
+    // TODO: figure out underlying bug with toggleNavLinksColor
+    // toggleNavLinksColor('transparent');
   }
 }
 
@@ -595,11 +605,13 @@ function darkMode(el) {
     for (var i = 0; i < cardNavLinksIcons.length; i++) {
       if (cardNavLinksIcons[i].classList.contains('text-dark')) {
         cardNavLinksIcons[i].classList.remove('text-dark');
+        // console.log(cardNavLinksIcons[i], 'adding text-white');
         cardNavLinksIcons[i].classList.add('text-white');
       }
     }
     for (var i = 0; i < cardNavSpan.length; i++) {
       if (cardNavSpan[i].classList.contains('text-sm')) {
+        // console.log(cardNavSpan[i], 'adding text-white');
         cardNavSpan[i].classList.add('text-white');
       }
     }
@@ -618,30 +630,35 @@ function darkMode(el) {
     for (var i = 0; i < text_btn.length; i++) {
       if (text_btn[i].classList.contains('text-dark')) {
         text_btn[i].classList.remove('text-dark');
+        // console.log(text_btn[i], 'adding text-white');
         text_btn[i].classList.add('text-white');
       }
     }
     for (var i = 0; i < text_span.length; i++) {
       if (text_span[i].classList.contains('text-dark')) {
         text_span[i].classList.remove('text-dark');
+        // console.log(text_span[i], 'adding text-white');
         text_span[i].classList.add('text-white');
       }
     }
     for (var i = 0; i < text_strong.length; i++) {
       if (text_strong[i].classList.contains('text-dark')) {
         text_strong[i].classList.remove('text-dark');
+        // console.log(text_strong[i], 'adding text-white');
         text_strong[i].classList.add('text-white');
       }
     }
     for (var i = 0; i < text_nav_link.length; i++) {
       if (text_nav_link[i].classList.contains('text-dark')) {
         text_nav_link[i].classList.remove('text-dark');
+        // console.log(text_nav_link[i], 'adding text-white');
         text_nav_link[i].classList.add('text-white');
       }
     }
     for (var i = 0; i < secondary.length; i++) {
       if (secondary[i].classList.contains('text-secondary')) {
         secondary[i].classList.remove('text-secondary');
+        // console.log(secondary[i], 'adding text-white');
         secondary[i].classList.add('text-white');
         secondary[i].classList.add('opacity-8');
       }
@@ -654,6 +671,7 @@ function darkMode(el) {
     }
     for (var i = 0; i < btn_text_dark.length; i++) {
       btn_text_dark[i].classList.remove('text-dark');
+      // console.log(btn_text_dark[i], 'adding text-white');
       btn_text_dark[i].classList.add('text-white');
     }
     for (var i = 0; i < sidebarWhite.length; i++) {
@@ -677,6 +695,7 @@ function darkMode(el) {
     }
     for (var i = 0; i < navLinks.length; i++) {
       if (navLinks[i].classList.contains('text-dark')) {
+        // console.log(navLinks[i], 'adding text-white');
         navLinks[i].classList.add('text-white');
         navLinks[i].classList.remove('text-dark');
       }

@@ -74,16 +74,24 @@
 
 <div class="row mt-4">
   <div class="col-md-6 text-sm-right">
-    <button id="matchButton" type="button" class="btn btn-primary btn-sm" onClick="makeMatch()">Match</button>
+    <button id="matchButton" type="button" class="btn btn-primary btn-md" onClick="makeMatch()">Match</button>
   </div>
   <div class="col-md-6 text-sm-left">
-    <button id="passButton" class="btn btn-primary btn-sm" type="button" onClick="getBuddies()">Pass</button>
+    <button id="passButton" class="btn btn-box px-3 mb-0" type="button" onClick="getBuddies()">Pass</button>
   </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
 <script>
-
+  var csrf_token = "{{ csrf_token() }}";
+    $.ajaxSetup({
+      beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        }
+      }
+    });
+    
   function setup() {
 
     $("#day-schedule").dayScheduleSelector({

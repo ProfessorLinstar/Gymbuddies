@@ -5,6 +5,9 @@ from . import home, master, auth, matching, error
 from . import database
 from .database import db
 from . import extension
+import flask_wtf.csrf
+
+PROTECT_WITH_CSRF = True
 
 def create_app():
     """Creates the Gymbuddies Flask application."""
@@ -20,6 +23,9 @@ def create_app():
     app.register_blueprint(error.bp)
 
     app.jinja_env.globals.update(database=database, db=db)
+
+    if PROTECT_WITH_CSRF:
+        flask_wtf.csrf.CSRFProtect(app)
 
     print("Started a flask application!")
 
