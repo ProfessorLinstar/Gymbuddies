@@ -87,6 +87,11 @@ def load_logged_in_user():
     except database.user.UserNotFound:
         session.clear()
 
+@bp.route("/deletelogoutapp")
+def deletelogoutapp():
+    html_code = flask.render_template("index.html")
+    response = flask.make_response(html_code)
+    return response
 
 @bp.route("/logoutapp")
 def logoutapp():
