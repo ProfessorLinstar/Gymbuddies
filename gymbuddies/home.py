@@ -311,10 +311,13 @@ def delete():
                       urllib.parse.quote(re.sub("home.delete", "logoutapp", flask.request.url)))
 
         database.user.delete(netid)
-            # session.clear()
+        # session.clear()
 
         flask.abort(flask.redirect(logout_url))
     else:
+        database.user.delete(netid)
+        # session.clear()
+
         return redirect(url_for("home.index"))
 
 
