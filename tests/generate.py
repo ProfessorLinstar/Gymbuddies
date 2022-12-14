@@ -28,10 +28,10 @@ def users():
         "andywang": {
             "netid": "andywang",
             "name": "Andy Wang",
-            "contact": "919-265-8342",
+            "contact": "3333333333",
             "level": db.Level.BEGINNER,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I go to Princeton!",
+            "bio": "I enjoy playing Soccer!",
             "addinfo": "):<",
             "interests": {
                 "Cardiovascular Fitness": True,
@@ -49,10 +49,10 @@ def users():
         "ejcho": {
             "netid": "ejcho",
             "name": "Joy Cho",
-            "contact": "ejcho@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.INTERMEDIATE,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I go to Princeton!",
+            "bio": "I enjoy playing Basketball!",
             "addinfo": "):<",
             "interests": {
                 "Cardiovascular Fitness": True,
@@ -70,11 +70,11 @@ def users():
         "jasono": {
             "netid": "jasono",
             "name": "Jason Oh",
-            "contact": "jasono@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.INTERMEDIATE,
             "levelpreference": db.LevelPreference.ALL,
             "addinfo": "):<",
-            "bio": "I go to Princeton!",
+            "bio": "I enjoy playing Tennis!",
             "interests": {
                 "Lower Body": True,
                 "Upper Body": True,
@@ -91,10 +91,10 @@ def users():
         "eyc2": {
             "netid": "eyc2",
             "name": "Genie Choi",
-            "contact": "eyc2@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.BEGINNER,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I go to Princeton!",
+            "bio": "I enjoy playing Baseball!",
             "addinfo": "):<",
             "interests": {
                 "Cardiovascular Fitness": True,
@@ -112,10 +112,10 @@ def users():
         "jsnow": {
             "netid": "jsnow",
             "name": "Jon Snow",
-            "contact": "jsnow@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.ADVANCED,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I know nothing",
+            "bio": "I enjoy playing Golf!",
             "addinfo": "):<",
             "interests": {
                 "Gaining Mass": True,
@@ -133,10 +133,10 @@ def users():
         "dtargaryen": {
             "netid": "dtargaryen",
             "name": "Daenerys Targaryen",
-            "contact": "jsnow@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.INTERMEDIATE,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "The dragons are my children",
+            "bio": "I enjoy Running!",
             "addinfo": "):<",
             "interests": {
                 "Losing Weight": True,
@@ -154,10 +154,10 @@ def users():
         "tlannister": {
             "netid": "tlannister",
             "name": "Tyrion Lannister",
-            "contact": "tlannister@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.BEGINNER,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I drink and I know things",
+            "bio": "I enjoy Boxing!",
             "addinfo": "):<",
             "interests": {
                 "Upper Body": True,
@@ -175,10 +175,10 @@ def users():
         "tgreyjoy": {
             "netid": "tgreyjoy",
             "name": "Theon Greyjoy",
-            "contact": "tgreyjoy@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.INTERMEDIATE,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "My name is Reek",
+            "bio": "I enjoy Swimming!",
             "addinfo": "):<",
             "interests": {
                 "Gaining Mass": True,
@@ -196,10 +196,10 @@ def users():
         "astark": {
             "netid": "astark",
             "name": "Arya Stark",
-            "contact": "astark@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.ADVANCED,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "A girl is no one",
+            "bio": "I enjoy Fencing!",
             "addinfo": "):<",
             "interests": {
                 "Cardiovascular Fitness": True,
@@ -217,10 +217,10 @@ def users():
         "mtyrell": {
             "netid": "mtyrell",
             "name": "Margaery Tyrell",
-            "contact": "mtyrell@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.BEGINNER,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I do things because they feel good",
+            "bio": "I enjoy playing Pool!",
             "addinfo": "):<",
             "interests": {
                 "Losing Weight": True,
@@ -238,10 +238,10 @@ def users():
         "jbaratheon": {
             "netid": "jbaratheon",
             "name": "Joffrey Baratheon",
-            "contact": "jbaratheon@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.ADVANCED,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I am the king!",
+            "bio": "I enjoy Surfing!",
             "addinfo": "):<",
             "interests": {
                 "Gaining Mass": True,
@@ -259,10 +259,10 @@ def users():
         "rstark": {
             "netid": "rstark",
             "name": "Rob Stark",
-            "contact": "rstark@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.INTERMEDIATE,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "It's better than three defeats",
+            "bio": "I enjoy Archery!",
             "addinfo": "):<",
             "interests": {
                 "Cardiovascular Fitness": True,
@@ -280,10 +280,10 @@ def users():
         "pbaelish": {
             "netid": "pbaelish",
             "name": "Petyr Baelish",
-            "contact": "pbaelish@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.BEGINNER,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "Chaos is a laddah",
+            "bio": "I enjoy Fishing!",
             "addinfo": "):<",
             "interests": {
                 "Upper Body": True,
@@ -301,10 +301,10 @@ def users():
         "sstark": {
             "netid": "sstark",
             "name": "Sansa Stark",
-            "contact": "sstark@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.BEGINNER,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "I'm a slow learner, it's true. But I learn",
+            "bio": "I enjoy Weightlifting!",
             "addinfo": "):<",
             "interests": {
                 "Losing Weight": True,
@@ -322,10 +322,10 @@ def users():
         "clannister": {
             "netid": "clannister",
             "name": "Cercei Lannister",
-            "contact": "clannister@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.INTERMEDIATE,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "When you play the game of thrones, you win or you die",
+            "bio": "I enjoy Rock Climbing!",
             "addinfo": "):<",
             "interests": {
                 "Cardiovascular Fitness": True,
@@ -343,10 +343,10 @@ def users():
         "ltyrell": {
             "netid": "ltyrell",
             "name": "Loras Tyrell",
-            "contact": "ltyrell@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.INTERMEDIATE,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "Give me the command, Your Grace",
+            "bio": "I enjoy Figure Skating!",
             "addinfo": "):<",
             "interests": {
                 "Cardiovascular Fitness": True,
@@ -364,10 +364,10 @@ def users():
         "sbaratheon": {
             "netid": "sbaratheon",
             "name": "Stannis Baratheon",
-            "contact": "sbaratheon@princeton.edu",
+            "contact": "3333333333",
             "level": db.Level.ADVANCED,
             "levelpreference": db.LevelPreference.ALL,
-            "bio": "Kings have no friends, only subjects and enemies",
+            "bio": "I enjoy Scuba Diving!",
             "addinfo": "):<",
             "interests": {
                 "Upper Body": True,
