@@ -59,7 +59,7 @@ def login():
 
     if not USE_CAS:
         response = f"Netid '{request.form['netid']}' was not found in the database."
-        return render_template("login.html", response=response)
+        return render_template("index.html", response=response)
     else:
         return render_template("index.html")
 
