@@ -79,15 +79,16 @@ class EmptyRequestSchedule(Exception):
     def __init__(self):
         super().__init__("Invalid request schedule. Request must have one or more selected blocks.")
 
+
 class OverlapRequests(Exception):
-    """Exception raised in API call if request overlaps with others."""
+    """Warning exception which can be raised if a request overlaps with other pending requests."""
 
     requestid: int
 
     def __init__(self, requestid: int):
         self.requestid = requestid
-        super().__init__("Invalid request schedule. Request must have one or more selected blocks.")
-        
+        super().__init__(f"Request {requestid} conflicts with other pending requests.")
+
 
 class ConflictingRequestSchedule(Exception):
     """Exception raised in API call if request made with conflicting schedules."""
@@ -195,7 +196,7 @@ def get_active_single(netid: str, *, session: Optional[Session] = None) -> List[
     assert session is not None
 
     return session.query(db.Request).filter(
-        (db.Request.srcnetid == netid) | (db.Request.srcnetid == netid),
+        (db.Request.srcnetid == netid) | (db.Request.destnetid == netid),
         db.Request.status.in_((db.RequestStatus.PENDING, db.RequestStatus.FINALIZED))).all()
 
 
@@ -364,13 +365,12 @@ def new(srcnetid: str,
             raise NoChangeModification
         if not _deactivate(session, prev):
             raise PreviousRequestInactive
-    
+
     else:
         if not srcuser.open:
             raise RequestWhileClosed
         if not destuser.open:
             raise RequestToClosedUser(destnetid)
-
 
     if get_active_pair(srcnetid, destnetid, session=session):
         raise RequestAlreadyExists(srcnetid, destnetid)
@@ -414,24 +414,26 @@ def get_conflicts(requestid: int, *, session: Optional[Session] = None) -> List[
 
 
 @db.session_decorator(commit=True)
-def finalize(requestid: int, *, session: Optional[Session] = None) -> None:
+def finalize(requestid: int,
+             *,
+             session: Optional[Session] = None,
+             ignore_overlap: bool = False) -> None:
     """finalize the request by approving the accept request"""
     assert session is not None
     request = _get(session, requestid)
 
-    for netid in (request.srcnetid, request.destnetid):
-        # schedulemod.add_schedule_status(netid,
-        #                                 request.schedule,
-        #                                 db.ScheduleStatus.MATCHED,
-        #                                 session=session)
-        for active in get_active_single(netid, session=session):
-            if active.requestid == request.requestid:
-                continue
-            if any(x and y for x, y in zip(request.schedule, active.schedule)):
-                raise OverlapRequests(requestid)
-
     if request.status != db.RequestStatus.PENDING:
         raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.PENDING)
+
+    print(f"finalize: got this ignore_overlap: {ignore_overlap = }")
+    if not ignore_overlap:
+        print("checking for overlaps...")
+        for netid in (request.srcnetid, request.destnetid):
+            for active in get_active_single(netid, session=session):
+                if active.requestid == request.requestid:
+                    continue
+                if any(x and y for x, y in zip(request.schedule, active.schedule)):
+                    raise OverlapRequests(requestid)
 
     request.finalizedtimestamp = datetime.now(timezone.utc)
     request.status = db.RequestStatus.FINALIZED

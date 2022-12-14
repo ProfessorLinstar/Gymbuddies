@@ -212,30 +212,6 @@
 
     <div id="main-body" class="container-fluid py-4">
 
-      <div style="z-index:-1;" class="modal fade bd-example-modal-lg" id="OverlapErrorPopup" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-        <div class="modal-dialog modal-md" role="document">
-          <div class="modal-content">
-  
-            <div class="modal-body">
-              <div class="card-body">
-                <span id="OverlapErrorPopupSpan"></span>
-              </div>
-            </div>
-            <div>
-            <form action="{{url_for('matching.incoming')}}" method="get"> 
-              <div class="buttonHolder" textalign="center">
-              <button type="submit" class="btn btn-secondary btn-sm">Ok</button> 
-              </div>
-            </form>
-            <!-- <button type="submit" class="btn btn-secondary btn-sm" onClick="acceptRequest({{ requestid }})">Ok</button>  -->
-            </div>
-            <style>.buttonHolder{ text-align: center; }</style>
-            
-  
-          </div>
-        </div>
-      </div>
-
       <div class="modal fade bd-example-modal-lg" id="errorPopup" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
         <div class="modal-dialog modal-md" role="document">
           <div class="modal-content">

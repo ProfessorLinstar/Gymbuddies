@@ -145,23 +145,35 @@ def empty_request_schedule(ex):
         "noRefresh": True
     }, 400
 
+
 @bp.app_errorhandler(database.request.OverlapRequests)
 def overlapRequests(ex: database.request.OverlapRequests):
     """Application handler for when attempting to create a request with no selected times."""
     traceback.print_exception(ex, file=sys.stderr)
+
+    netid = session.get("netid")
+    if netid is None:
+        raise NoLoginError
+
     conflicts = database.request.get_conflicts(ex.requestid)
     names = []
     for conflict in conflicts:
-        if conflict[0] == ex.requestid:
-            names.append(database.user.get_name(conflict[0]))
-        else:
+        if conflict[0] == netid:
             names.append(database.user.get_name(conflict[1]))
-    namesString = ', '.join(names)
-    return {
-        "error": type(ex).__name__,
-        "message": "The following requests are in conflict:\n" + namesString,
-        "noRefresh": False
-    }, 400
+        else:
+            names.append(database.user.get_name(conflict[0]))
+
+    if names:
+        if len(names) > 1:
+            namesString = ", ".join(names[:-1]) + ", and " + names[-1] + "."
+        else:
+            namesString = names[0] + "."
+        message = "Warning: accepting this request will cancel pending requests with " + namesString
+    else:
+        message = "Warning: accepting this request may cancel pending requests."
+
+    return {"error": type(ex).__name__, "message": message, "noRefresh": False}, 400
+
 
 @bp.app_errorhandler(database.request.RequestStatusMismatch)
 def request_status_mismatch(ex: database.request.RequestStatusMismatch):

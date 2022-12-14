@@ -30,27 +30,6 @@ function showError(jqXHR) {
   lastrefreshed = 0;
 }
 
-function showOverlapError(jqXHR) {
-  let backdrop = "static";
-  console.log(jqXHR);
-  console.log("got an erro!")
-  if (jqXHR.responseJSON !== undefined) {
-    console.log("got a known error!")
-    if (jqXHR.responseJSON.noRefresh) {
-      backdrop = true;
-    }
-    if (jqXHR.responseJSON.message !== undefined) message = jqXHR.responseJSON.message;
-  }
-  if (backdrop === "static") {
-    window.clearInterval(refreshid);
-    console.log("clearing interval!");
-  }
-  $("#OverlapErrorPopup").modal({"backdrop": backdrop});
-  $("OverlapErrorPopupSpan").html(message);
-  $("#OverlapErrorPopup").modal("show");
-  lastrefreshed = 0;
-}
-
 function showBuddyError() {
   let backdrop = "static";
   let message = "Oops! Please toggle Match Availability in Profile to Open in order to enter Find a Buddy.";

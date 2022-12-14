@@ -192,7 +192,8 @@ def incomingtable():
         if action == "reject":
             database.request.reject(requestid)
         elif action == "accept":
-            database.request.finalize(requestid)
+            print(f"got this confirmed: {request.form.get('confirmed') = }; {request.form.get('confirmed') == 'true'}")
+            database.request.finalize(requestid, ignore_overlap=request.form.get("confirmed") == "true")
             print("finalization finished at", datetime.now(timezone.utc))
             # ADD SMS MESSAGING HERE
             if sendsms.SEND_SMS:
