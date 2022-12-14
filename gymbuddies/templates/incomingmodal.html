@@ -54,14 +54,9 @@
       <div class="row">
         <input id = "modifyRequest" type="hidden" name="destnetid" value="{{ user.netid }}"></input>
         <input id = "requestId" type ="hidden" name="requestid" value="{{requestid}}"></input>
-        <div class="d-flex justify-content-center">
-          <button id="requestButton" type="button" class="btn btn-box px-3 mb-0" onClick="makeRequest()" ><i class="fa-sharp fa-solid fa-pencil me-2 "></i>Modify</button>
-          <button
-          class="btn btn-primary px-3 mb-0"
-          type="submit"
-          onClick="acceptRequest({{ requestid }})"
-        ><i class="fas fa-check me-2" aria-hidden="true"></i>Accept</button>
-
+        <div class="d-flex justify-content-center mt-1">
+          <button id="requestButton" type="button" class="btn btn-box px-3 mb-0 mr-1" onClick="makeRequest()" ><i class="fa-sharp fa-solid fa-pencil me-2 "></i>Modify</button>
+          <button class="btn btn-primary px-3 mb-0 ml-1" type="submit" onClick="acceptRequest({{ requestid }}, false)" ><i class="fas fa-check me-2" aria-hidden="true"></i>Accept</button>
         </div>
       </div>
     </div>

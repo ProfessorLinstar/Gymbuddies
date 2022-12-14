@@ -73,9 +73,11 @@
 
                     <div id="day-schedule"></div>
                     <br>
-                    <!-- <div class="col-md-6">
-                      <button class="btn btn-primary btn-sm ms-auto" type="button" name="update" value="schedule" id="updateCalendar" >Update</button>
-                    </div> -->
+                    <div class="d-flex">
+                      <div class="ms-auto text-end">
+                        <button class="btn btn-sm ms-auto" type="button" id="clearCalendar">Clear</button>
+                      </div>
+                    </div>
 
                   </div> <!-- end of calendar card body-->
                 </div>  <!-- end of calendar card-->
@@ -149,7 +151,12 @@
         return true;
       });
 
-      console.log($("#form").submit);
+
+      $("#clearCalendar").click( function() {
+        console.log("???");
+        $("#day-schedule").data("artsy.dayScheduleSelector").clear();
+      });
+
     }
 
     $("document").ready(setup);

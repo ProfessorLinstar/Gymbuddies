@@ -108,7 +108,6 @@ def profile():
 
 
 @bp.route("/profilecard", methods=["GET", "POST"])
-@error.guard_decorator()
 def profilecard():
     """Profile page for editing user information."""
     netid: str = session.get("netid", "")
@@ -205,7 +204,6 @@ def settings():
     return render_template("settings.html", netid=netid)
 
 @bp.route("/blocksearch", methods=["GET", "POST"])
-@error.guard_decorator()
 def blocksearch():
     """Block search box."""
     netid: str = session.get("netid", "")
@@ -231,7 +229,6 @@ def blocksearch():
     return render_template("blocksearch.html")
 
 @bp.route("/settingsnotifs", methods=["GET", "POST"])
-@error.guard_decorator()
 def settingsnotifs():
     """Settings notification toggle."""
     netid: str = session.get("netid", "")
@@ -268,12 +265,11 @@ def update_requests_matches(netid, blocknetid):
 
 
 @bp.route("/blockedtable", methods=["GET", "POST"])
-@error.guard_decorator()
 def blockedtable():
     """Returns table of blocked people."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("home.index"))
+        raise error.NoLoginError
 
     if request.method == "POST":
         delnetid = request.form.get("delnetid", "")
@@ -300,7 +296,6 @@ def blockedtable():
 
 
 @bp.route("/delete", methods=["POST"])
-@error.guard_decorator()
 def delete():
     """Deletes user"""
     netid: str = session.get("netid", "")
@@ -308,17 +303,17 @@ def delete():
         return redirect(url_for("home.index"))
 
     database.user.delete(netid)
+    # session.clear()
 
     return redirect(url_for("home.index"))
 
 
 @bp.route("/notificationstable", methods=["GET", "POST"])
-@error.guard_decorator()
 def notificationstable():
     """Returns table of blocked people."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("home.index"))
+        raise error.NoLoginError
 
     if common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
         return ""
@@ -332,7 +327,7 @@ def notificationbadge():
     """Returns table of blocked people."""
     netid: str = session.get("netid", "")
     if not netid:
-        return redirect(url_for("home.index"))
+        raise error.NoLoginError
 
     if common.needs_refresh(int(request.args.get("lastrefreshed", 0)), netid):
         return ""

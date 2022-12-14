@@ -1,8 +1,29 @@
 {% set current = "incoming" %}
 {% extends 'layout.html' %}
-{% block title %}Incoming Requests{% endblock %} 
+{% block title %}Incoming Requests{% endblock %}
 
 {% block content %}
+
+<div style="z-index:-1;" class="modal fade bd-example-modal-lg" id="OverlapErrorPopup" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+
+      <div class="modal-body">
+        <div class="card-body">
+          <span id="OverlapErrorPopupSpan"></span>
+        </div>
+      </div>
+      <div class="buttonHolder" textalign="center">
+        <button class="btn btn-primary px-3" type="submit" data-bs-dismiss="modal" onClick="acceptRequest(confirmRequestid, true)"><i class="fas fa-check me-2" aria-hidden="true"></i>Accept</button>
+      </div>
+      <style>.buttonHolder{ text-align: center; }</style>
+
+
+    </div>
+  </div>
+</div>
+
+
 <!-- Popup indicating that the request was successful -->
 <div class="modal fade bd-example-modal-lg" id="requestSent" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
   <div class="modal-dialog modal-md" role="document">
@@ -59,6 +80,8 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
 <script>
+  var confirmRequestid
+
   var csrf_token = "{{ csrf_token() }}";
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
@@ -67,7 +90,7 @@
       }
     }
   });
-  
+
   url_ids.push(["{{ url_for('matching.incomingtable') }}", "#requestTable"]);
 
   function makeRequest() {
@@ -93,7 +116,7 @@
     $("#Popup").modal("hide");
   }
 
-  function acceptRequest(requestid) {
+  function acceptRequest(requestid, confirmed) {
     if (postrequest != null) {
       console.log("postrequest already in process! breaking!");
       return;
@@ -102,7 +125,7 @@
     $("body").addClass("wait");
     postrequest = $.ajax({
       type: "POST",
-      data: { "requestid": requestid, "action": "accept" },
+      data: { "requestid": requestid, "action": "accept", "confirmed": confirmed },
       url: "{{ url_for('matching.incomingtable') }}",
       success: function(response) {
         $("#requestSentSpan").html("Match successfully finalized!");
@@ -114,10 +137,28 @@
         postrequest = null;
         $("body").removeClass("wait");
       },
-      error: error,
+      // error: function(xhr, textstatus, errorthrown) { showOverlapError(xhr); },
+      error: function(xhr, textstatus, errorthrown) { showOverlapError(xhr, requestid); },
       timeout: ajaxtimeout
     })
   }
+
+  function showOverlapError(jqXHR, requestid) {
+    console.log(jqXHR);
+    console.log("requestid:", requestid);
+    if (jqXHR.responseJSON === undefined || jqXHR.responseJSON.error !== "OverlapRequests") {
+      showError(jqXHR);
+      return;
+    }
+    let message = jqXHR.responseJSON.message;
+    confirmRequestid = requestid;
+    console.log("message", message);
+    $("#OverlapErrorPopup").modal({"backdrop": true});
+    $("#OverlapErrorPopupSpan").html(message);
+    $("#OverlapErrorPopup").modal("show");
+    lastrefreshed = 0;
+  }
+
 
   function setup() {
     $("#Popup").on("hide.bs.modal", function() {

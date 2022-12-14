@@ -99,7 +99,6 @@ def findabuddy():
 
 
 @bp.route("/buddies", methods=["GET"])
-@error.guard_decorator()
 def buddies():
     """get the current user in the session"""
     netid: str = session.get("netid", "")
@@ -177,7 +176,6 @@ def incoming():
 
 
 @bp.route("/incomingtable", methods=("GET", "POST"))
-@error.guard_decorator()
 def incomingtable():
     """Table for incoming requests."""
 
@@ -192,7 +190,8 @@ def incomingtable():
         if action == "reject":
             database.request.reject(requestid)
         elif action == "accept":
-            database.request.finalize(requestid)
+            print(f"got this confirmed: {request.form.get('confirmed') = }; {request.form.get('confirmed') == 'true'}")
+            database.request.finalize(requestid, ignore_overlap=request.form.get("confirmed") == "true")
             print("finalization finished at", datetime.now(timezone.utc))
             # ADD SMS MESSAGING HERE
             if sendsms.SEND_SMS:
@@ -238,7 +237,6 @@ def incomingtable():
 
 
 @bp.route("/incomingmodal", methods=["GET", "POST"])
-@error.guard_decorator()
 def incomingmodal():
     """Modal for incoming requests."""
     netid: str = session.get("netid", "")
@@ -327,7 +325,6 @@ def outgoing():
 
 
 @bp.route("/outgoingtable", methods=["POST", "GET"])
-@error.guard_decorator()
 def outgoingtable():
     """Page for viewing outgoing requests."""
     netid: str = session.get("netid", "")
@@ -372,7 +369,6 @@ def matched():
 
 
 @bp.route("/matchedtable", methods=("GET", "POST"))
-@error.guard_decorator()
 def matchedtable():
     """Page for finding matched."""
     netid: str = session.get("netid", "")
@@ -421,7 +417,6 @@ def matchedtable():
 
 
 @bp.route("/matchedmodal", methods=["GET", "POST"])
-@error.guard_decorator()
 def matchedmodal():
     """Modal for modifying matches."""
     print("processing a modifying match request!")
@@ -501,7 +496,6 @@ def unmatchmodal():
                            requestid = requestid)
 
 @bp.route("/historytable", methods=("GET", "POST"))
-@error.guard_decorator()
 def historytable():
     """HTML for matches history table"""
     netid: str = session.get("netid", "")

@@ -36,8 +36,25 @@ def guard_decorator() -> Callable[[Callable[P, R]], Callable[P, R]]:
 
         @functools.wraps(route)
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            response = route(*args, **kwargs)
-            return response
+            try:
+                return route(*args, **kwargs)
+            except database.user.UserNotFound as ex:
+                traceback.print_exception(ex, file=sys.stderr)
+                if ex.netid == session.get("netid"):
+                    session.clear()
+            except database.request.RequestNotFound as ex:
+                traceback.print_exception(ex, file=sys.stderr)
+            except Exception as ex:
+                print("guarded route, uncaught error!")
+                traceback.print_exception(ex, file=sys.stderr)
+                raise InternalServerError
+
+            try:
+                return route(*args, **kwargs)
+            except Exception as ex:
+                print("guarded route, retry error!")
+                traceback.print_exception(ex, file=sys.stderr)
+                raise InternalServerError
 
         return wrapper
 
@@ -146,6 +163,35 @@ def empty_request_schedule(ex):
     }, 400
 
 
+@bp.app_errorhandler(database.request.OverlapRequests)
+def overlapRequests(ex: database.request.OverlapRequests):
+    """Application handler for when attempting to create a request with no selected times."""
+    traceback.print_exception(ex, file=sys.stderr)
+
+    netid = session.get("netid")
+    if netid is None:
+        raise NoLoginError
+
+    conflicts = database.request.get_conflicts(ex.requestid)
+    names = []
+    for conflict in conflicts:
+        if conflict[0] == netid:
+            names.append(database.user.get_name(conflict[1]))
+        else:
+            names.append(database.user.get_name(conflict[0]))
+
+    if names:
+        if len(names) > 1:
+            namesString = ", ".join(names[:-1]) + ", and " + names[-1] + "."
+        else:
+            namesString = names[0] + "."
+        message = "Warning: accepting this request will cancel pending requests with " + namesString
+    else:
+        message = "Warning: accepting this request may cancel pending requests."
+
+    return {"error": type(ex).__name__, "message": message, "noRefresh": False}, 400
+
+
 @bp.app_errorhandler(database.request.RequestStatusMismatch)
 def request_status_mismatch(ex: database.request.RequestStatusMismatch):
     """Application handler for when attempting to perform an operation on a request with a
@@ -201,7 +247,7 @@ def sqlalchemy_operational_error(ex):
 
 
 @bp.app_errorhandler(Exception)
-def internal_server_error(ex: Exception):
+def uncaught_exception(ex: Exception):
     """Application error handler for when an unexpected error occurs."""
 
     traceback.print_exception(ex, file=sys.stderr)
@@ -211,4 +257,4 @@ def internal_server_error(ex: Exception):
         code = ex.code
         return ex.get_body(), code
     else:
-        raise InternalServerError
+        return "", 500

@@ -253,7 +253,9 @@
         </div>
       </div>
 
-      {% block content %}{% endblock %}
+      <div id="main-content">
+        {% block content %}{% endblock %}
+      </div>
 
       <!-- footer -->
       <footer class="footer pt-3  ">
@@ -331,33 +333,11 @@
 
       setup_refresh(url_ids)
 
-      $('.modal').on('hidden.bs.modal', function(event) {
-        $(this).removeClass( 'fv-modal-stack' );
-        $('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) - 1 );
+      $(document).on('show.bs.modal', '.modal', function() {
+      const zIndex = 1040 + 10 * $('.modal:visible').length;
+      $(this).css('z-index', zIndex);
+      setTimeout(() => $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack'));
       });
-
-      $('.modal').on('shown.bs.modal', function (event) {
-        // keep track of the number of open modals
-        console.log("handling shown modal!")
-        if ( typeof( $('body').data( 'fv_open_modals' ) ) == 'undefined' ) {
-          $('body').data( 'fv_open_modals', 0 );
-        }
-        // if the z-index of this modal has been set, ignore.
-        if ($(this).hasClass('fv-modal-stack')) return;
-        $(this).addClass('fv-modal-stack');
-        $('body').data('fv_open_modals', $('body').data('fv_open_modals' ) + 1 );
-        $('.modal-backdrop').not('.fv-modal-stack').css('z-index', 1039 + (10 * $('body').data('fv_open_modals')));
-        $('.modal-backdrop').not('fv-modal-stack').addClass('fv-modal-stack'); 
-      });
-
-      var win = navigator.platform.indexOf('Win') > -1;
-      if (win && document.querySelector('#sidenav-scrollbar')) {
-        var options = {
-          damping: '0.5'
-        }
-        Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-      }
-
     }
 
     $('document').ready(setup)
