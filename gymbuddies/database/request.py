@@ -79,6 +79,15 @@ class EmptyRequestSchedule(Exception):
     def __init__(self):
         super().__init__("Invalid request schedule. Request must have one or more selected blocks.")
 
+class OverlapRequests(Exception):
+    """Exception raised in API call if request overlaps with others."""
+
+    requestid: int
+
+    def __init__(self, requestid: int):
+        self.requestid = requestid
+        super().__init__("Invalid request schedule. Request must have one or more selected blocks.")
+        
 
 class ConflictingRequestSchedule(Exception):
     """Exception raised in API call if request made with conflicting schedules."""
@@ -409,6 +418,18 @@ def finalize(requestid: int, *, session: Optional[Session] = None) -> None:
     """finalize the request by approving the accept request"""
     assert session is not None
     request = _get(session, requestid)
+
+    for netid in (request.srcnetid, request.destnetid):
+        # schedulemod.add_schedule_status(netid,
+        #                                 request.schedule,
+        #                                 db.ScheduleStatus.MATCHED,
+        #                                 session=session)
+        for active in get_active_single(netid, session=session):
+            if active.requestid == request.requestid:
+                continue
+            if any(x and y for x, y in zip(request.schedule, active.schedule)):
+                raise OverlapRequests(requestid)
+
     if request.status != db.RequestStatus.PENDING:
         raise RequestStatusMismatch(db.RequestStatus(request.status), db.RequestStatus.PENDING)
 

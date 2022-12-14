@@ -105,7 +105,8 @@
         postrequest = null;
         $("body").removeClass("wait");
       },
-      error: error,
+      // error: function(xhr, textstatus, errorthrown) { showOverlapError(xhr); },
+      error: function(xhr, textstatus, errorthrown) { showOverlapError(xhr); },
       timeout: ajaxtimeout
     })
   }
