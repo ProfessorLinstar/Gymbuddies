@@ -7,13 +7,12 @@ import flask
 from flask import Blueprint
 from flask import session, request, g
 from flask import render_template, redirect, url_for
-from . import error
 from . import database
 from .database import user
 
 _CAS_URL = 'https://fed.princeton.edu/cas/'
 
-USE_CAS = False
+USE_CAS = True
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
