@@ -11,6 +11,7 @@ from .database import db
 import re
 import urllib.request
 import urllib.parse
+import flask_wtf.csrf
 
 # import random
 # from sqlalchemy.exc import OperationalError
@@ -298,7 +299,7 @@ def blockedtable():
 
     return render_template("blockedtable.html", netid=netid, blockedusers=users, length=length)
 
-
+@flask_wtf.csrf.exempt
 @bp.route("/delete", methods=["POST"])
 def delete():
     """Deletes user"""
