@@ -5,11 +5,11 @@ from twilio.rest import Client
 
 SEND_SMS = True
 
-NEW_REQUEST_MESSAGE = "Hello from Gymbuddies. You have recieved a new match request from $username$ ($netid$)!"
+NEW_REQUEST_MESSAGE = "Hello from Gymbuddies. You have received a new match request from $username$ ($netid$)!"
 
 FINALIZE_REQUEST_MESSAGE = "Hello from Gymbuddies. Congratulations, your match with $username$ ($netid$)! has been finalized"
 
-MODIFY_REQUEST_MESSAGE = "Hello from Gymbuddies. You have recieved an updated match request from $username$ ($netid$)!"
+MODIFY_REQUEST_MESSAGE = "Hello from Gymbuddies. You have received an updated match request from $username$ ($netid$)!"
 
 MATCH_TERMINATE_MESSAGE = "Hello from Gymbuddies. Your match with $username$ ($netid$) has been cancelled"
 
