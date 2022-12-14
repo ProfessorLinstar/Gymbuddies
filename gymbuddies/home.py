@@ -1,12 +1,16 @@
 """Home page blueprint."""
+import flask
 from typing import Any, Dict
 from flask import Blueprint
 from flask import session, g
 from flask import request
 from flask import render_template, redirect, url_for
-from . import common, error
+from . import common, error, auth
 from . import database
 from .database import db
+import re
+import urllib.request
+import urllib.parse
 
 # import random
 # from sqlalchemy.exc import OperationalError
@@ -305,7 +309,12 @@ def delete():
     database.user.delete(netid)
     # session.clear()
 
-    return redirect(url_for("home.index"))
+    if auth.USE_CAS:
+        logout_url = (auth._CAS_URL + "logout?service=" +
+                      urllib.parse.quote(re.sub("logout", "logoutapp", flask.request.url)))
+        flask.abort(flask.redirect(logout_url))
+    else:
+        return redirect(url_for("home.index"))
 
 
 @bp.route("/notificationstable", methods=["GET", "POST"])
