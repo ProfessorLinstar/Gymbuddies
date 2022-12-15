@@ -61,7 +61,7 @@ def login():
         response = f"Netid '{request.form['netid']}' was not found in the database."
         return render_template("login.html", response=response)
     else:
-        return redirect(url_for("home.newuser"))
+        return redirect(url_for("auth.signup"))
 
 
 @bp.route("/logout")
