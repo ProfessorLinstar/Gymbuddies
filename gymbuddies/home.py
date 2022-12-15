@@ -11,7 +11,6 @@ from .database import db
 import re
 import urllib.request
 import urllib.parse
-import flask_wtf.csrf
 
 # import random
 # from sqlalchemy.exc import OperationalError
@@ -299,7 +298,6 @@ def blockedtable():
 
     return render_template("blockedtable.html", netid=netid, blockedusers=users, length=length)
 
-@flask_wtf.csrf.exempt
 @bp.route("/delete", methods=["POST"])
 def delete():
     """Deletes user"""
@@ -307,15 +305,9 @@ def delete():
     if not netid:
         return redirect(url_for("home.index"))
 
-    if not auth.USE_CAS:
-        database.user.delete(netid)
-        # session.clear()
-        return redirect(url_for("home.index"))
-
-    else:
-        database.user.delete(netid)
-        logout_url = (auth._CAS_URL + 'logout?service=' + urllib.parse.quote(re.sub('home.delete', 'deletelogoutapp', flask.request.url)))
-        flask.abort(flask.redirect(logout_url))
+    database.user.delete(netid)
+    # session.clear()
+    return redirect(url_for("home.index"))
 
 
 @bp.route("/notificationstable", methods=["GET", "POST"])
