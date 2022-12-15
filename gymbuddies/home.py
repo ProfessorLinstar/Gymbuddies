@@ -307,7 +307,10 @@ def delete():
 
     database.user.delete(netid)
     # session.clear()
-    return redirect(url_for("home.index"))
+    if auth.USE_CAS:
+        return redirect(url_for("auth.logout"))
+    else:
+        return redirect(url_for("home.index"))
 
 
 @bp.route("/notificationstable", methods=["GET", "POST"])
