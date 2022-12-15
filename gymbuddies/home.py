@@ -306,7 +306,7 @@ def delete():
         return redirect(url_for("home.index"))
 
     database.user.delete(netid)
-    # session.clear()
+    session.clear()
     if auth.USE_CAS:
         return redirect(url_for("auth.logout"))
     else:
