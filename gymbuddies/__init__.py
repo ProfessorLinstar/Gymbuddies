@@ -17,7 +17,7 @@ def create_app():
     app.config.from_mapping(SECRET_KEY=os.getenv("FLASK_SECRET_KEY", "dev"))
 
     app.register_blueprint(home.bp)
-    app.register_blueprint(master.bp)
+    # app.register_blueprint(master.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(matching.bp)
     app.register_blueprint(error.bp)
