@@ -20,7 +20,7 @@ bp = Blueprint("matching", __name__, url_prefix="/matching")
 
 
 @bp.route("/findabuddy", methods=("GET", "POST"))
-@error.guard_decorator()
+# @error.guard_decorator()
 def findabuddy():
     # get the current user in the session
     netid: str = session.get("netid", "")
